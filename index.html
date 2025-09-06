@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PetGo — Tudo para o seu pet</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #fafafa;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --primary: #FF914D;
+      --primary-600: #ff7d2e;
+      --accent: #5BC0F8;
+      --accent-100:#E6F5FE;
+      --ring: rgba(17,24,39,.08);
+      --radius: 16px;
+      --shadow: 0 10px 20px rgba(2, 6, 23, 0.06), 0 2px 6px rgba(2,6,23,0.06);
+      --shadow-lg: 0 20px 40px rgba(2, 6, 23, 0.10), 0 6px 14px rgba(2,6,23,0.08);
+      --maxw: 1200px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter, sans-serif;}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:var(--maxw);margin-inline:auto;padding:24px}
+    header{position:sticky;top:0;background:rgba(250,250,250,.8);backdrop-filter:saturate(1.2) blur(10px);border-bottom:1px solid rgba(2,6,23,.06);z-index:50}
+    .header-inner{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .logo{display:flex;align-items:center;gap:10px;font-family:Poppins, sans-serif;font-weight:800;font-size:24px}
+    .logo .paw{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#8fd3fe);display:grid;place-items:center;color:#034b72;font-weight:900}
+    nav{display:flex;gap:18px;flex-wrap:wrap}
+    nav a{font-weight:600;color:#0f172a;opacity:.85}
+    nav a:hover{opacity:1}
+    .actions{display:flex;gap:12px;align-items:center}
+
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:999px;padding:12px 18px;font-weight:700;cursor:pointer;transition:transform .18s ease, box-shadow .18s ease, background .18s ease;box-shadow:var(--shadow);background:var(--card)}
+    .btn.primary{background:var(--primary);color:white}
+    .btn.primary:hover{background:var(--primary-600);box-shadow:var(--shadow-lg)}
+
+    /* HERO */
+    .hero{padding:48px 24px}
+    .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+    .title{font-family:Poppins, sans-serif;font-size:48px;line-height:1.05;margin:0 0 12px}
+    .subtitle{font-size:18px;color:var(--muted);margin:0 0 24px}
+    .cta-row{display:flex;gap:12px;flex-wrap:wrap}
+    .hero-visual{position:relative;min-height:300px;border-radius:28px;background:radial-gradient(120% 120% at 100% 0%, var(--accent-100) 0%, #fff 60%);box-shadow:var(--shadow);display:grid;place-items:center}
+    .pet-blob{width:85%;max-width:480px}
+
+    /* SECTION */
+    section{padding:24px}
+    .section-title{font-family:Poppins, sans-serif;font-size:28px;margin:0 0 18px}
+
+    /* CARDS */
+    .grid{display:grid;gap:16px}
+    .grid.cols-4{grid-template-columns:repeat(4,1fr)}
+    .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+    .card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);transition:transform .18s ease, box-shadow .18s ease}
+    .card h4{margin:10px 0 6px;font-size:18px}
+    .price{font-weight:800}
+
+    /* SERVICES */
+    .service{display:flex;flex-direction:column;gap:10px}
+    .service .icon{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg, var(--accent), #8fd3fe);display:grid;place-items:center;font-size:28px;color:#053e60}
+
+    /* ADOCAO */
+    .adocao{background:var(--accent-100);border-radius:28px;padding:24px}
+    .scroll{display:grid;grid-auto-flow:column;grid-auto-columns:220px;gap:14px;overflow:auto;padding-bottom:8px}
+    .pet{display:flex;flex-direction:column;gap:8px}
+    .avatar{width:100%;aspect-ratio:1/1;border-radius:18px;background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" rx="20" fill="%23f2f2f2"/><text x="50%" y="52%" font-family="Verdana" font-size="12" fill="%23999999" text-anchor="middle">pet</text></svg>') center/60% no-repeat;box-shadow:var(--shadow)}
+
+    /* DEPOIMENTOS */
+    .testimonials{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .quote{font-size:14px;color:var(--muted)}
+
+    /* FOOTER */
+    footer{margin-top:40px;border-top:1px solid rgba(2,6,23,.06);}
+    .footer-inner{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;padding:24px}
+    .links{display:flex;flex-direction:column;gap:8px}
+    .social{display:flex;gap:10px}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:#fff;box-shadow:var(--shadow)}
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <div class="logo"><span class="paw">🐾</span> PetGo</div>
+      <nav>
+        <a href="#inicio">Início</a>
+        <a href="PetGo_v2_pag02.html">Produtos</a>
+        <a href="#servicos">Serviços</a>
+        <a href="#adocao">Adoção</a>
+        <a href="#contato">Contato</a>
+      </nav>
+      <div class="actions">
+        <button class="btn">Entrar</button>
+        <button class="btn primary">Agende um serviço</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="inicio" class="container">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <h1 class="title">Tudo para o bem-estar do seu pet em um só lugar 🐾</h1>
+          <p class="subtitle">Produtos, serviços e adoção, com a tecnologia PetGo para cuidar de quem você ama.</p>
+          <div class="cta-row">
+            <button class="btn primary">Comprar agora</button>
+            <button class="btn">Conheça nossos serviços</button>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+        <img src="C:\Users\ppess\OneDrive\Área de Trabalho\logo.png" alt="Logo PetGo" style="max-width:100%; border-radius:16px;">
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUTOS -->
+    <section id="produtos">
+      <h3 class="section-title">Produtos em Destaque</h3>
+      <div class="grid cols-4"> 
+        <article class="card">
+          <div class="badge">🛍️ Ração premium</div>
+          <h4>Ração</h4>
+          <div class="price">a partir de R$ 89,99</div>
+          <div style="height:10px"></div>
+          <a href="PetGo_v2_pag02.html" class="btn primary">Ver mais</a>
+        </article>
+        <article class="card">
+          <div class="badge">🧸 Diversão</div>
+          <h4>Brinquedos</h4>
+          <div class="price">a partir de R$ 25,00</div>
+          <div style="height:10px"></div>
+          <a href="brinquedos.html" class="btn primary">Ver mais</a>
+        </article>
+        <article class="card">
+          <div class="badge">🛏️ Conforto</div>
+          <h4>Camas</h4>
+          <div class="price">a partir de R$ 129,00</div>
+          <div style="height:10px"></div>
+          <a href="camas.html" class="btn primary">Ver mais</a>
+        </article>
+        <article class="card">
+          <div class="badge">⛓️ Coleiras</div>
+          <h4>Coleiras</h4>
+          <div class="price">a partir de R$ 49,00</div>
+          <div style="height:10px"></div>
+          <a href="coleiras.html" class="btn primary">Ver mais</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- SERVIÇOS -->
+    <section id="servicos">
+      <h3 class="section-title">Serviços</h3>
+      <div class="grid cols-3">
+        <article class="card service">
+          <div class="icon">🛁</div>
+          <h4>Banho & Tosa</h4>
+          <p class="subtitle">Cuidados completos com conforto e carinho.</p>
+          <button class="btn primary">Agendar</button>
+        </article>
+        <article class="card service">
+          <div class="icon">🩺</div>
+          <h4>Veterinário Online</h4>
+          <p class="subtitle">Orientação rápida por chamada de vídeo.</p>
+          <button class="btn primary">Agendar</button>
+        </article>
+        <article class="card service">
+          <div class="icon">🐕</div>
+          <h4>Passeio PetGo</h4>
+          <p class="subtitle">Passeadores verificados, quando você precisar.</p>
+          <button class="btn primary">Agendar</button>
+        </article>
+      </div>
+    </section>
+
+    <!-- ADOÇÃO -->
+    <section id="adocao" class="adocao">
+      <h3 class="section-title">Adoção</h3>
+      <p class="subtitle">Dê um novo lar para um amigo de quatro patas 💙</p>
+      <div class="scroll">
+        <article class="card pet">
+          <img class="avatar" src="C:\Users\ppess\OneDrive\Área de Trabalho\Dom.jpg" alt="Dom">
+          <div><strong>Dom</strong><br><span class="subtitle">5 ano • macho</span></div>
+          <button class="btn">Adotar</button>
+        </article>
+        <article class="card pet">
+          <img class="avatar" src="C:\Users\ppess\OneDrive\Área de Trabalho\Pirata.jpg" alt="Pirata">
+          <div><strong>Pirata</strong><br><span class="subtitle">2 anos • macho</span></div>
+          <button class="btn">Adotar</button>
+        </article>
+        <article class="card pet">
+          <img class="avatar" src="C:\Users\ppess\OneDrive\Área de Trabalho\Mel.jpg" alt="Mel">
+          <div><strong>Mel</strong><br><span class="subtitle">1 meses • fêmea</span></div>
+          <button class="btn">Adotar</button>
+        </article>
+        <article class="card pet">
+          <img class="avatar" src="C:\Users\ppess\OneDrive\Área de Trabalho\Rex.jpg" alt="Rex">
+          <div><strong>Rex</strong><br><span class="subtitle">10 anos • macho</span></div>
+          <button class="btn">Adotar</button>
+        </article>
+        <article class="card pet">
+          <img class="avatar" src="C:\Users\ppess\OneDrive\Área de Trabalho\Chico.jpg" alt="Chico">
+          <div><strong>Chico</strong><br><span class="subtitle">2 anos • macho</span></div>
+          <button class="btn">Adotar</button>
+        </article>
+        </article>
+        <article class="card pet">
+          <img class="avatar" src="C:\Users\ppess\OneDrive\Área de Trabalho\CarmemLucia.jpg" alt="CarmemLucia">
+          <div><strong>Carmem Lucia</strong><br><span class="subtitle">2 anos • fêmea</span></div>
+          <button class="btn">Adotar</button>
+        </article>
+        </article>
+        <article class="card pet">
+          <img class="avatar" src="C:\Users\ppess\OneDrive\Área de Trabalho\Ollie.jpg" alt="Ollie">
+          <div><strong>Ollie</strong><br><span class="subtitle">10 anos • macho</span></div>
+          <button class="btn">Adotar</button>
+        </article>
+      </div>
+    </section> 
+
+    <!-- DEPOIMENTOS -->
+    <section>
+      <h3 class="section-title">Depoimentos</h3>
+      <div class="testimonials">
+        <article class="card">
+          <strong>Luir Oliveira</strong>
+          <p class="quote">“Experiência excelente com a PetGo! Atendimento rápido e cuidadoso.”</p>
+        </article>
+        <article class="card">
+          <strong>Maria Costa</strong>
+          <p class="quote">“Agendei banho e tosa pelo site e foi super prático.”</p>
+        </article>
+        <article class="card">
+          <strong>Carlos Almeida</strong>
+          <p class="quote">“Encontrei meu melhor amigo na seção de adoção ♥.”</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer id="contato">
+    <div class="container footer-inner">
+      <div>
+        <div class="logo"><span class="paw">🐾</span> PetGo</div>
+        <p class="subtitle">Cuidando do seu pet com carinho e tecnologia.</p>
+      </div>
+      <div class="links">
+        <strong>Links</strong>
+        <a href="#">Sobre</a>
+        <a href="#">FAQ</a>
+        <a href="#">Política de Privacidade</a>
+      </div>
+      <div>
+        <strong>Novidades</strong>
+        <p class="subtitle">Receba ofertas e novidades.</p>
+        <form onsubmit="event.preventDefault(); alert('Inscrição realizada!');">
+          <input type="email" placeholder="Seu e-mail" required>
+          <button class="btn primary" type="submit">Cadastrar</button>
+        </form>
+        <div class="social">
+          <span class="badge">📸 Instagram</span>
+          <span class="badge">🎵 TikTok</span>
+          <span class="badge">📘 Facebook</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

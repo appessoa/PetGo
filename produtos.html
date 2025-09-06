@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PetGo — Rações</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    /* ===== estilos globais do site (mesmo da página inicial) ===== */
+    :root{
+      --bg: #fafafa;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --primary: #FF914D;
+      --primary-600: #ff7d2e;
+      --accent: #5BC0F8;
+      --accent-100:#E6F5FE;
+      --ring: rgba(17,24,39,.08);
+      --radius: 16px;
+      --shadow: 0 10px 20px rgba(2, 6, 23, 0.06), 0 2px 6px rgba(2,6,23,0.06);
+      --shadow-lg: 0 20px 40px rgba(2, 6, 23, 0.10), 0 6px 14px rgba(2,6,23,0.08);
+      --maxw: 1200px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter, sans-serif;}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:var(--maxw);margin-inline:auto;padding:24px}
+
+    /* header/footer iguais */
+    header{position:sticky;top:0;background:rgba(250,250,250,.8);backdrop-filter:saturate(1.2) blur(10px);border-bottom:1px solid rgba(2,6,23,.06);z-index:50}
+    .header-inner{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .logo{display:flex;align-items:center;gap:10px;font-family:Poppins, sans-serif;font-weight:800;font-size:24px}
+    .logo .paw{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#8fd3fe);display:grid;place-items:center;color:#034b72;font-weight:900}
+    nav{display:flex;gap:18px;flex-wrap:wrap}
+    nav a{font-weight:600;color:#0f172a;opacity:.85}
+    nav a:hover{opacity:1}
+    .actions{display:flex;gap:12px;align-items:center}
+
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:999px;padding:12px 18px;font-weight:700;cursor:pointer;transition:transform .18s ease, box-shadow .18s ease, background .18s ease;box-shadow:var(--shadow);background:var(--card)}
+    .btn.primary{background:var(--primary);color:white}
+    .btn.primary:hover{background:var(--primary-600);box-shadow:var(--shadow-lg)}
+
+    /* produtos */
+    section{padding:32px 24px}
+    .section-title{font-family:Poppins, sans-serif;font-size:28px;margin:0 0 24px}
+    .grid{display:grid;gap:20px}
+    .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+
+    .product-card{display:flex;align-items:center;justify-content:space-between;background:var(--card);padding:18px;border-radius:var(--radius);box-shadow:var(--shadow);transition:transform .18s ease}
+    .product-card:hover{transform:translateY(-4px)}
+    .product-info{max-width:60%}
+    .product-info h4{margin:0 0 6px;font-size:18px}
+    .product-info .price{font-weight:800;font-size:16px;margin-bottom:10px}
+    .product-img{width:120px;height:120px;object-fit:contain;border-radius:12px;background:#f8f8f8}
+    footer{margin-top:40px;border-top:1px solid rgba(2,6,23,.06);}
+    .footer-inner{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;padding:24px}
+    .links{display:flex;flex-direction:column;gap:8px}
+    .social{display:flex;gap:10px}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:#fff;box-shadow:var(--shadow)}
+  </style>
+</head>
+<body>
+  <!-- header oficial -->
+  <header>
+    <div class="container header-inner">
+      <div class="logo"><span class="paw">🐾</span> PetGo</div>
+      <nav>
+        <a href="PetGo_v2.html">Início</a>
+        <a href="index.html#produtos">Produtos</a>
+        <a href="index.html#servicos">Serviços</a>
+        <a href="index.html#adocao">Adoção</a>
+        <a href="#contato">Contato</a>
+      </nav>
+      <div class="actions">
+        <button class="btn">Entrar</button>
+        <button class="btn primary">Agende um serviço</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- RAÇÃO GATOS -->
+    <section>
+      <h3 class="section-title">Ração para Gatos</h3>
+      <div class="grid cols-3">
+        <article class="product-card">
+          <div class="product-info">
+            <h4>Ração Premium Gatos Filhotes</h4>
+            <div class="price">R$ 89,90</div>
+            <button class="btn primary">Adicionar ao Carrinho</button>
+          </div>
+          <img src="img/racao-gato1.png" alt="Ração Gato 1" class="product-img">
+        </article>
+        <article class="product-card">
+          <div class="product-info">
+            <h4>Ração Golden Gatos Adultos</h4>
+            <div class="price">R$ 119,90</div>
+            <button class="btn primary">Adicionar ao Carrinho</button>
+          </div>
+          <img src="img/racao-gato2.png" alt="Ração Gato 2" class="product-img">
+        </article>
+        <article class="product-card">
+          <div class="product-info">
+            <h4>Ração Seca Natural Gatos</h4>
+            <div class="price">R$ 99,90</div>
+            <button class="btn primary">Adicionar ao Carrinho</button>
+          </div>
+          <img src="img/racao-gato3.png" alt="Ração Gato 3" class="product-img">
+        </article>
+      </div>
+    </section>
+
+    <!-- RAÇÃO CACHORROS -->
+    <section>
+      <h3 class="section-title">Ração para Cachorros</h3>
+      <div class="grid cols-3">
+        <article class="product-card">
+          <div class="product-info">
+            <h4>Ração Golden Cães Adultos</h4>
+            <div class="price">R$ 149,90</div>
+            <button class="btn primary">Adicionar ao Carrinho</button>
+          </div>
+          <img src="C:\Users\ppess\OneDrive\Área de Trabalho\Pacote01.png" alt="Ração Cachorro 1" class="product-img">
+        </article>
+        <article class="product-card">
+          <div class="product-info">
+            <h4>Ração Premier Cães Filhotes</h4>
+            <div class="price">R$ 189,90</div>
+            <button class="btn primary">Adicionar ao Carrinho</button>
+          </div>
+          <img src="img/racao-cachorro2.png" alt="Ração Cachorro 2" class="product-img">
+        </article>
+        <article class="product-card">
+          <div class="product-info">
+            <h4>Ração Light Cães Pequenos</h4>
+            <div class="price">R$ 134,90</div>
+            <button class="btn primary">Adicionar ao Carrinho</button>
+          </div>
+          <img src="img/racao-cachorro3.png" alt="Ração Cachorro 3" class="product-img">
+        </article>
+      </div>
+    </section>
+
+    <!-- AVES -->
+    <section>
+      <h3 class="section-title">Ração para Aves</h3>
+      <div class="grid cols-3">
+        <article class="product-card">
+          <div class="product-info">
+            <h4>Ração Canários Premium</h4>
+            <div class="price">R$ 24,90</div>
+            <button class="btn primary">Adicionar ao Carrinho</button>
+          </div>
+          <img src="img/racao-ave1.png" alt="Ração Aves 1" class="product-img">
+        </article>
+        <article class="product-card">
+          <div class="product-info">
+            <h4>Ração Papagaio Nutritiva</h4>
+            <div class="price">R$ 39,90</div>
+            <button class="btn primary">Adicionar ao Carrinho</button>
+          </div>
+          <img src="img/racao-ave2.png" alt="Ração Aves 2" class="product-img">
+        </article>
+        <article class="product-card">
+          <div class="product-info">
+            <h4>Mix de Sementes Pássaros</h4>
+            <div class="price">R$ 29,90</div>
+            <button class="btn primary">Adicionar ao Carrinho</button>
+          </div>
+          <img src="img/racao-ave3.png" alt="Ração Aves 3" class="product-img">
+        </article>
+      </div>
+    </section>
+
+    <!-- PETISCOS -->
+    <section>
+      <h3 class="section-title">Petiscos & Sachês</h3>
+      <div class="grid cols-3">
+        <article class="product-card">
+          <div class="product-info">
+            <h4>Sachê Gatos Frango ao Molho</h4>
+            <div class="price">R$ 4,90</div>
+            <button class="btn primary">Adicionar ao Carrinho</button>
+          </div>
+          <img src="img/sache-gato1.png" alt="Sachê Gato" class="product-img">
+        </article>
+        <article class="product-card">
+          <div class="product-info">
+            <h4>Petisco Cães Ossinho</h4>
+            <div class="price">R$ 12,90</div>
+            <button class="btn primary">Adicionar ao Carrinho</button>
+          </div>
+          <img src="img/petisco-cachorro1.png" alt="Petisco Cachorro" class="product-img">
+        </article>
+        <article class="product-card">
+          <div class="product-info">
+            <h4>Sachê Gourmet Cães Adultos</h4>
+            <div class="price">R$ 6,90</div>
+            <button class="btn primary">Adicionar ao Carrinho</button>
+          </div>
+          <img src="img/sache-cachorro1.png" alt="Sachê Cachorro" class="product-img">
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <!-- footer oficial -->
+  <footer id="contato">
+    <div class="container footer-inner">
+      <div>
+        <div class="logo"><span class="paw">🐾</span> PetGo</div>
+        <p class="subtitle">Cuidando do seu pet com carinho e tecnologia.</p>
+      </div>
+      <div class="links">
+        <strong>Links</strong>
+        <a href="#">Sobre</a>
+        <a href="#">FAQ</a>
+        <a href="#">Política de Privacidade</a>
+      </div>
+      <div>
+        <strong>Novidades</strong>
+        <p class="subtitle">Receba ofertas e novidades.</p>
+        <form onsubmit="event.preventDefault(); alert('Inscrição realizada!');">
+          <input type="email" placeholder="Seu e-mail" required>
+          <button class="btn primary" type="submit">Cadastrar</button>
+        </form>
+        <div class="social">
+          <span class="badge">📸 Instagram</span>
+          <span class="badge">🎵 TikTok</span>
+          <span class="badge">📘 Facebook</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
