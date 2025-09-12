@@ -1,0 +1,28 @@
+PetGo/
+│
+├── models/
+│   └── categoria.js
+│   └── produto.js
+│
+├── controllers/
+│   └── produtoController.js
+│   └── categoriaController.js
+│
+├── views/
+│   └── produtos/
+│       ├── index.ejs
+│       ├── detalhes.ejs
+│       ├── criar.ejs
+│       └── editar.ejs
+│
+├── routes/
+│   └── produtoRoutes.js
+│   └── categoriaRoutes.js
+│
+├── public/
+│   ├── css/
+│   ├── js/
+│   └── images/
+│
+├── app.js
+└── package.json
