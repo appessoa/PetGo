@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PetGo Health — Carteira Digital</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    /* ====== Variáveis e base (mesmo visual do site) ====== */
+    :root{
+      --bg: #fafafa;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --primary: #FF914D;
+      --primary-600: #ff7d2e;
+      --accent: #5BC0F8;
+      --accent-100:#E6F5FE;
+      --radius: 12px;
+      --shadow: 0 8px 20px rgba(2,6,23,0.06);
+      --maxw: 1200px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter, sans-serif;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:var(--maxw);margin-inline:auto;padding:24px}
+    header{position:sticky;top:0;background:rgba(250,250,250,.95);backdrop-filter:saturate(1.2) blur(6px);border-bottom:1px solid rgba(2,6,23,.06);z-index:50}
+    .header-inner{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .logo{display:flex;align-items:center;gap:10px;font-family:Poppins, sans-serif;font-weight:800;font-size:24px}
+    .logo .paw{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#8fd3fe);display:grid;place-items:center;color:#034b72;font-weight:900}
+    nav{display:flex;gap:18px;flex-wrap:wrap}
+    nav a{font-weight:600;color:#0f172a;opacity:.85}
+    .actions{display:flex;gap:12px;align-items:center}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:999px;padding:10px 14px;font-weight:700;cursor:pointer;transition:transform .18s ease, box-shadow .18s ease, background .18s ease;background:var(--card);box-shadow:var(--shadow)}
+    .btn.primary{background:var(--primary);color:white}
+    .btn.ghost{background:transparent;border:1px solid rgba(15,23,42,.06)}
+    main{padding:24px}
+    h1{font-family:Poppins, sans-serif;margin:0 0 12px;font-size:28px}
+    p.lead{color:var(--muted);margin:0 0 20px}
+
+    /* Layout principal */
+    .layout{display:grid;grid-template-columns:320px 1fr;gap:24px}
+    @media (max-width:900px){ .layout{grid-template-columns:1fr} .sidebar{order:2} .content{order:1} }
+
+    /* Sidebar (lista de pets + novo pet) */
+    .sidebar{background:var(--card);padding:16px;border-radius:12px;box-shadow:var(--shadow)}
+    .pet-list{display:flex;flex-direction:column;gap:10px}
+    .pet-item{display:flex;gap:10px;align-items:center;padding:8px;border-radius:10px;cursor:pointer}
+    .pet-item.active{background:linear-gradient(90deg,#fff8f1,#fff)}
+    .pet-avatar{width:48px;height:48px;border-radius:10px;object-fit:cover;background:#f2f7fb}
+    .muted{color:var(--muted);font-size:13px}
+
+    .small-input{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(2,6,23,0.06);margin-bottom:8px}
+    .row{display:flex;gap:8px}
+    .row .small-input{flex:1}
+
+    /* Content: detalhe do pet */
+    .card{background:var(--card);padding:18px;border-radius:12px;box-shadow:var(--shadow)}
+    .pet-header{display:flex;gap:18px;align-items:center}
+    .pet-photo{width:120px;height:120px;border-radius:12px;object-fit:cover;background:#f6f9fc}
+    .pet-meta h2{margin:0;font-size:20px}
+    .pet-meta p{margin:6px 0;color:var(--muted)}
+
+    /* timeline & forms */
+    .section{margin-top:18px}
+    .section h3{margin:0 0 12px;font-size:18px}
+    .form-row{display:flex;gap:10px;flex-wrap:wrap}
+    .form-row input[type="text"], .form-row input[type="date"], .form-row select, textarea {padding:10px;border-radius:8px;border:1px solid rgba(2,6,23,0.06);flex:1}
+    textarea{min-height:80px}
+    .timeline{display:flex;flex-direction:column;gap:12px}
+    .timeline-item{background:#fff;border-radius:10px;padding:12px;border:1px solid rgba(2,6,23,0.04)}
+    .timeline-item .meta{color:var(--muted);font-size:13px}
+
+    /* uploads */
+    .uploads{display:flex;gap:10px;flex-wrap:wrap}
+    .upload-thumb{width:96px;height:96px;border-radius:8px;object-fit:cover;border:1px solid rgba(2,6,23,0.06)}
+
+    /* notice */
+    .notice{background:#fff9e6;border-left:4px solid var(--primary);padding:12px;border-radius:8px;margin-bottom:12px;color:#5a3b00}
+
+    footer{margin-top:40px;border-top:1px solid rgba(2,6,23,.06);}
+    .footer-inner{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;padding:24px}
+    .links{display:flex;flex-direction:column;gap:8px}
+    .social{display:flex;gap:10px}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:#fff;box-shadow:var(--shadow)}
+  </style>
+</head>
+<body>
+  <!-- header oficial (copiado) -->
+  <header>
+    <div class="container header-inner">
+      <div class="logo"><span class="paw">🐾</span> PetGo</div>
+      <nav>
+        <a href="#inicio">Início</a>
+        <a href="#produtos">Produtos</a>
+        <a href="#servicos">Serviços</a>
+        <a href="#adocao">Adoção</a>
+        <a href="#contato">Contato</a>
+      </nav>
+      <div class="actions">
+        <button class="btn">Entrar</button>
+        <button class="btn primary">Agende um serviço</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>PetGo Health — Carteira Digital</h1>
+    <p class="lead">Registre vacinas, consultas e exames do seu pet. Receba lembretes e mantenha o histórico sempre à mão.</p>
+
+    <div class="layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <strong>Seus Pets</strong>
+          <button id="btnNewPet" class="btn">+ Novo</button>
+        </div>
+
+        <div class="pet-list" id="petsList">
+          <!-- lista populada por JS -->
+        </div>
+
+        <hr style="margin:12px 0">
+
+        <div>
+          <strong>Próximos lembretes</strong>
+          <div id="reminders" style="margin-top:8px" class="muted">
+            <!-- lembretes populados por JS -->
+          </div>
+        </div>
+      </aside>
+
+      <!-- CONTENT -->
+      <section class="content">
+        <!-- Form de novo pet (toggle) -->
+        <div id="newPetCard" class="card" style="display:none;margin-bottom:16px">
+          <h3>Novo Pet</h3>
+          <div class="form-row" style="margin-top:8px">
+            <input id="petName" type="text" placeholder="Nome" />
+            <input id="petSpecies" type="text" placeholder="Espécie (ex: Cachorro, Gato)" />
+            <input id="petBreed" type="text" placeholder="Raça" />
+          </div>
+          <div class="form-row" style="margin-top:8px">
+            <input id="petDOB" type="date" />
+            <input id="petWeight" type="text" placeholder="Peso (kg)" />
+            <input id="petPhoto" type="file" accept="image/*" />
+          </div>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <button id="savePet" class="btn primary">Salvar</button>
+            <button id="cancelPet" class="btn">Cancelar</button>
+          </div>
+        </div>
+
+        <!-- detalhe do pet selecionado -->
+        <div id="petDetail" style="display:none">
+          <div class="card pet-header">
+            <img id="detailPhoto" src="" alt="Foto do pet" class="pet-photo">
+            <div class="pet-meta">
+              <h2 id="detailName">—</h2>
+              <p id="detailInfo" class="muted">—</p>
+              <div style="margin-top:8px">
+                <button id="editPet" class="btn">Editar</button>
+                <button id="deletePet" class="btn" style="background:#fff1f0;border:1px solid rgba(2,6,23,.06)">Remover</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- aviso de lembretes próximos -->
+          <div id="noticeBox" style="margin-top:12px"></div>
+
+          <!-- Vacinas -->
+          <div class="section">
+            <h3>Vacinas</h3>
+            <div class="card" style="margin-bottom:10px">
+              <form id="vaccineForm">
+                <div class="form-row">
+                  <input id="vacName" type="text" placeholder="Nome da vacina (ex: Raiva)" required>
+                  <input id="vacDate" type="date" required>
+                </div>
+                <div class="form-row" style="margin-top:8px">
+                  <input id="vacNext" type="date" placeholder="Próxima dose (opcional)">
+                  <input id="vacNotes" type="text" placeholder="Observações (opcional)">
+                </div>
+                <div style="margin-top:8px"><button class="btn primary" type="submit">Adicionar Vacina</button></div>
+              </form>
+            </div>
+
+            <div class="timeline" id="vaccineList">
+              <!-- vacinas via JS -->
+            </div>
+          </div>
+
+          <!-- Consultas -->
+          <div class="section">
+            <h3>Consultas</h3>
+            <div class="card" style="margin-bottom:10px">
+              <form id="consultForm">
+                <div class="form-row">
+                  <input id="consDate" type="date" required>
+                  <input id="consReason" type="text" placeholder="Motivo (ex: Check-up)">
+                </div>
+                <div style="margin-top:8px">
+                  <textarea id="consNotes" placeholder="Observações / Receita (opcional)"></textarea>
+                </div>
+                <div style="margin-top:8px"><button class="btn primary" type="submit">Registrar Consulta</button></div>
+              </form>
+            </div>
+
+            <div class="timeline" id="consultList">
+              <!-- consultas via JS -->
+            </div>
+          </div>
+
+          <!-- Uploads / Exames -->
+          <div class="section">
+            <h3>Exames / Documentos</h3>
+            <div class="card" style="margin-bottom:10px">
+              <input id="fileInput" type="file" accept="image/*,application/pdf" />
+            </div>
+            <div class="uploads" id="uploadsList"></div>
+          </div>
+        </div>
+
+        <!-- placeholder quando nenhum pet selecionado -->
+        <div id="emptyPlaceholder" class="card">
+          <strong>Nenhum pet selecionado</strong>
+          <p class="muted">Clique em "Novo" para cadastrar ou selecione um pet à esquerda.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- footer oficial (copiado) -->
+  <footer id="contato">
+    <div class="container footer-inner">
+      <div>
+        <div class="logo"><span class="paw">🐾</span> PetGo</div>
+        <p class="subtitle">Cuidando do seu pet com carinho e tecnologia.</p>
+      </div>
+      <div class="links">
+        <strong>Links</strong>
+        <a href="#">Sobre</a>
+        <a href="#">FAQ</a>
+        <a href="#">Política de Privacidade</a>
+      </div>
+      <div>
+        <strong>Novidades</strong>
+        <p class="subtitle">Receba ofertas e novidades.</p>
+        <form onsubmit="event.preventDefault(); alert('Inscrição realizada!');">
+          <input type="email" placeholder="Seu e-mail" required>
+          <button class="btn primary" type="submit">Cadastrar</button>
+        </form>
+        <div class="social">
+          <span class="badge">📸 Instagram</span>
+          <span class="badge">🎵 TikTok</span>
+          <span class="badge">📘 Facebook</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ====== Storage keys ======
+    const STORAGE_KEY = 'petgo_health_v1';
+
+    // ====== App state ======
+    let state = { pets: [], selectedPetId: null };
+
+    // ====== Utils ======
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => document.querySelectorAll(sel);
+    function uid(){ return 'p_' + Math.random().toString(36).slice(2,9) }
+
+    function loadState(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw) state = JSON.parse(raw);
+    }
+    function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+    // ====== Rendering ======
+    function renderPetsList(){
+      const list = $('#petsList');
+      list.innerHTML = '';
+      state.pets.forEach(p => {
+        const el = document.createElement('div');
+        el.className = 'pet-item' + (p.id === state.selectedPetId ? ' active' : '');
+        el.dataset.id = p.id;
+        el.innerHTML = `
+          <img src="${p.photo || defaultAvatar(p.species)}" class="pet-avatar" alt="${p.name}">
+          <div>
+            <div style="font-weight:700">${p.name}</div>
+            <div class="muted">${p.species} • ${p.breed || ''}</div>
+          </div>
+        `;
+        el.addEventListener('click', () => { selectPet(p.id) });
+        list.appendChild(el);
+      });
+      if(state.pets.length === 0){
+        list.innerHTML = '<div class="muted">Nenhum pet cadastrado.</div>';
+      }
+    }
+
+    function defaultAvatar(species){
+      // simple placeholders by species
+      if(!species) return 'https://placehold.co/200x200?text=pet';
+      species = species.toLowerCase();
+      if(species.includes('gato') || species.includes('gato') ) return 'https://placekitten.com/200/200';
+      if(species.includes('cach') || species.includes('dog')) return 'https://placedog.net/200/200';
+      return 'https://placehold.co/200x200?text=pet';
+    }
+
+    function renderSelected(){
+      const pet = state.pets.find(p => p.id === state.selectedPetId);
+      if(!pet){
+        $('#petDetail').style.display = 'none';
+        $('#emptyPlaceholder').style.display = 'block';
+        $('#noticeBox').innerHTML = '';
+        return;
+      }
+      $('#emptyPlaceholder').style.display = 'none';
+      $('#petDetail').style.display = 'block';
+      $('#detailPhoto').src = pet.photo || defaultAvatar(pet.species);
+      $('#detailName').textContent = pet.name;
+      $('#detailInfo').textContent = `${pet.species} • ${pet.breed || '-'} • ${pet.dob ? ageFromDOB(pet.dob) : 'idade desconhecida'} • ${pet.weight ? pet.weight + ' kg' : ''}`;
+
+      // vaccines
+      const vList = $('#vaccineList'); vList.innerHTML = '';
+      (pet.vaccines || []).slice().reverse().forEach(v=>{
+        const div = document.createElement('div');
+        div.className = 'timeline-item';
+        div.innerHTML = `<strong>${escapeHtml(v.name)}</strong>
+          <div class="meta">${formatDate(v.date)} ${v.next ? '• Próx: ' + formatDate(v.next) : ''}</div>
+          <div style="margin-top:6px">${escapeHtml(v.notes || '')}</div>
+          <div style="margin-top:8px"><button data-id="${v.id}" class="btn" onclick="removeVaccine('${v.id}')">Remover</button></div>`;
+        vList.appendChild(div);
+      });
+
+      // consultations
+      const cList = $('#consultList'); cList.innerHTML = '';
+      (pet.consultations || []).slice().reverse().forEach(c=>{
+        const div = document.createElement('div');
+        div.className = 'timeline-item';
+        div.innerHTML = `<strong>${escapeHtml(c.reason || 'Consulta')}</strong>
+        <div class="meta">${formatDate(c.date)}</div>
+        <div style="margin-top:6px">${escapeHtml(c.notes || '')}</div>
+        <div style="margin-top:8px"><button data-id="${c.id}" class="btn" onclick="removeConsult('${c.id}')">Remover</button></div>`;
+        cList.appendChild(div);
+      });
+
+      // uploads
+      const upList = $('#uploadsList'); upList.innerHTML = '';
+      (pet.uploads || []).forEach(u=>{
+        const img = document.createElement('img');
+        img.className = 'upload-thumb';
+        img.src = u.data;
+        img.title = u.name;
+        upList.appendChild(img);
+      });
+
+      renderNotice(pet);
+      renderReminders();
+    }
+
+    function renderNotice(pet){
+      const box = $('#noticeBox');
+      const upcoming = (pet.vaccines || []).filter(v => v.next).map(v => ({...v, days: daysUntil(v.next)})).sort((a,b)=>a.days-b.days);
+      const soon = upcoming.filter(u => u.days <= 7 && u.days >= 0);
+      if(soon.length){
+        box.innerHTML = `<div class="notice"><strong>Atenção:</strong> Vacina "${escapeHtml(soon[0].name)}" com próxima dose em ${soon[0].days} dia(s) (${formatDate(soon[0].next)})</div>`;
+      } else {
+        box.innerHTML = '';
+      }
+    }
+
+    function renderReminders(){
+      const container = $('#reminders');
+      container.innerHTML = '';
+      const items = [];
+      state.pets.forEach(p => {
+        (p.vaccines || []).forEach(v=>{
+          if(v.next){
+            items.push({petName: p.name, vaccine: v.name, next: v.next});
+          }
+        })
+      });
+      items.sort((a,b)=> new Date(a.next) - new Date(b.next));
+      if(items.length === 0){
+        container.innerHTML = '<div class="muted">Nenhum lembrete programado.</div>';
+        return;
+      }
+      items.slice(0,5).forEach(it=>{
+        const days = daysUntil(it.next);
+        const el = document.createElement('div');
+        el.innerHTML = `<strong>${escapeHtml(it.petName)}</strong>: ${escapeHtml(it.vaccine)} • ${formatDate(it.next)} <span class="muted">(${days} dias)</span>`;
+        container.appendChild(el);
+      });
+    }
+
+    // ====== Helpers ======
+    function formatDate(d){ if(!d) return ''; const dt = new Date(d); return dt.toLocaleDateString(); }
+    function daysUntil(d){
+      const t = new Date(d); const now = new Date();
+      const diff = Math.ceil((t - now) / (1000*60*60*24));
+      return diff;
+    }
+    function ageFromDOB(dob){
+      if(!dob) return '';
+      const b = new Date(dob); const now = new Date();
+      const years = now.getFullYear() - b.getFullYear();
+      return years + ' ano(s)';
+    }
+    function escapeHtml(s){ if(!s) return ''; return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+    // ====== Actions ======
+    function selectPet(id){
+      state.selectedPetId = id;
+      saveState(); renderPetsList(); renderSelected();
+    }
+
+    // Remove vaccine/consult handlers (global so buttons inline can call)
+    window.removeVaccine = function(vId){
+      const pet = state.pets.find(p=>p.id===state.selectedPetId);
+      if(!pet) return;
+      pet.vaccines = (pet.vaccines || []).filter(v=>v.id !== vId);
+      saveState(); renderSelected(); renderPetsList();
+    }
+    window.removeConsult = function(cId){
+      const pet = state.pets.find(p=>p.id===state.selectedPetId);
+      if(!pet) return;
+      pet.consultations = (pet.consultations || []).filter(c=>c.id !== cId);
+      saveState(); renderSelected(); renderPetsList();
+    }
+
+    // ====== Forms and events ======
+    document.addEventListener('DOMContentLoaded', ()=>{
+      loadState();
+      renderPetsList();
+      renderReminders();
+
+      // New pet toggle
+      $('#btnNewPet').addEventListener('click', ()=>{ $('#newPetCard').style.display = 'block'; $('#petName').focus(); });
+
+      $('#cancelPet').addEventListener('click', ()=>{
+        $('#newPetCard').style.display = 'none';
+        clearNewPetForm();
+      });
+
+      // Save pet
+      $('#savePet').addEventListener('click', async ()=>{
+        const name = $('#petName').value.trim();
+        if(!name){ alert('Nome é obrigatório'); return; }
+        const species = $('#petSpecies').value.trim();
+        const breed = $('#petBreed').value.trim();
+        const dob = $('#petDOB').value || null;
+        const weight = $('#petWeight').value.trim();
+        const file = $('#petPhoto').files[0];
+
+        let photoData = null;
+        if(file){
+          photoData = await readFileAsDataURL(file);
+        }
+
+        const pet = { id: uid(), name, species, breed, dob, weight, photo: photoData, vaccines: [], consultations: [], uploads: [] };
+        state.pets.push(pet);
+        state.selectedPetId = pet.id;
+        saveState();
+        renderPetsList();
+        renderSelected();
+        $('#newPetCard').style.display = 'none';
+        clearNewPetForm();
+      });
+
+      // Vaccine form
+      $('#vaccineForm').addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const pet = state.pets.find(p=>p.id===state.selectedPetId);
+        if(!pet){ alert('Selecione um pet'); return; }
+        const name = $('#vacName').value.trim();
+        const date = $('#vacDate').value;
+        const next = $('#vacNext').value || null;
+        const notes = $('#vacNotes').value.trim() || null;
+        if(!name || !date){ alert('Nome e data são obrigatórios'); return; }
+        const vac = { id: uid(), name, date, next, notes };
+        pet.vaccines = pet.vaccines || []; pet.vaccines.push(vac);
+        saveState(); renderSelected(); renderPetsList();
+        $('#vaccineForm').reset();
+      });
+
+      // Consult form
+      $('#consultForm').addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const pet = state.pets.find(p=>p.id===state.selectedPetId);
+        if(!pet){ alert('Selecione um pet'); return; }
+        const date = $('#consDate').value;
+        const reason = $('#consReason').value.trim();
+        const notes = $('#consNotes').value.trim();
+        if(!date){ alert('Data é obrigatória'); return; }
+        const obj = { id: uid(), date, reason, notes };
+        pet.consultations = pet.consultations || []; pet.consultations.push(obj);
+        saveState(); renderSelected(); renderPetsList();
+        $('#consultForm').reset();
+      });
+
+      // File upload
+      $('#fileInput').addEventListener('change', async (e)=>{
+        const file = e.target.files[0];
+        if(!file) return;
+        const pet = state.pets.find(p=>p.id===state.selectedPetId);
+        if(!pet){ alert('Selecione um pet'); return; }
+        const data = await readFileAsDataURL(file);
+        pet.uploads = pet.uploads || [];
+        pet.uploads.push({ id: uid(), name: file.name, data });
+        saveState(); renderSelected(); $('#fileInput').value = '';
+      });
+
+      // Edit & delete pet
+      $('#editPet').addEventListener('click', ()=>{
+        const pet = state.pets.find(p=>p.id===state.selectedPetId); if(!pet) return;
+        $('#newPetCard').style.display = 'block';
+        $('#petName').value = pet.name; $('#petSpecies').value = pet.species; $('#petBreed').value = pet.breed;
+        $('#petDOB').value = pet.dob || ''; $('#petWeight').value = pet.weight || '';
+        // when saving, we'll detect duplicate by name? simpler approach: remove old then re-add on save
+        // set a flag
+        $('#savePet').dataset.editId = pet.id;
+      });
+
+      // Save with edit support
+      $('#savePet').addEventListener('click', async ()=>{
+        const editId = $('#savePet').dataset.editId;
+        if(!editId) return; // handled above for new
+        // update flow: remove old, then let main save handler create new with new id => but better update fields:
+        const pet = state.pets.find(p=>p.id===editId);
+        if(!pet) return;
+        pet.name = $('#petName').value.trim();
+        pet.species = $('#petSpecies').value.trim();
+        pet.breed = $('#petBreed').value.trim();
+        pet.dob = $('#petDOB').value || null;
+        pet.weight = $('#petWeight').value.trim();
+        const file = $('#petPhoto').files[0];
+        if(file){
+          pet.photo = await readFileAsDataURL(file);
+        }
+        delete $('#savePet').dataset.editId;
+        saveState(); renderPetsList(); renderSelected();
+        $('#newPetCard').style.display = 'none'; $('#newPetCard').querySelectorAll('input').forEach(i=>i.value='');
+      });
+
+      // delete pet
+      $('#deletePet').addEventListener('click', ()=>{
+        if(!confirm('Remover este pet?')) return;
+        state.pets = state.pets.filter(p=>p.id !== state.selectedPetId);
+        state.selectedPetId = state.pets.length ? state.pets[0].id : null;
+        saveState(); renderPetsList(); renderSelected();
+      });
+
+      // initialize selection
+      if(state.pets.length) { state.selectedPetId = state.selectedPetId || state.pets[0].id; }
+      renderPetsList(); renderSelected();
+    });
+
+    // read file helper
+    function readFileAsDataURL(file){
+      return new Promise((res, rej)=>{
+        const fr = new FileReader();
+        fr.onload = ()=>res(fr.result);
+        fr.onerror = rej;
+        fr.readAsDataURL(file);
+      })
+    }
+
+    // basic escape hook for inline on* handlers
+    window.formatDate = formatDate;
+    window.daysUntil = daysUntil;
+
+  </script>
+</body>
+</html>
