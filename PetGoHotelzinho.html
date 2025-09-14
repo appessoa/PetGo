@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PetGo — Hotelzinho para Pets</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #fafafa;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --primary: #FF914D;
+      --primary-600: #ff7d2e;
+      --accent: #5BC0F8;
+      --accent-100:#E6F5FE;
+      --ring: rgba(17,24,39,.08);
+      --radius: 16px;
+      --shadow: 0 10px 20px rgba(2, 6, 23, 0.06), 0 2px 6px rgba(2,6,23,0.06);
+      --shadow-lg: 0 20px 40px rgba(2, 6, 23, 0.10), 0 6px 14px rgba(2,6,23,0.08);
+      --maxw: 1200px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter, sans-serif;}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:var(--maxw);margin-inline:auto;padding:24px}
+    header{position:sticky;top:0;background:rgba(250,250,250,.8);backdrop-filter:saturate(1.2) blur(10px);border-bottom:1px solid rgba(2,6,23,.06);z-index:50}
+    .header-inner{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .logo{display:flex;align-items:center;gap:10px;font-family:Poppins, sans-serif;font-weight:800;font-size:24px}
+    .logo .paw{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#8fd3fe);display:grid;place-items:center;color:#034b72;font-weight:900}
+    nav{display:flex;gap:18px;flex-wrap:wrap}
+    nav a{font-weight:600;color:#0f172a;opacity:.85}
+    nav a:hover{opacity:1}
+    .actions{display:flex;gap:12px;align-items:center}
+
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:999px;padding:12px 18px;font-weight:700;cursor:pointer;transition:transform .18s ease, box-shadow .18s ease, background .18s ease;box-shadow:var(--shadow);background:var(--card)}
+    .btn.primary{background:var(--primary);color:white}
+    .btn.primary:hover{background:var(--primary-600);box-shadow:var(--shadow-lg)}
+
+    main{padding:24px}
+    form{background:var(--card);padding:32px;border-radius:var(--radius);box-shadow:var(--shadow);max-width:800px;margin-inline:auto;display:flex;flex-direction:column;gap:20px}
+    form h2{margin:0;font-family:Poppins, sans-serif;font-size:24px;text-align:center}
+    label{font-weight:500;display:block;margin-bottom:6px}
+    input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select, textarea{width:100%;padding:12px;border:1px solid rgba(2,6,23,.2);border-radius:8px;font-size:16px}
+    textarea{resize:vertical;min-height:100px}
+    .grid-two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .section-group{margin-top:20px}
+    .footer{margin-top:40px;border-top:1px solid rgba(2,6,23,.06);}
+    .footer-inner{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;padding:24px}
+    .links{display:flex;flex-direction:column;gap:8px}
+    .social{display:flex;gap:10px}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:#fff;box-shadow:var(--shadow)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <div class="logo"><span class="paw">🐾</span> PetGo</div>
+      <nav>
+        <a href="index.html">Início</a>
+        <a href="produtos.html">Produtos</a>
+        <a href="servicos.html">Serviços</a>
+        <a href="adocao.html">Adoção</a>
+        <a href="contato.html">Contato</a>
+      </nav>
+      <div class="actions">
+        <button class="btn">Entrar</button>
+        <button class="btn primary">Agende um serviço</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2>Reserva de Hotelzinho PetGo</h2>
+    <form onsubmit="event.preventDefault(); alert('Reserva enviada com sucesso!');">
+      
+      <!-- Informações do Pet -->
+      <div class="section-group">
+        <h3>Informações do Pet</h3>
+        <div class="grid-two">
+          <div>
+            <label for="nomePet">Nome do Pet *</label>
+            <input type="text" id="nomePet" required>
+          </div>
+          <div>
+            <label for="especie">Espécie *</label>
+            <select id="especie" required>
+              <option value="">Selecione</option>
+              <option value="Gato">Gato</option>
+              <option value="Cachorro">Cachorro</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-two">
+          <div>
+            <label for="porte">Porte *</label>
+            <select id="porte" required>
+              <option value="">Selecione</option>
+              <option value="Pequeno">Pequeno</option>
+              <option value="Médio">Médio</option>
+              <option value="Grande">Grande</option>
+            </select>
+          </div>
+          <div>
+            <label for="necessidades">Necessidades Especiais</label>
+            <input type="text" id="necessidades">
+          </div>
+        </div>
+      </div>
+
+      <!-- Período da Hospedagem -->
+      <div class="section-group">
+        <h3>Período da Hospedagem</h3>
+        <div class="grid-two">
+          <div>
+            <label for="entrada">Data de entrada *</label>
+            <input type="date" id="entrada" required>
+          </div>
+          <div>
+            <label for="saida">Data de saída *</label>
+            <input type="date" id="saida" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Serviços adicionais -->
+      <div class="section-group">
+        <h3>Serviços Adicionais</h3>
+        <label><input type="checkbox" name="banho"> Banho</label>
+        <label><input type="checkbox" name="tosa"> Tosa</label>
+        <label><input type="checkbox" name="passeio"> Passeios diários</label>
+      </div>
+
+      <!-- Contato de Emergência -->
+      <div class="section-group">
+        <h3>Contato de Emergência</h3>
+        <div class="grid-two">
+          <div>
+            <label for="nomeContato">Nome *</label>
+            <input type="text" id="nomeContato" required>
+          </div>
+          <div>
+            <label for="telContato">Telefone *</label>
+            <input type="tel" id="telContato" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Observações -->
+      <div class="section-group">
+        <h3>Observações</h3>
+        <textarea id="observacoes" placeholder="Informações adicionais sobre o pet"></textarea>
+      </div>
+
+      <button type="submit" class="btn primary">Enviar Reserva</button>
+    </form>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <div class="logo"><span class="paw">🐾</span> PetGo</div>
+        <p>Seu pet em boas mãos. Produtos, serviços e muito carinho.</p>
+      </div>
+      <div>
+        <h4>Links úteis</h4>
+        <div class="links">
+          <a href="#">Sobre nós</a>
+          <a href="#">Política de privacidade</a>
+          <a href="#">Termos de uso</a>
+        </div>
+      </div>
+      <div>
+        <h4>Redes sociais</h4>
+        <div class="social">
+          <span class="badge">🐶</span>
+          <span class="badge">🐱</span>
+          <span class="badge">📸</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
