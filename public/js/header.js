@@ -8,7 +8,7 @@ export function initHeader() {
         <a href="index.html#inicio">Início</a>
         <a href="produtos.html">Produtos</a>
         <a href="index.html#servicos">Serviços</a>
-        <a href="index.html#adocao">Adoção</a>
+        <a href="PetGoAdocao.html">Adoção</a>
         <a href="index.html#contato">Contato</a>
       </nav>
       <div class="actions">
