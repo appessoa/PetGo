@@ -6,6 +6,7 @@
   <title>PetGo — Tudo para o seu pet</title>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+  <script type="module" src="/js/index.js"></script>  
   <style>
     :root{
       --bg: #fafafa;
@@ -85,19 +86,7 @@
 </head>
 <body>
   <header>
-    <div class="container header-inner">
-      <div class="logo"><span class="paw">🐾</span> PetGo</div>
-      <nav>
-        <a href="#inicio">Início</a>
-        <a href="produtos.html">Produtos</a>
-        <a href="#servicos">Serviços</a>
-        <a href="#adocao">Adoção</a>
-        <a href="#contato">Contato</a>
-      </nav>
-      <div class="actions">
-        <button class="btn">Entrar</button>
-        <button class="btn primary">Agende um serviço</button>
-      </div>
+    <div class="container header-inner" id="Header">
     </div>
   </header>
 
@@ -162,19 +151,19 @@
           <div class="icon">🛁</div>
           <h4>Banho & Tosa</h4>
           <p class="subtitle">Cuidados completos com conforto e carinho.</p>
-          <button class="btn primary">Agendar</button>
+          <a href="PetGoAgendamento.html" > <button class="btn primary">Agendar</button> </a>
         </article>
         <article class="card service">
           <div class="icon">🩺</div>
           <h4>Veterinário Online</h4>
           <p class="subtitle">Orientação rápida por chamada de vídeo.</p>
-          <button class="btn primary">Agendar</button>
+          <a href="PetGoAgendamento.html"><button class="btn primary">Agendar</button></a>
         </article>
         <article class="card service">
           <div class="icon">🐕</div>
           <h4>Passeio PetGo</h4>
           <p class="subtitle">Passeadores verificados, quando você precisar.</p>
-          <button class="btn primary">Agendar</button>
+          <a href="PetGoAgendamento.html"><button class="btn primary">Agendar</button> </a>
         </article>
       </div>
     </section>
@@ -219,6 +208,16 @@
         <article class="card pet">
           <img class="avatar" src="/IMAGENS/Ollie.jpg" alt="Ollie">
           <div><strong>Ollie</strong><br><span class="subtitle">10 anos • macho</span></div>
+          <button class="btn">Adotar</button>
+        </article>
+        <article class="card pet">
+          <img class="avatar" src="/IMAGENS/tripa.jpg" alt="tripa">
+          <div><strong>Chico tripa</strong><br><span class="subtitle">1 ano • macho</span></div>
+          <button class="btn">Adotar</button>
+        </article>
+        <article class="card pet">
+          <img class="avatar" src="/IMAGENS/bucho.jpg" alt="bucho">
+          <div><strong>Zé bucho</strong><br><span class="subtitle">1 mês • macho</span></div>
           <button class="btn">Adotar</button>
         </article>
       </div>
