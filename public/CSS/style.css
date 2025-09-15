@@ -53,7 +53,23 @@ nav a:hover{opacity:1}
 .price{font-weight:800}
 
 .service{display:flex;flex-direction:column;gap:10px}
-.service .icon{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg, var(--accent), #8fd3fe);display:grid;place-items:center;font-size:28px;color:#053e60}
+/* VERSÃO CORRIGIDA */
+.service .icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent), #8fd3fe);
+  font-size: 28px;
+  color: #053e60;
+
+  /* Centraliza o emoji vertical e horizontalmente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* Move o emoji um pouco para cima para um ajuste visual fino */
+  transform: translateY(-2px); /* Use valores em pixels para um controle mais preciso aqui */
+}
 
 .adocao{background:var(--accent-100);border-radius:28px;padding:24px}
 .scroll{display:grid;grid-auto-flow:column;grid-auto-columns:220px;gap:14px;overflow:auto;padding-bottom:8px}
@@ -160,5 +176,6 @@ input:focus{
 .form-novidades .btn {
   flex-shrink: 0; /* Impede que o botão encolha se não houver espaço */
 }
+
 
 
