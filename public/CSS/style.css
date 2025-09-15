@@ -76,7 +76,28 @@ section{padding:32px 24px}
 
 /* ===== FOOTER ===== */
 footer{margin-top:40px;border-top:1px solid rgba(2,6,23,.06);}
-.footer-inner{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;padding:24px}
+.footer-inner{display:grid;grid-template-columns:2fr 2fr 2fr;gap:16px;padding:24px}
 .links{display:flex;flex-direction:column;gap:8px}
+.novidades-sociais{
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+.novidades, .redes-sociais{
+  flex: 1;
+  gap: 40px;
+  align-items: flex-start;
+}
+.novidades{
+  margin-right: 40px;
+}
 .social{display:flex;gap:10px}
-.badge{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:#fff;box-shadow:var(--shadow)}
+.badge{display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 14px;
+  border-radius:999px;
+  background:#fff;
+  box-shadow:var(--shadow);
+  transition: transform 0.2s;
+}

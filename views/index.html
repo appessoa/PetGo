@@ -170,31 +170,43 @@
   </main>
 
   <footer id="contato">
-    <div class="container footer-inner">
-      <div>
-        <div class="logo"><span class="paw">🐾</span> PetGo</div>
-        <p class="subtitle">Cuidando do seu pet com carinho e tecnologia.</p>
-      </div>
-      <div class="links">
-        <strong>Links</strong>
-        <a href="#">Sobre</a>
-        <a href="#">FAQ</a>
-        <a href="#">Política de Privacidade</a>
-      </div>
-      <div>
+  <div class="container footer-inner">
+    <div>
+      <div class="logo"><span class="paw">🐾</span> PetGo</div>
+      <p class="subtitle">Cuidando do seu pet com carinho e tecnologia.</p>
+    </div>
+
+    <div class="links">
+      <strong>Links</strong>
+      <a href="#">Sobre</a>
+      <a href="#">FAQ</a>
+      <a href="#">Política de Privacidade</a>
+    </div>
+
+    <div class="novidades-sociais">
+      <div class="novidades">
         <strong>Novidades</strong>
         <p class="subtitle">Receba ofertas e novidades.</p>
         <form onsubmit="event.preventDefault(); alert('Inscrição realizada!');">
           <input type="email" placeholder="Seu e-mail" required>
           <button class="btn primary" type="submit">Cadastrar</button>
         </form>
+      </div>
+      
+      <div class="redes-sociais">
+        <strong>Redes Sociais</strong>
         <div class="social">
-          <span class="badge">📸 Instagram</span>
-          <span class="badge">🎵 TikTok</span>
-          <span class="badge">📘 Facebook</span>
+          <a href="#" class="badge" title="Visite nosso instagram">
+            <img src="/img/instagram-icon.svg" alt="Instagram">
+          </a>
+          <a href="#" class="badge" title="Visite nosso Facebook">
+            <img src="/img/facebook-icon.svg" alt="Facebook">
+          </a>
         </div>
       </div>
     </div>
-  </footer>
+  </div>
+</footer>
+
 </body>
 </html>
