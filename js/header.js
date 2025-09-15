@@ -3,7 +3,7 @@ export function initHeader() {
     if (!header) return;
 
     let html = `
-          <div class="logo"><span class="paw">🐾</span> PetGo</div>
+          <a href= "index.html"><div class="logo"><span class="paw">🐾</span> PetGo</div></a>
       <nav>
         <a href="index.html#inicio">Início</a>
         <a href="produtos.html">Produtos</a>
