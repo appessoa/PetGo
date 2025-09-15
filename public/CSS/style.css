@@ -100,4 +100,68 @@ footer{margin-top:40px;border-top:1px solid rgba(2,6,23,.06);}
   background:#fff;
   box-shadow:var(--shadow);
   transition: transform 0.2s;
+  margin-top: 5px;
 }
+
+.badge img{
+  width: 18px;
+}
+.badge:hover{
+  transform: scale(1.1);
+  cursor: pointer;
+}
+
+input{
+  border-radius: 999px;
+  margin-bottom: 10px;
+  padding: 7px;
+  border: 1px solid#ccc;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.2;
+  outline: none;
+}
+
+input:focus{
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4); /* sombra maior ao focar */
+  border-color: #888; /* opcional, muda a cor da borda ao focar */
+}
+
+.subtitle{
+  margin-bottom: 10px;
+}
+
+/* ================================== */
+/* ===== ESTILOS FORMULÁRIO DO RODAPÉ ===== */
+/* ================================== */
+
+/* Reseta o estilo que o formulário de novidades herda do formulário principal */
+.form-novidades {
+  background: none;
+  box-shadow: none;
+  padding: 0;
+  max-width: 100%; /* Garante que ele possa ser largo */
+  
+  /* Alinha o campo de e-mail e o botão lado a lado */
+  display: flex;
+  gap: 8px; /* Espaço entre o input e o botão */
+}
+
+/* Faz o campo de e-mail crescer e ocupar o espaço disponível */
+.form-novidades input[type="email"] {
+  flex-grow: 1; /* A mágica acontece aqui! */
+  width: auto; /* Permite que o flex-grow funcione corretamente */
+  
+  /* Ajustes finos de estilo para o input do rodapé */
+  margin-bottom: 0; /* Remove a margem que existia na regra geral de input */
+  padding: 12px;
+  border-radius: 999px; /* Deixa o input arredondado como o botão */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Sombra mais sutil */
+}
+
+/* Garante que o botão não se estique */
+.form-novidades .btn {
+  flex-shrink: 0; /* Impede que o botão encolha se não houver espaço */
+}
+
+
