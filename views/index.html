@@ -5,10 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PetGo — Tudo para o seu pet</title>
   <link rel="stylesheet" href="/public/CSS\style.css">
+  <link rel="stylesheet" href="/public/CSS\dropdown.css">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
   <script type="module" src="/public/js/index.js"></script>
-
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 </head>
 <body>
   <header>
@@ -71,34 +73,58 @@
 
     <!-- SERVIÇOS -->
     <section id="servicos">
-      <h3 class="section-title">Serviços</h3>
-      <div class="grid cols-3">
-        <article class="card service">
-          <div class="icon">🛁</div>
-          <h4>Banho & Tosa</h4>
-          <p class="subtitle">Cuidados completos com conforto e carinho.</p>
-          <a href="PetGoAgendamento.html" > <button class="btn primary">Agendar</button> </a>
-        </article>
-        <article class="card service">
-          <div class="icon">🩺</div>
-          <h4>Veterinário Online</h4>
-          <p class="subtitle">Orientação rápida por chamada de vídeo.</p>
-          <a href="PetGoAgendamento.html"><button class="btn primary">Agendar</button></a>
-        </article>
-        <article class="card service">
-          <div class="icon">🐕</div>
-          <h4>Passeio PetGo</h4>
-          <p class="subtitle">Passeadores verificados, quando você precisar.</p>
-          <a href="PetGoAgendamento.html"><button class="btn primary">Agendar</button> </a>
-        </article>
+  <h3 class="section-title">Serviços</h3>
+
+  <div class="services-carousel-container">
+    
+    <div class="swiper myServicesSwiper">
+      <div class="swiper-wrapper">
+
+        <div class="swiper-slide">
+          <article class="card service">
+            <div class="icon">🛁</div>
+            <h4>Banho & Tosa</h4>
+            <p class="subtitle">Cuidados completos com conforto e carinho.</p>
+            <a href="PetGoAgendamento.html"><button class="btn primary">Agendar</button></a>
+          </article>
+        </div>
+
+        <div class="swiper-slide">
+          <article class="card service">
+            <div class="icon">🩺</div>
+            <h4>Veterinário Online</h4>
+            <p class="subtitle">Orientação rápida por chamada de vídeo.</p>
+            <a href="PetGoAgendamento.html"><button class="btn primary">Agendar</button></a>
+          </article>
+        </div>
+
+        <div class="swiper-slide">
+          <article class="card service">
+            <div class="icon">🐕</div>
+            <h4>Passeio PetGo</h4>
+            <p class="subtitle">Passeadores verificados, quando você precisar.</p>
+            <a href="PetGoAgendamento.html"><button class="btn primary">Agendar</button></a>
+          </article>
+        </div>
+
+        <div class="swiper-slide">
           <article class="card service">
             <div class="icon">🪪</div>
             <h4>Carteirinha PetGoHealth</h4>
-            <p class="subtitle">O histórico de saúde e as informações vitais do seu pet na palma da sua mão.</p>
-            <a href="PetGoHealth.html"><button class="btn primary">Agendar</button></a>
+            <p class="subtitle">O histórico de saúde e as informações vitais do seu pet.</p>
+            <a href="PetGoHealth.html"><button class="btn primary">Saiba Mais</button></a>
           </article>
+        </div>
+
       </div>
-    </section>
+      <div class="swiper-pagination"></div>
+    </div>
+
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+
+  </div>
+</section>
 
     <!-- ADOÇÃO -->
     <section id="adocao" class="adocao">
@@ -217,4 +243,5 @@
   </div>
 </footer>
 </body>
+<script src="/public\js\carrossel.js"></script>
 </html>
