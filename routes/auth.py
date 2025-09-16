@@ -13,18 +13,24 @@ def login_form():
 
 @auth_bp.post("/login")
 def login():
-    email = request.form.get("email")
+    username = request.form.get("username")
     password = request.form.get("password")
 
-    user = User.query.filter_by(email=email).first()
-    if not user or not bcrypt.check_password_hash(user.password, password):
-        flash("Credenciais inválidas", "danger")
-        return redirect(url_for("auth.login_form"))
+    try:
+        user = User.query.filter_by(username=username).first()
+        if not user or not bcrypt.check_password_hash(user.password, password):
+            print("Erro ao fazer login:", "Credenciais inválidas")
+            jsonify({"error": "Credenciais inválidas"}), 401
+            return redirect(url_for("auth.login_form"))
 
-    # salva id e username na sessão
-    session["user_id"] = user.id_user
-    session["username"] = user.username
-    return redirect(url_for("front.index"))
+        # salva id e username na sessão
+        session["user_id"] = user.id_user
+        session["username"] = user.username
+        return redirect(url_for("front.index"))
+    except Exception as e:
+        print("Erro ao fazer login:", e)
+        jsonify({"error": "Erro ao fazer login"}), 500
+        return redirect(url_for("auth.login_form"))
 
 
 @auth_bp.get("/me")

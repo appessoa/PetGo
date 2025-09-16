@@ -1,7 +1,20 @@
 from datetime import datetime
 from config.db import db
 class produto(db.Model):
+    """ Modelo para tabela de produtos
+    
+    id_produto: int - PK
+    nome: str - Nome do produto
+    descricao: str - Descrição do produto
+    preco: float - Preço do produto
+    estoque: int - Quantidade em estoque
+    categoria: str - Categoria do produto
+    imagem_bloob: bytes - Imagem do produto em formato binário
+    is_active: bool - Indica se o produto está ativo
+    created_at: datetime - Timestamp de criação do registro
+    updated_at: datetime - Timestamp da última atualização do registro
 
+    """
     __tablename__ = 'produtos'
 
     id_produto = db.Column(db.Integer, primary_key=True, autoincrement=True)
