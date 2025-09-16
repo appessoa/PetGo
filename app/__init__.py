@@ -20,8 +20,12 @@ def create_app():
 
     from routes.routes_front import front_bp
     from routes.auth import auth_bp
+    from routes.pets import pets_api
+
     app.register_blueprint(auth_bp)
     app.register_blueprint(front_bp)
+    app.register_blueprint(pets_api)
+
 
 
     from models.userModel import User
