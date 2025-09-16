@@ -4,27 +4,13 @@ export async function initHeader() {
 
   let user = null;
   try {
-    const resp = await fetch("/me");  // rota do Flask
+    const resp = await fetch("/me", { credentials: "include" });
     user = await resp.json();
   } catch (err) {
     console.error("Erro ao buscar usuário logado", err);
   }
 
-  let actionsHtml = "";
-  if (user && user.logged_in) {
-    actionsHtml = `
-      <span class="welcome">👋 Olá, ${user.username}</span>
-      <a href="/logout"><button class="btn">Sair</button></a>
-      <a href="PetGoAgendamento.html"><button class="btn primary">Agende um serviço</button></a>
-    `;
-  } else {
-    actionsHtml = `
-      <a href="/login"><button class="btn">Entrar</button></a>
-      <a href="PetGoAgendamento.html"><button class="btn primary">Agende um serviço</button></a>
-    `;
-  }
-
-  let html = `
+  const navHtml = `
     <a href="/"><div class="logo"><span class="paw">🐾</span> PetGo</div></a>
     <nav>
       <a href="/#inicio">Início</a>
@@ -33,10 +19,78 @@ export async function initHeader() {
       <a href="/PetGoAdocao">Adoção</a>
       <a href="/#contato">Contato</a>
     </nav>
-    <div class="actions">
+  `;
+
+  let actionsHtml = `
+    <a href="PetGoAgendamento.html"><button class="btn primary">Agende um serviço</button></a>
+  `;
+
+  if (user && user.logged_in) {
+    const username = user.username || "Usuário";
+    actionsHtml = `
+      <div class="user-menu" data-open="false">
+        <button class="user-btn" aria-haspopup="true" aria-expanded="false">
+          <span class="avatar_menu">${username.slice(0,1).toUpperCase()}</span>
+          <span class="user-name">${username}</span>
+          <span class="caret">▾</span>
+        </button>
+        <div class="dropdown" role="menu">
+          <a role="menuitem" href="/UserPage">Dados do usuário</a>
+          <a role="menuitem" href="/PetGoHealth">Plano Health</a>
+          <a role="menuitem" href="/logout">Sair</a>
+        </div>
+      </div>
       ${actionsHtml}
+    `;
+  } else {
+    actionsHtml = `
+      <a href="/login"><button class="btn">Entrar</button></a>
+      ${actionsHtml}
+    `;
+  }
+
+  header.innerHTML = `
+    <div class="container header-inner">
+      ${navHtml}
+      <div class="actions">${actionsHtml}</div>
     </div>
   `;
 
-  header.innerHTML = html;
+  // Comportamento do dropdown
+  const menu = header.querySelector(".user-menu");
+  if (menu) {
+    const btn = menu.querySelector(".user-btn");
+    const dd  = menu.querySelector(".dropdown");
+
+    const close = () => {
+      menu.dataset.open = "false";
+      btn.setAttribute("aria-expanded", "false");
+      dd.classList.remove("show");
+    };
+    const open = () => {
+      menu.dataset.open = "true";
+      btn.setAttribute("aria-expanded", "true");
+      dd.classList.add("show");
+    };
+
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      (menu.dataset.open === "true" ? close : open)();
+    });
+
+    // Fecha ao clicar fora
+    document.addEventListener("click", close);
+
+    // Acessibilidade: Esc fecha, setas navegam
+    btn.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown") { open(); dd.querySelector("a")?.focus(); }
+    });
+    dd.addEventListener("keydown", (e) => {
+      const items = Array.from(dd.querySelectorAll("a"));
+      const i = items.indexOf(document.activeElement);
+      if (e.key === "Escape") { close(); btn.focus(); }
+      if (e.key === "ArrowDown") { e.preventDefault(); items[(i+1)%items.length]?.focus(); }
+      if (e.key === "ArrowUp") { e.preventDefault(); items[(i-1+items.length)%items.length]?.focus(); }
+    });
+  }
 }
