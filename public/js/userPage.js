@@ -14,16 +14,94 @@ async function boot(){
     const pets = await fetchJSON('/api/me/pets');
     renderPets(pets);
 
+    // 👉 NOVO: carrega agendamentos do usuário
+    const sched = await fetchJSON('/api/agendamentos');
+    renderScheduling(sched);
+
     const orders = await fetchJSON('/api/me/orders');
     renderOrders(orders);
 
     wireActions(me);
   }catch(e){
     console.error(e);
-    alert('Faça login para ver sua conta.');
+    showToast('Faça login para ver sua conta.', 'error');  // em vez de alert
     location.href = '/login';
   }
 }
+
+
+function renderScheduling(items){
+  const list = document.getElementById('schedList');
+  if(!list) return;
+
+  list.innerHTML = '';
+
+  if(!items || !items.length){
+    list.innerHTML = '<div class="info-item">Você ainda não possui agendamentos.</div>';
+    return;
+  }
+
+  for(const ag of items){
+    const dt = ag.date ? formatBRDate(ag.date) : '-';
+    const hr = ag.time || '';
+    const serv = labelService(ag.service);
+    const petNome = ag.pet?.nome || ag.pet?.name || `#${ag.pet_id}`;
+    const notes = ag.notes || ag.observacoes || '';
+
+    const statusClass = classByStatus(ag.status);
+    const statusLabel = labelStatus(ag.status);
+
+    const el = document.createElement('div');
+    el.className = 'scheduling-item';
+    el.innerHTML = `
+      <div class="scheduling-info">
+        <strong>${serv} — ${escapeHtml(petNome)}</strong>
+        <small>Data: ${dt} • Horário: ${hr}</small>
+        ${notes ? `<small>Obs.: ${escapeHtml(notes)}</small>` : ''}
+      </div>
+      <div class="scheduling-status ${statusClass}">${statusLabel}</div>
+    `;
+    list.appendChild(el);
+  }
+}
+
+function labelService(s){
+  const map = {
+    banho: 'Banho & Tosa',
+    veterinario: 'Veterinário Online',
+    passeio: 'Passeio PetGo',
+    hotel: 'Hotelzinho',
+  };
+  return map[(s||'').toLowerCase()] || (s || 'Serviço');
+}
+
+function classByStatus(st){
+  const s = (st||'').toLowerCase();
+  if(s === 'confirmado') return 'status-confirmado';
+  if(s === 'concluido') return 'status-concluido';
+  if(s === 'cancelado') return 'status-cancelado';
+  return 'status-marcado'; // default
+}
+
+function labelStatus(st){
+  const s = (st||'').toLowerCase();
+  if(s === 'confirmado') return 'Confirmado';
+  if(s === 'concluido') return 'Concluído';
+  if(s === 'cancelado') return 'Cancelado';
+  return 'Marcado';
+}
+
+function formatBRDate(iso){
+  // aceita "YYYY-MM-DD" ou Date ISO completo
+  try{
+    const d = new Date(iso);
+    if(!isNaN(d)) return d.toLocaleDateString('pt-BR');
+    // fallback para string YYYY-MM-DD
+    const [y,m,dd] = String(iso).split('-');
+    return `${dd}/${m}/${y}`;
+  }catch{ return iso; }
+}
+
 
 async function fetchJSON(url, opts={}){
   const r = await fetch(url, { credentials: 'include', ...opts });

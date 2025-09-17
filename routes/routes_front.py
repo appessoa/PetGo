@@ -34,6 +34,11 @@ def formularioAdocao():
 @front_bp.route('/PetGoProdutosV2')
 def produtosV2():
     return render_template('PetGoProdutosV2.html')
+
 @front_bp.route('/UserPage')
 def userPage():
     return render_template('PetGoUserPage.html')
+
+@front_bp.route('/cadastro')
+def cadastro():
+    return render_template('cadastro.html')

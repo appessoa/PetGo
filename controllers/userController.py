@@ -1,19 +1,23 @@
 # controller/usersController.py
+import re
 from flask import request, jsonify, session, current_app
 from config.db import db
 from models.userModel import User
 from models.petsModel import Pet
 from models.pedidoModel import Order
 from service.Helpers import api_error
+from sqlalchemy import or_
+from flask_bcrypt import Bcrypt
+
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
+bcrypt = Bcrypt()
 # tentamos reaproveitar uma instância de Bcrypt do app; se não houver, criamos on the fly
 def _get_bcrypt():
     ext = getattr(current_app, "extensions", {}) or {}
     bc = ext.get("bcrypt")
     if bc:
         return bc
-    from flask_bcrypt import Bcrypt
     bc = Bcrypt(current_app)
     return bc
 
@@ -155,3 +159,76 @@ class UsersController:
             }
 
         return jsonify([ser(o) for o in orders]), 200
+
+    @staticmethod
+    def create_user():
+        _email_re = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+        data = request.get_json(silent=True) or {}
+
+        username = _s(data.get("username"))
+        email    = _s(data.get("email"))
+        nome     = _s(data.get("name"))
+        endereco = _s(data.get("address"))
+        cpf      = _s(data.get("cpf"))
+        celular  = _s(data.get("phone"))
+        senha    = data.get("password")
+        conf     = data.get("confirm_password")
+
+        required = {
+        "username": username,
+        "email": email,
+        "name": nome,
+        "address": endereco,
+        "cpf": cpf,
+        "phone": celular,
+        "password": senha,
+        "confirm_password": conf,
+        }
+
+        missing = [k for k, v in required.items() if not v]
+        problems = {}
+        if missing:
+            return api_error(400, "Campos obrigatórios ausentes.", {"required": missing})
+
+        if not _email_re.match(email):
+            problems["email"] = "E-mail inválido."
+
+        if len(senha)< 6:
+            problems["password"]= "Senha deve contar ao menos 6 caracteres"
+
+        if senha != conf:
+            problems["confirm_password"] = "As senhas não coincidem."
+        
+        if problems:
+            return api_error(400, "Falha de validação.", problems)
+        
+        # 4) unicidade (username, email, cpf)
+        already = (User.query
+                .filter(or_(User.username == username,
+                            User.email == email,))
+                .first())
+        if already:
+            dup = []
+            if already.username == username: dup.append("username")
+            if already.email == email: dup.append("email")
+            return api_error(409, f"Dados já cadastrados.{dup}", {"conflicts": dup})
+        
+        try:
+            user = User(username=username, email=email.lower(),
+                        nome=nome, numero = celular,cpf=cpf,endereco=endereco,password = bcrypt.generate_password_hash(senha).decode("utf-8"))
+            
+            db.session.add(user)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return api_error(500, "Erro ao criar usuário.", {"exception": str(e)})
+        
+        session["user_id"] = user.id_user
+        session["username"] = user.username
+        return jsonify({
+                "id": user.id_user,
+                "username": user.username,
+                "email": user.email,
+                "name": user.nome,
+            }), 201

@@ -30,6 +30,10 @@ const API = {
     if(!r.ok) throw new Error('Falha ao listar pets');
     return r.json();
   },
+  async sched() { await fetch('/api/agendamentos', {credentials: includes});
+    if(!r.ok) throw new Error('Falha ao listar pets');
+    return r.json();
+  },
   async createPet(payload){
     const r = await fetch('/api/pets', {
       method: 'POST',
