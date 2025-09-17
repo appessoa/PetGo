@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, g, session
 from flask_cors import CORS
 from app.seeds import seed_db
 from config.db import db
@@ -17,16 +17,21 @@ def create_app():
     db.init_app(app)
     
     app.config["SECRET_KEY"] = config.SECRET_KEY
+    
+    @app.before_request
+    def load_user_from_session():
+        g.user_id = session.get("user_id")  # None se não logado
 
     from routes.routes_front import front_bp
     from routes.auth import auth_bp
     from routes.pets import pets_api
     from routes.user import user_api
-
+    from routes.agendamento import sched_api
     app.register_blueprint(user_api)
     app.register_blueprint(auth_bp)
     app.register_blueprint(front_bp)
     app.register_blueprint(pets_api)
+    app.register_blueprint(sched_api)
 
 
 

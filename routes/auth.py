@@ -1,7 +1,8 @@
-from flask import Blueprint
+from flask import Blueprint, session
 from controllers.authController import authController
 
 auth_bp = Blueprint("auth", __name__)
+
 
 auth_bp.get("/login")(authController.login_form)
 

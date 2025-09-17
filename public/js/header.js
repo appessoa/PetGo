@@ -22,7 +22,7 @@ export async function initHeader() {
   `;
 
   let actionsHtml = `
-    <a href="PetGoAgendamento.html"><button class="btn primary">Agende um serviço</button></a>
+    <a href="/PetGoAgendamento"><button class="btn primary">Agende um serviço</button></a>
   `;
 
   if (user && user.logged_in) {
