@@ -6,55 +6,11 @@
   <title>PetGo — Hotelzinho para Pets</title>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/public/CSS\dropdown.css">
+  <link rel="stylesheet" href="/public\CSS\hotelzinho.css">
   <link rel="stylesheet" href="/public/CSS/toast.css">
+  <link rel="stylesheet" href="/public\CSS\style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
   <script type="module" src="/public/js/hotel.js"></script>
-  <style>
-    :root{
-      --bg: #fafafa;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --primary: #FF914D;
-      --primary-600: #ff7d2e;
-      --accent: #5BC0F8;
-      --accent-100:#E6F5FE;
-      --ring: rgba(17,24,39,.08);
-      --radius: 16px;
-      --shadow: 0 10px 20px rgba(2, 6, 23, 0.06), 0 2px 6px rgba(2,6,23,0.06);
-      --shadow-lg: 0 20px 40px rgba(2, 6, 23, 0.10), 0 6px 14px rgba(2,6,23,0.08);
-      --maxw: 1200px;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter, sans-serif;}
-    a{color:inherit;text-decoration:none}
-    header{position:sticky;top:0;background:rgba(250,250,250,.8);backdrop-filter:saturate(1.2) blur(10px);border-bottom:1px solid rgba(2,6,23,.06);z-index:50}
-    .header-inner{display:flex;align-items:center;justify-content:space-between;gap:16px}
-    .logo{display:flex;align-items:center;gap:10px;font-family:Poppins, sans-serif;font-weight:800;font-size:24px}
-    .logo .paw{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#8fd3fe);display:grid;place-items:center;color:#034b72;font-weight:900}
-    nav{display:flex;gap:18px;flex-wrap:wrap}
-    nav a{font-weight:600;color:#0f172a;opacity:.85}
-    nav a:hover{opacity:1}
-    .actions{display:flex;gap:12px;align-items:center}
-
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:999px;padding:12px 18px;font-weight:700;cursor:pointer;transition:transform .18s ease, box-shadow .18s ease, background .18s ease;box-shadow:var(--shadow);background:var(--card)}
-    .btn.primary{background:var(--primary);color:white}
-    .btn.primary:hover{background:var(--primary-600);box-shadow:var(--shadow-lg)}
-
-    main{padding:24px}
-    form{background:var(--card);padding:32px;border-radius:var(--radius);box-shadow:var(--shadow);max-width:800px;margin-inline:auto;display:flex;flex-direction:column;gap:20px}
-    form h2{margin:0;font-family:Poppins, sans-serif;font-size:24px;text-align:center}
-    label{font-weight:500;display:block;margin-bottom:6px}
-    input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select, textarea{width:100%;padding:12px;border:1px solid rgba(2,6,23,.2);border-radius:8px;font-size:16px}
-    textarea{resize:vertical;min-height:100px}
-    .grid-two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-    .section-group{margin-top:20px}
-    .footer{margin-top:40px;border-top:1px solid rgba(2,6,23,.06);}
-    .footer-inner{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;padding:24px}
-    .links{display:flex;flex-direction:column;gap:8px}
-    .social{display:flex;gap:10px}
-    .badge{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:#fff;box-shadow:var(--shadow)}
-  </style>
 </head>
 <body>
   <header>
@@ -64,7 +20,7 @@
 
   <main class="container">
     <h2>Reserva de Hotelzinho PetGo</h2>
-    <form onsubmit="event.preventDefault(); alert('Reserva enviada com sucesso!');">
+    <form class="booking-form" onsubmit="event.preventDefault(); alert('Reserva enviada com sucesso!');">
       
       <!-- Informações do Pet -->
       <div class="section-group">
@@ -148,29 +104,46 @@
     </form>
   </main>
 
-  <footer class="footer">
-    <div class="container footer-inner">
-      <div>
-        <div class="logo"><span class="paw">🐾</span> PetGo</div>
-        <p>Seu pet em boas mãos. Produtos, serviços e muito carinho.</p>
+  <footer id="contato">
+  <div class="container footer-inner">
+    <div>
+      <div class="logo"><span class="paw">🐾</span> PetGo</div>
+      <p class="subtitle">Cuidando do seu pet com carinho e tecnologia.</p>
+    </div>
+
+    <div class="links">
+      <strong>Links</strong>
+      <a href="#">Sobre</a>
+      <a href="#">FAQ</a>
+      <a href="#">Política de Privacidade</a>
+    </div>
+
+    <div class="novidades-sociais">
+      <div class="novidades">
+        <strong>Novidades</strong>
+        <p class="subtitle">Receba ofertas e novidades.</p>
+        <form class="form-novidades" onsubmit="event.preventDefault(); alert('Inscrição realizada!');">
+        <input type="email" placeholder="Seu e-mail" required>
+        <button class="btn primary" type="submit">Cadastrar</button>
+        </form>
       </div>
-      <div>
-        <h4>Links úteis</h4>
-        <div class="links">
-          <a href="#">Sobre nós</a>
-          <a href="#">Política de privacidade</a>
-          <a href="#">Termos de uso</a>
-        </div>
-      </div>
-      <div>
-        <h4>Redes sociais</h4>
+      
+      <div class="redes-sociais">
+        <strong>Redes Sociais</strong>
         <div class="social">
-          <span class="badge">🐶</span>
-          <span class="badge">🐱</span>
-          <span class="badge">📸</span>
+          <a href="#" class="badge" title="Visite nosso instagram">
+            <img src="/public/img/instagram-icon.svg" alt="Instagram">
+          </a>
+          <a href="#" class="badge" title="Visite nosso Facebook">
+            <img src="/public/img/facebook-icon.svg" alt="Facebook">
+          </a>
+          <a href="#" class="badge" title="Visite nosso Tiktok">
+            <img src="/public/img/tiktok-icon.svg" alt="TikTok">
+          </a>
         </div>
       </div>
     </div>
-  </footer>
+  </div>
+</footer>
 </body>
 </html>
