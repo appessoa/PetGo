@@ -45,27 +45,131 @@ function ageFromDOB(dob){
   return `${months} mes(es)`;
 }
 function renderProfile(me){
-  // Nome, email, membro desde
+  // header do perfil
   const card = document.querySelector('.profile-card .profile-info');
-  if(!card) return;
-  card.querySelector('h2').textContent = me.nome || 'Usuário';
-  const pTags = card.querySelectorAll('p');
-  if(pTags[0]) pTags[0].textContent = `Email: ${me.email || '-'}`;
-  if(pTags[1]){
-    const dt = me.created_at ? new Date(me.created_at) : null;
-    const mes = dt ? dt.toLocaleDateString('pt-BR', { month:'long', year:'numeric' }) : '-';
-    pTags[1].textContent = `Membro desde: ${mes}`;
+  if(card){
+    card.querySelector('h2').textContent = me.nome || 'Usuário';
+    const pTags = card.querySelectorAll('p');
+    if(pTags[0]) pTags[0].textContent = `Email: ${me.email || '-'}`;
+    if(pTags[1]){
+      const dt = me.created_at ? new Date(me.created_at) : null;
+      const mes = dt ? dt.toLocaleDateString('pt-BR', { month:'long', year:'numeric' }) : '-';
+      pTags[1].textContent = `Membro desde: ${mes}`;
+    }
   }
 
-  // Preenche seção "Minhas informações" se existir no back
-  // (ajuste os seletores para seu HTML real)
-   document.querySelector('.info-grid').innerHTML = `
-    <div class="info-item"><strong>Nome:</strong> ${escapeHtml(me.nome || '-') }</div>
-    <div class="info-item"><strong>Email:</strong> ${escapeHtml(me.email || '-') }</div>
-    <div class="info-item"><strong>CPF:</strong> ${escapeHtml(me.cpf || '-') }</div>
-    <div class="info-item"><strong>Telefone:</strong> ${escapeHtml(me.numero || '-') }</div>
-    <div class="info-item"><strong>Endereço:</strong> ${escapeHtml(me.endereco || '-') }</div>
-    `;
+  // grade de informações com "caneta" por campo
+  const grid = document.getElementById('infoGrid');
+  if(!grid) return;
+
+  const fields = [
+    { key:'nome',     label:'Nome',     value: me.nome },
+    { key:'email',    label:'Email',    value: me.email },
+    { key:'cpf',      label:'CPF',      value: me.cpf },
+    { key:'numero',   label:'Telefone', value: me.numero },
+    { key:'endereco', label:'Endereço', value: me.endereco },
+  ];
+
+  grid.innerHTML = fields.map(f => infoRowTpl(f.key, f.label, f.value)).join('');
+
+  // delega edição inline
+  grid.addEventListener('click', onGridClick, { once: true });
+}
+
+function infoRowTpl(key, label, value){
+  return `
+    <div class="info-row" data-field="${key}">
+      <div class="info-meta">
+        <span class="info-label">${label}:</span>
+        <span class="info-value" data-role="value">${escapeHtml(value || '-')}</span>
+      </div>
+      <button class="icon-btn" data-role="edit" aria-label="Editar ${label}" title="Editar">
+        ${pencilSVG()}
+      </button>
+    </div>
+  `;
+}
+
+function onGridClick(e){
+  const grid = e.currentTarget;
+  grid.addEventListener('click', async ev => {
+    const btn = ev.target.closest('[data-role="edit"],[data-role="save"],[data-role="cancel"]');
+    if(!btn) return;
+
+    const row = ev.target.closest('.info-row');
+    if(!row) return;
+
+    const field = row.dataset.field;
+    const label = row.querySelector('.info-label')?.textContent.replace(':','') || field;
+
+    // entrar em modo edição
+    if(btn.dataset.role === 'edit'){
+      const current = row.querySelector('[data-role="value"]')?.textContent?.trim() || '';
+      row.innerHTML = `
+        <div class="inline-edit">
+          <span class="badge">${label}</span>
+          <input type="text" value="${escapeAttr(current === '-' ? '' : current)}" data-role="input">
+        </div>
+        <div class="inline-actions">
+          <button class="btn primary" data-role="save">Salvar</button>
+          <button class="btn" data-role="cancel">Cancelar</button>
+        </div>
+      `;
+      row.querySelector('[data-role="input"]').focus();
+      return;
+    }
+
+    // cancelar
+    if(btn.dataset.role === 'cancel'){
+      // re-render somente esta linha a partir do DOM atual do card
+      const me = await fetchJSON('/api/me');
+      row.outerHTML = infoRowTpl(field, capitalize(fieldLabel(field)), me[field] || '');
+      showToast('Edição cancelada.');
+      return;
+    }
+
+    // salvar
+    if(btn.dataset.role === 'save'){
+      const input = row.querySelector('[data-role="input"]');
+      const newValue = (input?.value || '').trim();
+
+      // payload apenas com o campo alterado
+      const body = {};
+      body[field] = newValue;
+
+      btn.disabled = true;
+      try{
+        const updated = await fetchJSON('/api/me', {
+          method:'PUT',
+          headers:{'Content-Type':'application/json'},
+          credentials:'include',
+          body: JSON.stringify(body)
+        });
+
+        // re-render linha com valor novo confirmado pelo backend
+        row.outerHTML = infoRowTpl(field, capitalize(fieldLabel(field)), updated[field] || '');
+        showToast('Informação atualizada!', 'success');
+      }catch(err){
+        showToast(err.message || 'Erro ao salvar.', 'error');
+        btn.disabled = false;
+      }
+    }
+  });
+}
+
+function fieldLabel(key){
+  const map = { nome:'Nome', email:'Email', cpf:'CPF', numero:'Telefone', endereco:'Endereço' };
+  return map[key] || key;
+}
+function capitalize(s){ return (s||'').charAt(0).toUpperCase() + (s||'').slice(1); }
+function escapeAttr(s){ return String(s).replaceAll('"','&quot;'); }
+
+function pencilSVG(){
+  return `
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M12 20h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L8 18l-4 1 1-4L16.5 3.5z" stroke="currentColor" stroke-width="2" fill="none"/>
+  </svg>`;
 }
 
 function renderPets(pets){
@@ -130,30 +234,34 @@ function renderOrders(orders){
 
 // Ações: editar perfil & alterar senha
 function wireActions(me){
-  const [btnEditar, btnSenha] = document.querySelectorAll('.account-actions .btn');
-  if(btnEditar){
-    btnEditar.addEventListener('click', async ()=>{
-      const username = prompt('Novo nome de usuário:', me.username || '');
-      const email = prompt('Novo e-mail:', me.email || '');
-      if(username === null && email === null) return;
-      try{
-        const updated = await fetchJSON('/api/me', {
-          method:'PUT',
-          headers:{'Content-Type':'application/json'},
-          credentials:'include',
-          body: JSON.stringify({ username, email })
-        });
-        renderProfile(updated);
-        alert('Perfil atualizado!');
-      }catch(e){ alert(e.message); }
+  // apenas senha (edição de perfil agora é inline por campo)
+  const toggle = document.getElementById('togglePwForm');
+  const form = document.getElementById('pwForm');
+  const cancel = document.getElementById('pwCancel');
+
+  if(toggle && form){
+    toggle.addEventListener('click', ()=>{
+      const isHidden = form.hasAttribute('hidden');
+      if(isHidden){ form.removeAttribute('hidden'); toggle.setAttribute('aria-expanded','true'); }
+      else{ form.setAttribute('hidden',''); toggle.setAttribute('aria-expanded','false'); }
     });
   }
-  if(btnSenha){
-    btnSenha.addEventListener('click', async ()=>{
-      const oldpw = prompt('Senha atual:');
-      if(oldpw === null) return;
-      const newpw = prompt('Nova senha (mín. 6 caracteres):');
-      if(newpw === null) return;
+  if(cancel && form){
+    cancel.addEventListener('click', ()=>{
+      form.reset();
+      form.setAttribute('hidden','');
+      toggle?.setAttribute('aria-expanded','false');
+    });
+  }
+  if(form){
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const oldpw = document.getElementById('pwOld').value.trim();
+      const newpw = document.getElementById('pwNew').value.trim();
+      if(!oldpw || !newpw) return;
+
+      const btn = form.querySelector('.primary');
+      btn.disabled = true;
       try{
         await fetchJSON('/api/me/password', {
           method:'PUT',
@@ -161,12 +269,78 @@ function wireActions(me){
           credentials:'include',
           body: JSON.stringify({ old_password: oldpw, new_password: newpw })
         });
-        alert('Senha alterada com sucesso!');
-      }catch(e){ alert(e.message); }
+        showToast('Senha alterada com sucesso!', 'success');
+        form.reset();
+        form.setAttribute('hidden','');
+        toggle?.setAttribute('aria-expanded','false');
+      }catch(err){
+        showToast(err.message || 'Erro ao alterar senha.', 'error');
+      }finally{
+        btn.disabled = false;
+      }
     });
   }
-  // Excluir conta — só se você criar a rota; por enquanto desabilite/oculte
 }
+// ---- Modal Alterar Senha ----
+(function setupPasswordModal(){
+  const openBtn = document.getElementById('openPwModal');
+  const modal = document.getElementById('pwModal');
+  const form = document.getElementById('pwForm');
+
+  if(!openBtn || !modal || !form) return;
+
+  const closeEls = modal.querySelectorAll('[data-close]');
+  const close = () => {
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden','true');
+    form.reset();
+  };
+  const open = () => {
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden','false');
+    // foco no primeiro campo
+    setTimeout(()=> document.getElementById('pwOld')?.focus(), 0);
+  };
+
+  openBtn.addEventListener('click', open);
+  closeEls.forEach(el => el.addEventListener('click', close));
+  modal.addEventListener('click', (e)=> {
+    if(e.target === modal) close(); // (backup)
+  });
+  document.addEventListener('keydown', (e)=> {
+    if(modal.classList.contains('show') && e.key === 'Escape') close();
+  });
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const oldpw = document.getElementById('pwOld').value.trim();
+    const newpw = document.getElementById('pwNew').value.trim();
+
+    if(newpw.length < 6){
+      showToast('A nova senha precisa ter ao menos 6 caracteres.', 'error');
+      return;
+    }
+
+    const submitBtn = form.querySelector('.primary');
+    submitBtn.disabled = true;
+
+    try{
+      await fetchJSON('/api/me/password', {
+        method:'PUT',
+        headers:{'Content-Type':'application/json'},
+        credentials:'include',
+        body: JSON.stringify({ old_password: oldpw, new_password: newpw })
+      });
+      showToast('Senha alterada com sucesso!', 'success');
+      close();
+    }catch(err){
+      showToast(err.message || 'Erro ao alterar senha.', 'error');
+    }finally{
+      submitBtn.disabled = false;
+    }
+  });
+})();
+
 
 function defaultAvatar(breed){
   const b = (breed || '').toLowerCase();
@@ -178,4 +352,18 @@ function defaultAvatar(breed){
 function escapeHtml(s){
   if(!s) return '';
   return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+}
+
+
+function showToast(message, type='info'){
+  let el = document.querySelector('.toast');
+  if(!el){
+    el = document.createElement('div');
+    el.className = 'toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = message;
+  el.className = `toast show ${type}`;
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>{ el.className = 'toast'; }, 2500);
 }
