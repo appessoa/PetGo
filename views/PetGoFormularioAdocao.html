@@ -4,57 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PetGo — Formulário de Adoção de Pet</title>
+  <link rel="stylesheet" href="/public/CSS\style.css">
+  <link rel="stylesheet" href="/public/CSS\formularioadocao.css">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/public/CSS\dropdown.css">
   <link rel="stylesheet" href="/public/CSS/toast.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
   <script type="module" src="/public/js/formulario.js"></script>
-  <style>
-    :root{
-      --bg: #fafafa;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --primary: #FF914D;
-      --primary-600: #ff7d2e;
-      --accent: #5BC0F8;
-      --accent-100:#E6F5FE;
-      --ring: rgba(17,24,39,.08);
-      --radius: 16px;
-      --shadow: 0 10px 20px rgba(2, 6, 23, 0.06), 0 2px 6px rgba(2,6,23,0.06);
-      --shadow-lg: 0 20px 40px rgba(2, 6, 23, 0.10), 0 6px 14px rgba(2,6,23,0.08);
-      --maxw: 1200px;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter, sans-serif;}
-    a{color:inherit;text-decoration:none}
-    header{position:sticky;top:0;background:rgba(250,250,250,.8);backdrop-filter:saturate(1.2) blur(10px);border-bottom:1px solid rgba(2,6,23,.06);z-index:50}
-    .header-inner{display:flex;align-items:center;justify-content:space-between;gap:16px}
-    .logo{display:flex;align-items:center;gap:10px;font-family:Poppins, sans-serif;font-weight:800;font-size:24px}
-    .logo .paw{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#8fd3fe);display:grid;place-items:center;color:#034b72;font-weight:900}
-    nav{display:flex;gap:18px;flex-wrap:wrap}
-    nav a{font-weight:600;color:#0f172a;opacity:.85}
-    nav a:hover{opacity:1}
-    .actions{display:flex;gap:12px;align-items:center}
-
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:999px;padding:12px 18px;font-weight:700;cursor:pointer;transition:transform .18s ease, box-shadow .18s ease, background .18s ease;box-shadow:var(--shadow);background:var(--card)}
-    .btn.primary{background:var(--primary);color:white}
-    .btn.primary:hover{background:var(--primary-600);box-shadow:var(--shadow-lg)}
-
-    main{padding:24px}
-    form{background:var(--card);padding:32px;border-radius:var(--radius);box-shadow:var(--shadow);max-width:800px;margin-inline:auto;display:flex;flex-direction:column;gap:20px}
-    form h2{margin:0;font-family:Poppins, sans-serif;font-size:24px;text-align:center}
-    label{font-weight:500;display:block;margin-bottom:6px}
-    input[type="text"], input[type="email"], input[type="tel"], select, textarea{width:100%;padding:12px;border:1px solid rgba(2,6,23,.2);border-radius:8px;font-size:16px}
-    textarea{resize:vertical;min-height:100px}
-    .grid-two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-    .section-group{margin-top:20px}
-    .footer{margin-top:40px;border-top:1px solid rgba(2,6,23,.06);}
-    .footer-inner{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;padding:24px}
-    .links{display:flex;flex-direction:column;gap:8px}
-    .social{display:flex;gap:10px}
-    .badge{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:#fff;box-shadow:var(--shadow)}
-  </style>
+  <script src="/public\js\utils\formadocao.js"></script>
 </head>
 <body>
   <header>
@@ -62,179 +19,192 @@
     </div>
   </header>
 
-  <main class="container">
-    <h2>Formulário de Adoção de Pet</h2>
-    <form onsubmit="event.preventDefault(); alert('Formulário enviado!');">
-      <!-- Sobre você -->
-      <div class="section-group">
-        <h3>Sobre você</h3>
-        <div class="grid-two">
-          <div>
-            <label for="nome">Nome completo *</label>
-            <input type="text" id="nome" required>
-          </div>
-          <div>
-            <label for="cpf">CPF *</label>
-            <input type="text" id="cpf" required>
-          </div>
+  <main class="container adocao-main-layout">
+    <div class="form-wrapper">
+      <div class="progress-bar" role="progressbar" aria-label="Progresso do formulário de adoção">
+        <div class="progress-step active" id="step1">
+          <span>1</span>
+          <p>Seus Dados</p>
         </div>
-        <div class="grid-two">
-          <div>
-            <label for="profissao">Profissão *</label>
-            <input type="text" id="profissao" required>
-          </div>
-          <div>
-            <label for="email">E-mail *</label>
-            <input type="email" id="email" required>
-          </div>
+        <div class="progress-step" id="step2">
+          <span>2</span>
+          <p>Endereço e Pet</p>
         </div>
-        <div class="grid-two">
-          <div>
-            <label for="telefone">Telefone *</label>
-            <input type="tel" id="telefone" required>
-          </div>
-          <div>
-            <label for="idade">Idade *</label>
-            <input type="text" id="idade" required>
-          </div>
+        <div class="progress-step" id="step3">
+          <span>3</span>
+          <p>Sobre Você e o Pet</p>
         </div>
       </div>
 
-      <!-- Endereço -->
-      <div class="section-group">
-        <h3>Dados de endereço</h3>
-        <label for="endereco">Endereço *</label>
-        <input type="text" id="endereco" required>
-        <div class="grid-two">
-          <div>
-            <label for="numero">Número *</label>
-            <input type="text" id="numero" required>
-          </div>
-          <div>
-            <label for="complemento">Complemento</label>
-            <input type="text" id="complemento">
-          </div>
-        </div>
-        <div class="grid-two">
-          <div>
-            <label for="bairro">Bairro *</label>
-            <input type="text" id="bairro" required>
-          </div>
-          <div>
-            <label for="cep">CEP *</label>
-            <input type="text" id="cep" required>
-          </div>
-        </div>
-        <div class="grid-two">
-          <div>
-            <label for="cidade">Cidade *</label>
-            <input type="text" id="cidade" required>
-          </div>
-          <div>
-            <label for="estado">Estado *</label>
-            <select id="estado" required>
-              <option value="">Selecione</option>
-              <option value="SP">SP</option>
-              <option value="RJ">RJ</option>
-              <option value="MG">MG</option>
-              <!-- etc -->
-            </select>
-          </div>
-        </div>
-      </div>
+      <h1 class="title">Formulário de Adoção de Pet</h1>
+      <p class="subtitle">Preencha com carinho para encontrarmos o par perfeito para você! 🐾</p>
 
-      <!-- Sobre sua casa -->
-      <div class="section-group">
-        <h3>Sobre sua casa</h3>
-        <div>
-          <label for="tipo_pet">Pet que deseja adotar *</label>
-          <select id="tipo_pet" required>
-            <option value="">Gato ou Cachorro</option>
-            <option value="Gato">Gato</option>
-            <option value="Cachorro">Cachorro</option>
-          </select>
-        </div>
-        <div>
-          <label>Sociável</label>
-          <select required>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </select>
-        </div>
-        <div>
-          <label>Brincalhão</label>
-          <select required>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </select>
-        </div>
-        <div>
-          <label>Carinhoso</label>
-          <select required>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Perguntas adicionais -->
-      <div class="section-group">
-        <h3>Perguntas adicionais</h3>
-        <div class="grid-two">
-          <div>
-            <label>Você mora em residência ou apartamento? *</label>
-            <select required>
-              <option value="">Selecione</option>
-              <option value="Residência">Residência</option>
-              <option value="Apartamento">Apartamento</option>
-            </select>
+      <form id="adocaoForm" onsubmit="event.preventDefault(); /* Seu JS de toast ou feedback aqui */">
+        <div class="form-step-content active" id="step1Content">
+          <div class="section-group">
+            <h3>Sobre você <span class="tooltip" aria-label="Ajuda a entender sua rotina e compatibilidade com o pet.">?</span></h3>
+            <div class="grid-two">
+              <div class="form-group">
+                <label for="nome">Nome completo *</label>
+                <input type="text" id="nome" name="nome" required aria-required="true" placeholder="Seu nome completo">
+              </div>
+              <div class="form-group">
+                <label for="cpf">CPF *</label>
+                <input type="text" id="cpf" name="cpf" required aria-required="true" placeholder="XXX.XXX.XXX-XX">
+                <p class="help-text" id="cpf-help">Apenas para identificação e segurança do processo.</p>
+              </div>
+            </div>
+            <div class="grid-two">
+              <div class="form-group">
+                <label for="profissao">Profissão *</label>
+                <input type="text" id="profissao" name="profissao" required aria-required="true" placeholder="Ex: Desenvolvedor, Estudante">
+              </div>
+              <div class="form-group">
+                <label for="email">E-mail *</label>
+                <input type="email" id="email" name="email" required aria-required="true" placeholder="seu.email@exemplo.com">
+              </div>
+            </div>
+            <div class="grid-two">
+              <div class="form-group">
+                <label for="telefone">Telefone *</label>
+                <input type="tel" id="telefone" name="telefone" required aria-required="true" placeholder="(XX) XXXXX-XXXX">
+              </div>
+              <div class="form-group">
+                <label for="idade">Idade *</label>
+                <input type="number" id="idade" name="idade" required min="18" aria-required="true" placeholder="Min. 18 anos">
+                <p class="help-text" id="idade-help">Você deve ter no mínimo 18 anos para adotar.</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <label>Se apartamento, possui telas de proteção? *</label>
-            <select required>
-              <option value="">Selecione</option>
-              <option value="Sim">Sim</option>
-              <option value="Não">Não</option>
-            </select>
+          <div class="btn-row justify-end">
+            <button type="button" class="btn primary next-step" data-step="1">Próximo</button>
           </div>
         </div>
-        <label for="por_que">Por que deseja adotar este pet? *</label>
-        <textarea id="por_que" required></textarea>
-      </div>
 
-      <button class="btn primary" type="submit">Enviar Formulário</button>
-    </form>
-  </main>
+        <div class="form-step-content" id="step2Content">
+          <div class="section-group">
+            <h3>Dados de Endereço</h3>
+            <div class="form-group">
+              <label for="cep">CEP *</label>
+              <input type="text" id="cep" name="cep" required aria-required="true" placeholder="XXXXX-XXX">
+              <p class="help-text">Ao digitar o CEP, os campos de endereço serão preenchidos.</p>
+            </div>
+            <div class="form-group">
+              <label for="endereco">Endereço *</label>
+              <input type="text" id="endereco" name="endereco" required aria-required="true" placeholder="Rua, Avenida, etc." disabled>
+            </div>
+            <div class="grid-two">
+              <div class="form-group">
+                <label for="numero">Número *</label>
+                <input type="text" id="numero" name="numero" required aria-required="true" placeholder="Ex: 123">
+              </div>
+              <div class="form-group">
+                <label for="complemento">Complemento</label>
+                <input type="text" id="complemento" name="complemento" placeholder="Apto, Bloco, etc.">
+              </div>
+            </div>
+            <div class="grid-two">
+              <div class="form-group">
+                <label for="bairro">Bairro *</label>
+                <input type="text" id="bairro" name="bairro" required aria-required="true" disabled>
+              </div>
+              <div class="form-group">
+                <label for="cidade">Cidade *</label>
+                <input type="text" id="cidade" name="cidade" required aria-required="true" disabled>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="estado">Estado *</label>
+              <select id="estado" name="estado" required aria-required="true" disabled>
+                <option value="">Selecione</option>
+                <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
+              </select>
+            </div>
+          </div>
 
-  <footer id="contato">
-    <div class="container footer-inner">
-      <div>
-        <div class="logo"><span class="paw">🐾</span> PetGo</div>
-        <p class="subtitle">Cuidando do seu pet com carinho e tecnologia.</p>
-      </div>
-      <div class="links">
-        <strong>Links</strong>
-        <a href="#">Sobre</a>
-        <a href="#">FAQ</a>
-        <a href="#">Política de Privacidade</a>
-      </div>
-      <div>
-        <strong>Novidades</strong>
-        <p class="subtitle">Receba ofertas e novidades.</p>
-        <form onsubmit="event.preventDefault(); alert('Inscrição realizada!');">
-          <input type="email" placeholder="Seu e-mail" required>
-          <button class="btn primary" type="submit">Cadastrar</button>
-        </form>
-        <div class="social">
-          <span class="badge">📸 Instagram</span>
-          <span class="badge">🎵 TikTok</span>
-          <span class="badge">📘 Facebook</span>
+          <div class="section-group">
+            <h3>Pet que deseja adotar</h3>
+            <div class="form-group">
+              <label for="tipo_pet">Tipo de Pet *</label>
+              <select id="tipo_pet" name="tipo_pet" required aria-required="true">
+                <option value="">Gato ou Cachorro</option>
+                <option value="Gato">Gato</option>
+                <option value="Cachorro">Cachorro</option>
+              </select>
+              <p class="help-text">Escolha o tipo de pet que você está procurando para sua família.</p>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn secondary prev-step" data-step="2">Anterior</button>
+            <button type="button" class="btn primary next-step" data-step="2">Próximo</button>
+          </div>
         </div>
+
+        <div class="form-step-content" id="step3Content">
+          <div class="section-group">
+            <h3>Sobre sua casa e ambiente</h3>
+            <div class="form-group">
+              <label for="residencia_tipo">Você mora em residência ou apartamento? *</label>
+              <select id="residencia_tipo" name="residencia_tipo" required aria-required="true">
+                <option value="">Selecione</option>
+                <option value="Casa">Casa</option>
+                <option value="Apartamento">Apartamento</option>
+              </select>
+            </div>
+            <div class="form-group" id="telas-protecao-group" style="display: none;">
+              <label for="telas_protecao">Se apartamento, possui telas de proteção? *</label>
+              <select id="telas_protecao" name="telas_protecao" required aria-required="true">
+                <option value="">Selecione</option>
+                <option value="Sim">Sim</option>
+                <option value="Não">Não</option>
+              </select>
+              <p class="help-text">Essencial para a segurança de gatos e cães em apartamentos.</p>
+            </div>
+          </div>
+
+          <div class="section-group">
+            <h3>Características desejadas no Pet</h3>
+            <div class="form-group">
+              <label for="sociabilidade">Nível de Sociabilidade <span class="slider-value" id="sociabilidade-value">3</span></label>
+              <input type="range" id="sociabilidade" name="sociabilidade" min="1" max="3" value="3" step="1" aria-valuemin="1" aria-valuemax="5" aria-valuenow="3" aria-label="Nível de Sociabilidade">
+            </div>
+            <div class="form-group">
+              <label for="brincadeira">Nível de Brincalhão <span class="slider-value" id="brincadeira-value">3</span></label>
+              <input type="range" id="brincadeira" name="brincadeira" min="1" max="3" value="3" step="1" aria-valuemin="1" aria-valuemax="5" aria-valuenow="3" aria-label="Nível de Brincalhão">
+            </div>
+            <div class="form-group">
+              <label for="carinho">Nível de Carinhoso <span class="slider-value" id="carinho-value">3</span></label>
+              <input type="range" id="carinho" name="carinho" min="1" max="5" value="3" step="1" aria-valuemin="1" aria-valuemax="5" aria-valuenow="3" aria-label="Nível de Carinhoso">
+            </div>
+          </div>
+
+          <div class="section-group">
+            <h3>Suas Motivações</h3>
+            <div class="form-group">
+              <label for="por_que">Por que deseja adotar este pet? *</label>
+              <textarea id="por_que" name="por_que" required aria-required="true" rows="5" placeholder="Conte-nos mais sobre o que te motiva a adotar e o que você pode oferecer a um novo membro da família."></textarea>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn secondary prev-step" data-step="3">Anterior</button>
+            <button type="submit" class="btn primary">Enviar Formulário</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="info-column-adocao">
+      <div class="info-card">
+        <h3>Adoção responsável é um ato de amor!</h3>
+        <p>Preencher este formulário com atenção nos ajuda a encontrar o lar perfeito para nossos amigos peludos. Sua sinceridade é a chave para um final feliz!</p>
+        <ul>
+          <li>💚 Um novo amigo para a vida</li>
+          <li>🏠 Lar seguro e cheio de carinho</li>
+          <li>🤝 Apoio da comunidade PetGo</li>
+        </ul>
       </div>
     </div>
-  </footer>
+  </main>
 </body>
 </html>

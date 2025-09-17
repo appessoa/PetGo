@@ -13,103 +13,131 @@
   <script type="module" src="/public/js/agendamento.js"></script>
 </head>
 <body>
-  <!-- HEADER -->
   <header>
     <div class="container header-inner" id="Header">
     </div>
   </header>
 
-  <!-- MAIN -->
-  <main class="container">
-    <h1 class="title">Agendamento de Serviços</h1>
-    <p class="subtitle">Escolha o serviço desejado e agende facilmente online. 💙</p>
+  <main class="container agendamento-layout">
+    <div class="form-column">
+      <h1 class="title">Agendamento de Serviços</h1>
+      <p class="subtitle">Escolha o serviço desejado e agende facilmente online. 💙</p>
 
-    <form id="agendamentoForm">
-      <div class="form-group">
-        <label for="nome">Nome do Tutor</label>
-        <input type="text" id="nome" name="nome" required>
-      </div>
+      <form id="agendamentoForm">
+        <div class="section-group">
+          <h3>Informações do Tutor</h3>
+          <div class="form-group">
+            <label for="nome">Nome do Tutor *</label>
+            <input type="text" id="nome" name="nome" required placeholder="Seu nome completo">
+          </div>
+        </div>
 
-      <div class="form-group">
-        <label for="pet">Pet</label>
-        <select id="pet" name="pet" required>
-          <option value="">Selecione seu pet...</option>
-          <!-- opções inseridas via JS -->
-        </select>
-      </div>
+        <div class="section-group">
+          <h3>Dados do Pet</h3>
+          <div class="form-group">
+            <label for="pet">Selecione seu Pet *</label>
+            <select id="pet" name="pet" required>
+              <option value="">Selecione seu pet...</option>
+              <option value="pet1">Mimi (Gato)</option>
+              <option value="pet2">Rex (Cachorro)</option>
+            </select>
+            <button type="button" class="btn secondary add-pet-btn">+ Adicionar novo Pet</button>
+          </div>
+        </div>
 
-      <div class="form-group">
-        <label for="servico">Serviço</label>
-        <select id="servico" name="servico" required>
-          <option value="">Selecione...</option>
-          <option value="banho">Banho & Tosa</option>
-          <option value="veterinario">Veterinário Online</option>
-          <option value="passeio">Passeio PetGo</option>
-          <option value="hotel">Hotelzinho</option>
-        </select>
-      </div>
+        <div class="section-group">
+          <h3>Serviço e Horário</h3>
+          <div class="form-group">
+            <label for="servico">Serviço *</label>
+            <select id="servico" name="servico" required>
+              <option value="">Selecione...</option>
+              <option value="banho">Banho & Tosa</option>
+              <option value="veterinario">Veterinário Online</option>
+              <option value="passeio">Passeio PetGo</option>
+              <option value="hotel">Hotelzinho</option>
+            </select>
+          </div>
 
-      <div class="form-group">
-        <label for="data">Data</label>
-        <input type="date" id="data" name="data" required>
-      </div>
-      <div class="form-group">
-        <label for="hora">Horário</label>
-        <input type="time" id="hora" name="hora" required>
-      </div>
-      <div class="form-group">
-        <label for="obs">Observações</label>
-        <textarea id="obs" name="obs" placeholder="Ex: meu cachorro é idoso, precisa de cuidados extras."></textarea>
-      </div>
-      <div class="btn-row">
-        <button type="reset" class="btn">Limpar</button>
-        <button type="submit" class="btn primary">Confirmar Agendamento</button>
-      </div>
-    </form>
+          <div class="grid-two">
+            <div class="form-group">
+              <label for="data">Data *</label>
+              <input type="date" id="data" name="data" required>
+            </div>
+            <div class="form-group">
+              <label for="hora">Horário *</label>
+              <input type="time" id="hora" name="hora" required>
+            </div>
+          </div>
+        </div>
 
+        <div class="section-group">
+          <h3>Observações</h3>
+          <div class="form-group">
+            <label for="obs">Observações adicionais</label>
+            <textarea id="obs" name="obs" placeholder="Ex: meu cachorro é idoso, precisa de cuidados extras."></textarea>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button type="submit" class="btn primary">Confirmar Agendamento</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="info-column">
+      <div class="info-card">
+        <h3>Seu Pet em Boas Mãos!</h3>
+        <p>Na PetGo, garantimos o melhor cuidado para seu amigo. Agende com tranquilidade!</p>
+        <ul>
+          <li>✅ Profissionais experientes</li>
+          <li>✅ Ambiente seguro e acolhedor</li>
+          <li>✅ Atendimento personalizado</li>
+          <li>✅ Diversos serviços à sua escolha</li>
+        </ul>
+      </div>
+    </div>
   </main>
 
-  <!-- FOOTER -->
   <footer id="contato">
-  <div class="container footer-inner">
-    <div>
-      <div class="logo"><span class="paw">🐾</span> PetGo</div>
-      <p class="subtitle">Cuidando do seu pet com carinho e tecnologia.</p>
-    </div>
-
-    <div class="links">
-      <strong>Links</strong>
-      <a href="#">Sobre</a>
-      <a href="#">FAQ</a>
-      <a href="#">Política de Privacidade</a>
-    </div>
-
-    <div class="novidades-sociais">
-      <div class="novidades">
-        <strong>Novidades</strong>
-        <p class="subtitle">Receba ofertas e novidades.</p>
-        <form class="form-novidades" onsubmit="event.preventDefault(); alert('Inscrição realizada!');">
-        <input type="email" placeholder="Seu e-mail" required>
-        <button class="btn primary" type="submit">Cadastrar</button>
-        </form>
+    <div class="container footer-inner">
+      <div>
+        <div class="logo"><span class="paw">🐾</span> PetGo</div>
+        <p class="subtitle">Cuidando do seu pet com carinho e tecnologia.</p>
       </div>
-      
-      <div class="redes-sociais">
-        <strong>Redes Sociais</strong>
-        <div class="social">
-          <a href="#" class="badge" title="Visite nosso instagram">
-            <img src="/public/img/instagram-icon.svg" alt="Instagram">
-          </a>
-          <a href="#" class="badge" title="Visite nosso Facebook">
-            <img src="/public/img/facebook-icon.svg" alt="Facebook">
-          </a>
-          <a href="#" class="badge" title="Visite nosso Tiktok">
-            <img src="/public/img/tiktok-icon.svg" alt="TikTok">
-          </a>
+
+      <div class="links">
+        <strong>Links</strong>
+        <a href="#">Sobre</a>
+        <a href="#">FAQ</a>
+        <a href="#">Política de Privacidade</a>
+      </div>
+
+      <div class="novidades-sociais">
+        <div class="novidades">
+          <strong>Novidades</strong>
+          <p class="subtitle">Receba ofertas e novidades.</p>
+          <form class="form-novidades" onsubmit="event.preventDefault(); alert('Inscrição realizada!');">
+            <input type="email" placeholder="Seu e-mail" required>
+            <button class="btn primary" type="submit">Cadastrar</button>
+          </form>
+        </div>
+        
+        <div class="redes-sociais">
+          <strong>Redes Sociais</strong>
+          <div class="social">
+            <a href="#" class="badge" title="Visite nosso instagram">
+              <img src="/public/img/instagram-icon.svg" alt="Instagram">
+            </a>
+            <a href="#" class="badge" title="Visite nosso Facebook">
+              <img src="/public/img/facebook-icon.svg" alt="Facebook">
+            </a>
+            <a href="#" class="badge" title="Visite nosso Tiktok">
+              <img src="/public/img/tiktok-icon.svg" alt="TikTok">
+            </a>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</footer>
+  </footer>
 </body>
 </html>

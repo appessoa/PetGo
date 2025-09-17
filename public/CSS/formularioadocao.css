@@ -1,0 +1,466 @@
+/* ======================================= */
+/* ===== CSS para Formulário de Adoção ===== */
+/* ======================================= */
+
+/* =============================== */
+/* ===== Layout Principal da Página ===== */
+/* =============================== */
+
+main.adocao-main-layout {
+  padding: 40px 24px; /* Espaçamento geral da main */
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Coluna do formulário maior, info menor */
+  gap: 40px; /* Espaço entre as colunas */
+  align-items: flex-start; /* Alinha o conteúdo ao topo */
+}
+
+.form-wrapper {
+  background: var(--card);
+  padding: 32px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid #e2e8f0;
+}
+
+/* TÍTULOS E SUBTÍTULOS */
+.title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 36px;
+  color: var(--text);
+  margin-top: 0;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 18px;
+  color: var(--muted);
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* =============================== */
+/* ===== Indicador de Progresso (Multi-step) ===== */
+/* =============================== */
+.progress-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  position: relative;
+  padding: 0 10%; /* Espaço nas pontas para os círculos */
+}
+
+.progress-bar::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 5%; /* Ajustado para começar um pouco depois */
+  right: 5%; /* Ajustado para terminar um pouco antes */
+  height: 4px;
+  background: #e0e0e0;
+  transform: translateY(-50%);
+  z-index: 1;
+  width: 90%; /* Largura da linha */
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2; /* Acima da linha */
+  color: var(--muted);
+  transition: color 0.3s ease;
+}
+
+.progress-step span {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 8px;
+  border: 2px solid #e0e0e0;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.progress-step p {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  text-align: center;
+}
+
+.progress-step.active span {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.progress-step.active p {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Para steps "completos" */
+.progress-step.completed span {
+    background: var(--accent); /* Ex: azul claro */
+    border-color: var(--accent);
+    color: white;
+}
+.progress-step.completed p {
+    color: var(--text);
+}
+
+
+/* =============================== */
+/* ===== Formulário em Etapas ===== */
+/* =============================== */
+.form-step-content {
+  display: none; /* Esconde todas as etapas por padrão */
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-step-content.active {
+  display: flex; /* Mostra apenas a etapa ativa */
+}
+
+
+/* SEÇÕES DENTRO DO FORMULÁRIO */
+.section-group {
+  margin-top: 0; /* Começa sem margem superior */
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Espaço entre os grupos de campos */
+}
+
+.section-group h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  padding-bottom: 8px;
+  margin-bottom: 0; /* Controlado pelo gap do section-group */
+  color: var(--text);
+  border-bottom: 2px solid var(--primary); /* Linha laranja */
+  width: 100%;
+}
+
+/* GRIDS DE CAMPOS */
+.grid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* =============================== */
+/* ===== Estilização dos Campos ===== */
+/* =============================== */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* Espaço entre label e input */
+}
+
+label {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #cbd5e1; /* Cinza mais sutil */
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: var(--card); /* Garante fundo branco para inputs */
+  color: var(--text);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 145, 77, 0.3);
+}
+input:disabled, select:disabled {
+  background-color: #f8fafc; /* Fundo mais claro para campos desabilitados */
+  cursor: not-allowed;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Tooltip */
+.tooltip {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-100);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: bold;
+  display: grid;
+  place-items: center;
+  cursor: help;
+  position: relative;
+  text-decoration: none; /* Remove underline padrão do a */
+}
+.tooltip::after {
+  content: attr(aria-label);
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+  background: #333;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none; /* Não interfere com cliques */
+}
+.tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-110%);
+}
+
+/* Help Text abaixo dos campos */
+.help-text {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+/* =============================== */
+/* ===== Estilo do Slider (Range) ===== */
+/* =============================== */
+input[type="range"] {
+  -webkit-appearance: none; /* Remove estilo padrão do navegador */
+  appearance: none;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  outline: none;
+  margin-top: 10px;
+  transition: opacity .2s;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--primary);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid var(--card); /* Borda branca para destacar */
+  box-shadow: 0 0 0 1px var(--primary-600);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--primary);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid var(--card);
+  box-shadow: 0 0 0 1px var(--primary-600);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+input[type="range"]:hover::-webkit-slider-thumb,
+input[type="range"]:hover::-moz-range-thumb {
+    background: var(--primary-600);
+    box-shadow: 0 0 0 2px var(--primary-600);
+}
+
+.slider-value {
+  display: inline-block;
+  min-width: 20px; /* Para garantir que o número não pule muito */
+  text-align: right;
+  font-weight: 600;
+  color: var(--primary);
+  margin-left: auto; /* Empurra o valor para a direita da label */
+}
+
+
+/* =============================== */
+/* ===== Botões de Navegação ===== */
+/* =============================== */
+.btn-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+}
+.btn-row.justify-end {
+  justify-content: flex-end; /* Alinha à direita */
+}
+.btn-row.justify-between {
+  justify-content: space-between; /* Alinha um na esquerda, outro na direita */
+}
+
+/* Estilo para botão secundário (Anterior) */
+.btn.secondary {
+  background: var(--accent-100);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  box-shadow: none;
+}
+.btn.secondary:hover {
+  background: var(--accent);
+  color: var(--card);
+  box-shadow: var(--shadow); /* Adiciona sombra no hover */
+}
+
+.btn.primary {
+  max-width: 250px; /* Ajusta largura para o botão principal */
+  width: 100%;
+}
+
+
+/* =============================== */
+/* ===== Coluna de Informações Lateral ===== */
+/* =============================== */
+.info-column-adocao {
+  position: sticky; /* Mantém o card fixo ao rolar */
+  top: 100px; /* Distância do topo */
+  align-self: start; /* Impede que ele ocupe toda a altura */
+  max-height: calc(100vh - 120px); /* Altura máxima para caber na tela */
+  overflow-y: auto; /* Adiciona scroll se o conteúdo for muito longo */
+}
+
+.info-card {
+  background: var(--accent-100); /* Fundo azul claro */
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--accent); /* Borda da cor do accent */
+}
+
+.info-card-img {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  aspect-ratio: 4/3; /* Proporção de imagem para evitar deformação */
+  object-fit: cover;
+}
+
+.info-card h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 20px;
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.info-card p {
+  color: var(--muted);
+  margin-bottom: 16px;
+  font-size: 15px;
+}
+
+.info-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--muted);
+}
+
+.info-card ul li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.info-card ul li::before {
+  content: '✓'; /* Ícone de checkmark */
+  color: var(--primary); /* Cor primária para o check */
+  font-weight: bold;
+  font-size: 16px;
+}
+
+
+/* =============================== */
+/* ===== DESIGN RESPONSIVO ===== */
+/* =============================== */
+
+@media (max-width: 992px) {
+  main.adocao-main-layout {
+    grid-template-columns: 1fr; /* Uma coluna em telas menores */
+    gap: 30px;
+  }
+  .info-column-adocao {
+    position: static; /* Remove o sticky em mobile */
+    top: auto;
+    align-self: auto;
+    max-height: none;
+  }
+  .progress-bar {
+    padding: 0;
+  }
+  .progress-bar::before {
+    left: 0;
+    right: 0;
+    width: 100%;
+  }
+  .progress-step span {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+  .progress-step p {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-two {
+    grid-template-columns: 1fr; /* Campos empilhados em mobile */
+  }
+  .title {
+    font-size: 30px;
+  }
+  .subtitle {
+    font-size: 16px;
+  }
+  .form-wrapper {
+    padding: 24px;
+  }
+  .btn-row {
+    flex-direction: column; /* Botões empilhados em mobile */
+  }
+  .btn.primary, .btn.secondary {
+    max-width: 100%;
+  }
+  .btn-row.justify-end, .btn-row.justify-between {
+    justify-content: flex-start; /* Alinha à esquerda se empilhado */
+    align-items: stretch; /* Estica para largura total */
+  }
+}
