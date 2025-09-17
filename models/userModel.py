@@ -6,6 +6,10 @@ class User(db.Model):
     
     id_user: int - PK
     username: str - Nome de usuário
+    nome: str - Nome completo do usuário
+    numero: str - Número de telefone do usuário
+    cpf: str - CPF do usuário
+    endereco: str - Endereço do usuário
     email: str - Email do usuário
     password: str - Hash da senha do usuário
     created_at: datetime - Timestamp de criação do registro
@@ -16,6 +20,10 @@ class User(db.Model):
 
     id_user = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
+    nome = db.Column(db.Text, nullable=True)
+    numero = db.Column(db.String(20), nullable=True)
+    cpf = db.Column(db.String(14), nullable=True)
+    endereco = db.Column(db.String(255), nullable=True)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

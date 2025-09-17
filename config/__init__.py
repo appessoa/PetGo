@@ -22,5 +22,10 @@ class Config:
     ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@petgo.com")
     ADMIN_USER  = os.getenv("ADMIN_USER",  "admin")
     ADMIN_PASS  = os.getenv("ADMIN_PASS",  "Admin123!")
+    NAME = os.getenv("NAME", "Pedro Augusto Borges Quintas")
+    Endereco = os.getenv("Endereco", "Rua Exemplo, 123")
+    Telefone = os.getenv("Telefone", "(11) 91234-5678")
+    CPF = os.getenv("CPF", "123.456.789-00")
+    
 
 config = Config()

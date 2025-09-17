@@ -1,18 +1,21 @@
-from datetime import datetime
+from datetime import date, datetime
 import gzip
 from config.db import db
 import base64
 
-class Pet(db.Model):  # corrigido de db.model -> db.Model
+class Pet(db.Model): 
     __tablename__ = 'pets'
 
     id_pet = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
-    idade = db.Column(db.Integer, nullable=False)
     raca = db.Column(db.String(100), nullable=False)
+    species = db.Column(db.String(100), nullable=True)  # ex: 'Cachorro', 'Gato'
+    breed = db.Column(db.String(100), nullable=False)  
     peso = db.Column(db.Float, nullable=False)
+    sexo = db.Column(db.String(10), nullable=True)
+    dob = db.Column(db.Date, nullable=False)
     descricao = db.Column(db.Text, nullable=True) 
-    adotado = db.Column(db.Boolean, default=False)
+    adotado = db.Column(db.Boolean, default=True)
     foto_bloob = db.Column(db.LargeBinary, nullable=True)  # <-- FOTO REAL
     foto_mime = db.Column(db.String(50), nullable=True)  # ex: 'image/jpeg', 'image/png'
     adocao = db.Column(db.Boolean, default=False)
@@ -43,7 +46,7 @@ class Pet(db.Model):  # corrigido de db.model -> db.Model
         """
         Salva foto compactada com gzip em foto_bloob.
         - raw_bytes: bytes originais do arquivo (jpg/png)
-        - mime: 'image/jpeg' | 'image/png' (opcional, mas recomendado)
+        - mime: 'image/jpeg' | 'image/png' 
         """
         if not raw_bytes:
             self.foto_bloob = None
@@ -70,18 +73,12 @@ class Pet(db.Model):  # corrigido de db.model -> db.Model
                 return data
         # dados legados sem gzip
         return data
-
-
     
     # Aliases para o front
     @property
     def name(self): return self.nome
     @property
-    def species(self): return None  # não temos campo, mas pode mapear da raça
-    @property
     def breed(self): return self.raca
-    @property
-    def dob(self): return None  # se quiser mapear de idade
     @property
     def weight(self): return self.peso
     @property
@@ -96,16 +93,27 @@ class Pet(db.Model):  # corrigido de db.model -> db.Model
         mime = self.foto_mime or 'image/jpeg'
         b64 = base64.b64encode(raw).decode('utf-8')
         return f"data:{mime};base64,{b64}"
+    @property
+    def idade_str(self) -> str:
+        if not self.dob:
+            return "Idade desconhecida"
+        hoje = date.today()
+        anos = hoje.year - self.dob.year - ((hoje.month, hoje.day) < (self.dob.month, self.dob.day))
+        meses = (hoje.year - self.dob.year) * 12 + hoje.month - self.dob.month
+        if hoje.day < self.dob.day:
+            meses -= 1
+        return f"{anos} ano(s) e {meses % 12} mes(es)" if anos > 0 else f"{meses} mes(es)"
     
     def to_dict(self, with_children: bool = True):
         data = {
             "id": self.id_pet,
-            "name": self.name,
+            "name": self.nome,
+            "breed": self.raca,
+            "sexo": self.sexo,
+            "dob": self.dob.isoformat() if self.dob else None,  # ✅ data crua pro front
+            "weight": self.peso,
             "species": self.species,
-            "breed": self.breed,
-            "dob": self.dob,
-            "weight": self.weight,
-            "photo": self.photo,  
+            "photo": self.photo,
             "descricao": self.descricao,
             "adotado": self.adotado,
             "adocao": self.adocao,
@@ -115,8 +123,8 @@ class Pet(db.Model):  # corrigido de db.model -> db.Model
             "deleted": self.deleted,
         }
         if with_children:
-            data["vaccines"] = [v.to_dict() for v in getattr(self, "vaccines", [])]
-            data["consultations"] = [c.to_dict() for c in getattr(self, "consultations", [])]
+            data["vaccines"] = [v.to_dict() for v in getattr(self,"vaccines",[])]
+            data["consultations"] = [c.to_dict() for c in getattr(self,"consultations",[])]
             data["uploads"] = []
         return data
 

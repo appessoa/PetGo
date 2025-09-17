@@ -10,8 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
   <script type="module" src="/public/js/health.js"></script>
-  
 </head>
+
 <body>
   <!-- header oficial (copiado) -->
   <header>
@@ -52,11 +52,24 @@
           <h3>Novo Pet</h3>
           <div class="form-row" style="margin-top:8px">
             <input id="petName" type="text" placeholder="Nome" />
-            <input id="petSpecies" type="text" placeholder="Espécie (ex: Cachorro, Gato)" />
+            <select id="petSpecies">
+              <option value="" disabled selected>Selecione a especie </option>
+              <option value="Cachorro">Cachorro</option>
+              <option value="Gato">Gato</option>
+              <option value="Pássaro">Pássaro</option>
+              <option value="Roedor">Roedor</option>
+              <option value="Réptil">Réptil</option>
+              <option value="Outro">Outro</option>
+            </select>
             <input id="petBreed" type="text" placeholder="Raça" />
           </div>
           <div class="form-row" style="margin-top:8px">
             <input id="petDOB" type="date" />
+            <select id="petSexo">
+              <option value="" disabled selected>Selecione o sexo </option>
+              <option value="Macho">Macho</option>
+              <option value="Fêmea">Fêmea</option>
+            </select>
             <input id="petWeight" type="text" placeholder="Peso (kg)" />
             <input id="petPhoto" type="file" accept="image/*" />
           </div>
@@ -89,21 +102,36 @@
             <div class="card" style="margin-bottom:10px">
               <form id="vaccineForm">
                 <div class="form-row">
-                  <input id="vacName" type="text" placeholder="Nome da vacina (ex: Raiva)" required>
-                  <input id="vacDate" type="date" required>
+                  <div class="input-group">
+                    <label for="vacName">Nome da vacina (ex: Raiva)</label>
+                    <input id="vacName" type="text" required>
+                  </div>
+                  <div class="input-group">
+                    <label for="vacDate">Data da vacina</label>
+                    <input id="vacDate" type="date" required>
+                  </div>
                 </div>
                 <div class="form-row" style="margin-top:8px">
-                  <input id="vacNext" type="date" placeholder="Próxima dose (opcional)">
-                  <input id="vacNotes" type="text" placeholder="Observações (opcional)">
+                  <div class="input-group">
+                    <label for="vacNext">Próxima dose (opcional)</label>
+                    <input id="vacNext" type="date">
+                  </div>
+                  <div class="input-group">
+                    <label for="vacNotes">Observações (opcional)</label>
+                    <input id="vacNotes" type="text">
+                  </div>
                 </div>
-                <div style="margin-top:8px"><button class="btn primary" type="submit">Adicionar Vacina</button></div>
+                <div style="margin-top:8px">
+                  <button class="btn primary" type="submit">Adicionar Vacina</button>
+                </div>
               </form>
             </div>
 
-            <div class="timeline" id="vaccineList">
-              <!-- vacinas via JS -->
-            </div>
+            <!-- ✅ timeline que o JS precisa -->
+            <div class="timeline" id="vaccineList"></div>
           </div>
+
+
 
           <!-- Consultas -->
           <div class="section">
@@ -111,11 +139,17 @@
             <div class="card" style="margin-bottom:10px">
               <form id="consultForm">
                 <div class="form-row">
+                  <div class="input-group">
+                  <label for="consDate">Data da Consulta</label>
                   <input id="consDate" type="date" required>
+                  </div>
+                  <div class="input-group">
+                  <label for="consReason">Motivo (ex: Check-up)</label>
                   <input id="consReason" type="text" placeholder="Motivo (ex: Check-up)">
+                  </div>
                 </div>
                 <div style="margin-top:8px">
-                  <textarea id="consNotes" placeholder="Observações / Receita (opcional)"></textarea>
+                  <textarea id="consNotes"></textarea>
                 </div>
                 <div style="margin-top:8px"><button class="btn primary" type="submit">Registrar Consulta</button></div>
               </form>

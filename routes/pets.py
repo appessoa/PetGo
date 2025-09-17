@@ -1,114 +1,18 @@
-from flask import Blueprint, jsonify, request, session, current_app, Response, url_for
+import gzip
+from flask import Blueprint, Response, jsonify, request
 from config.db import db
+from controllers.petsController import PetsController
+from models.consultasModel import Consultation
 from models.petsModel import Pet
 from models.vacinaModel import Vaccine
-from models.consultasModel import Consultation
-from service.petsService import (
-    list_pets as svc_list,
-    create_pet as svc_create,
-    update_pet as svc_update,
-    delete_pet as svc_delete,
-    ValidationError,
-)
 from service.Helpers import api_error
-import base64, gzip
 
-pets_api = Blueprint('pets_api', __name__, url_prefix='/api')
+pets_api = Blueprint("pets_api", __name__, url_prefix="/api")
 
-def _pet_to_dict(p: Pet):
-    if hasattr(p, "to_dict"):
-        return p.to_dict(with_children=True)
-    return {
-        "id": p.id_pet,
-        "name": getattr(p, "name", None) or p.nome,
-        "species": getattr(p, "species", None),
-        "breed": getattr(p, "breed", None) or p.raca,
-        "dob": getattr(p, "dob", None),
-        "weight": getattr(p, "weight", None) or p.peso,
-        "photo": getattr(p, "photo", None),
-        "vaccines": [ {"id": v.id_vacina, "name": v.name, "date": v.date, "next": v.next, "notes": v.notes} for v in getattr(p, "vaccines", []) ],
-        "consultations": [ {"id": c.id_consulta, "date": c.date, "reason": c.reason, "notes": c.notes} for c in getattr(p, "consultations", []) ],
-        "uploads": []
-    }
-
-@pets_api.get('/pets')
-def list_pets():
-    try:
-        uid = session.get('user_id')
-        pets = svc_list(uid)
-        return jsonify([_pet_to_dict(p) for p in pets])
-    except Exception as e:
-        return api_error(500, "Falha ao listar pets", exc=e)
-
-@pets_api.post('/pets')
-def create_pet():
-    try:
-        if request.content_type and request.content_type.startswith('multipart/form-data'):
-            form = request.form
-            data = {
-                "name": (form.get('nome') or form.get('name') or '').strip(),
-                "idade": form.get('idade'),
-                "breed": (form.get('raca') or form.get('breed') or '').strip(),
-                "weight": form.get('peso') or form.get('weight'),
-                "descricao": form.get('descricao'),
-                "adocao": form.get('adocao'),
-            }
-            file = request.files.get('foto')
-            if file and file.filename:
-                b64 = base64.b64encode(file.read()).decode('utf-8')
-                data["photo"] = f"data:{file.mimetype or 'image/jpeg'};base64,{b64}"
-        else:
-            data = request.get_json(silent=True) or {}
-
-        p = svc_create(session.get('user_id'), data)
-        if hasattr(p, "foto_url") and not p.foto_url:
-            p.foto_url = url_for('pets_api.pet_photo', pid=p.id_pet, _external=True)
-            db.session.commit()
-        return jsonify(_pet_to_dict(p)), 201
-
-    except ValidationError as ve:
-        return api_error(400, "Validação falhou", cause=str(ve), details={"field": ve.field})
-    except Exception as e:
-        return api_error(500, "Erro inesperado ao criar pet", exc=e)
-
-@pets_api.put('/pets/<int:pid>')
-def update_pet(pid):
-    try:
-        if request.content_type and request.content_type.startswith('multipart/form-data'):
-            form = request.form
-            data = {
-                "name": (form.get('nome') or form.get('name')),
-                "idade": form.get('idade'),
-                "breed": (form.get('raca') or form.get('breed')),
-                "weight": form.get('peso') or form.get('weight'),
-                "descricao": form.get('descricao'),
-                "adocao": form.get('adocao'),
-            }
-            file = request.files.get('foto')
-            if file and file.filename:
-                b64 = base64.b64encode(file.read()).decode('utf-8')
-                data["photo"] = f"data:{file.mimetype or 'image/jpeg'};base64,{b64}"
-        else:
-            data = request.get_json(silent=True) or {}
-
-        p = svc_update(pid, data)
-        if hasattr(p, "foto_url") and not p.foto_url:
-            p.foto_url = url_for('pets_api.pet_photo', pid=p.id_pet, _external=True)
-            db.session.commit()
-        return jsonify(_pet_to_dict(p))
-
-    except ValidationError as ve:
-        return api_error(400, "Validação falhou", cause=str(ve), details={"field": ve.field})
-    except Exception as e:
-        return api_error(500, "Erro inesperado ao atualizar pet", exc=e)
-
-@pets_api.delete('/pets/<int:pid>')
-def delete_pet(pid):
-    try:
-        svc_delete(pid)
-        return '', 204
-    except Exception as e:
-        return api_error(500, "Erro ao excluir (soft) pet", exc=e)
+pets_api.get("/pets")(PetsController.get_pets)
+pets_api.post("/pets")(PetsController.create)
+pets_api.put("/pets/<int:pet_id>")(PetsController.update)
+pets_api.delete("/pets/<int:pet_id>")(PetsController.delete)
 
 @pets_api.post('/pets/<int:pid>/vaccines')
 def add_vaccine(pid):

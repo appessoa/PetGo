@@ -11,7 +11,17 @@ let state = { pets: [], selectedPetId: null };
 // ====== Utils ======
 const $  = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
-function uid(){ return 'p_' + Math.random().toString(36).slice(2,9); } // ainda uso p/ itens locais (vac/cons/uploads) até receber id do server
+
+// Retorna elemento e emite warning se não existir (evita TypeError de null.innerHTML)
+function must$(sel) {
+  const el = $(sel);
+  if (!el) {
+    console.warn(`[UI] Elemento não encontrado: ${sel}. Verifique o HTML.`);
+  }
+  return el;
+}
+
+function uid(){ return 'p_' + Math.random().toString(36).slice(2,9); } // ids locais (uploads etc.)
 
 // ====== API helpers ======
 const API = {
@@ -28,7 +38,7 @@ const API = {
       body: JSON.stringify(payload)
     });
     if(!r.ok) throw new Error('Falha ao criar pet');
-    return r.json(); // deve vir o pet com id
+    return r.json();
   },
   async updatePet(id, payload){
     const r = await fetch(`/api/pets/${id}`, {
@@ -41,10 +51,7 @@ const API = {
     return r.json();
   },
   async deletePet(id){
-    const r = await fetch(`/api/pets/${id}`, {
-      method: 'DELETE',
-      credentials: 'include'
-    });
+    const r = await fetch(`/api/pets/${id}`, { method: 'DELETE', credentials: 'include' });
     if(!r.ok) throw new Error('Falha ao excluir pet');
     return true;
   },
@@ -56,13 +63,10 @@ const API = {
       body: JSON.stringify(vac)
     });
     if(!r.ok) throw new Error('Falha ao adicionar vacina');
-    return r.json(); // vacina com id
+    return r.json();
   },
   async removeVaccine(petId, vId){
-    const r = await fetch(`/api/pets/${petId}/vaccines/${vId}`, {
-      method: 'DELETE',
-      credentials: 'include'
-    });
+    const r = await fetch(`/api/pets/${petId}/vaccines/${vId}`, { method: 'DELETE', credentials: 'include' });
     if(!r.ok) throw new Error('Falha ao remover vacina');
     return true;
   },
@@ -77,10 +81,7 @@ const API = {
     return r.json();
   },
   async removeConsult(petId, cId){
-    const r = await fetch(`/api/pets/${petId}/consultations/${cId}`, {
-      method: 'DELETE',
-      credentials: 'include'
-    });
+    const r = await fetch(`/api/pets/${petId}/consultations/${cId}`, { method: 'DELETE', credentials: 'include' });
     if(!r.ok) throw new Error('Falha ao remover consulta');
     return true;
   }
@@ -94,7 +95,7 @@ async function boot(){
     console.error(e);
     state.pets = [];
   }
-  if(state.pets.length) state.selectedPetId = state.pets[0].id;
+  if(state.pets.length) state.selectedPetId = normalizeId(state.pets[0].id);
   renderPetsList();
   renderReminders();
   renderSelected();
@@ -103,21 +104,22 @@ async function boot(){
 
 // ====== Rendering ======
 function renderPetsList(){
-  const list = $('#petsList');
+  const list = must$('#petsList'); if(!list) return;
   list.innerHTML = '';
   state.pets.forEach(p => {
     const petPhoto = p.photo || defaultAvatar(p.species);
     const el = document.createElement('div');
-    el.className = 'pet-item' + (p.id === state.selectedPetId ? ' active' : '');
-    el.dataset.id = p.id;
+    const pid = normalizeId(p.id);
+    el.className = 'pet-item' + (pid === state.selectedPetId ? ' active' : '');
+    el.dataset.id = pid;
     el.innerHTML = `
-      <img src="${petPhoto}" class="pet-avatar" alt="${p.name}">
+      <img src="${petPhoto}" class="pet-avatar" alt="${escapeHtml(p.name)}">
       <div>
         <div style="font-weight:700">${escapeHtml(p.name)}</div>
         <div class="muted">${escapeHtml(p.species || '')} • ${escapeHtml(p.breed || '')}</div>
       </div>
     `;
-    el.addEventListener('click', () => { selectPet(p.id) });
+    el.addEventListener('click', () => { selectPet(pid) });
     list.appendChild(el);
   });
   if(state.pets.length === 0){
@@ -134,60 +136,76 @@ function defaultAvatar(species){
 }
 
 function renderSelected(){
-  const pet = state.pets.find(p => p.id === state.selectedPetId);
+  const detail = must$('#petDetail');
+  const empty = must$('#emptyPlaceholder');
+  const notice = must$('#noticeBox');
+  if(!detail || !empty || !notice) return;
+
+  const pet = state.pets.find(p => normalizeId(p.id) === state.selectedPetId);
   if(!pet){
-    $('#petDetail').style.display = 'none';
-    $('#emptyPlaceholder').style.display = 'block';
-    $('#noticeBox').innerHTML = '';
+    detail.style.display = 'none';
+    empty.style.display = 'block';
+    notice.innerHTML = '';
     return;
   }
 
-  const petPhoto = pet.photo || defaultAvatar(pet.species); // ✅
+  const petPhoto = pet.photo || defaultAvatar(pet.species);
 
-  $('#emptyPlaceholder').style.display = 'none';
-  $('#petDetail').style.display = 'block';
-  $('#detailPhoto').src = petPhoto;
-  $('#detailName').textContent = pet.name;
-  $('#detailInfo').textContent =
-    `${pet.species || '-'} • ${pet.breed || '-'} • ${pet.dob ? ageFromDOB(p.dob) : 'idade desconhecida'} • ${pet.weight ? pet.weight + ' kg' : ''}`;
+  empty.style.display = 'none';
+  detail.style.display = 'block';
+  const photoEl = must$('#detailPhoto');
+  const nameEl  = must$('#detailName');
+  const infoEl  = must$('#detailInfo');
+  if(photoEl) photoEl.src = petPhoto;
+  if(nameEl)  nameEl.textContent = pet.name || '';
+  if(infoEl)  infoEl.textContent =
+    `${pet.species || '-'} • ${pet.sexo || '-'} • ${pet.breed || '-'} • ` +
+    `${pet.dob ? ageFromDOB(pet.dob) : 'idade desconhecida'}` +
+    `${pet.weight ? ` • ${pet.weight} kg` : ''}`;
 
-  const vList = $('#vaccineList'); vList.innerHTML = '';
-  (pet.vaccines || []).slice().reverse().forEach(v=>{
-    const div = document.createElement('div');
-    div.className = 'timeline-item';
-    div.innerHTML = `<strong>${escapeHtml(v.name)}</strong>
-      <div class="meta">${formatDate(v.date)} ${v.next ? '• Próx: ' + formatDate(v.next) : ''}</div>
-      <div style="margin-top:6px">${escapeHtml(v.notes || '')}</div>
-      <div style="margin-top:8px"><button data-id="${v.id}" class="btn" onclick="removeVaccine('${v.id}')">Remover</button></div>`;
-    vList.appendChild(div);
-  });
+  const vList = must$('#vaccineList'); if(vList){ 
+    vList.innerHTML = '';
+    (pet.vaccines || []).slice().reverse().forEach(v=>{
+      const div = document.createElement('div');
+      div.className = 'timeline-item';
+      div.innerHTML = `<strong>${escapeHtml(v.name)}</strong>
+        <div class="meta">${formatDate(v.date)} ${v.next ? '• Próx: ' + formatDate(v.next) : ''}</div>
+        <div style="margin-top:6px">${escapeHtml(v.notes || '')}</div>
+        <div style="margin-top:8px"><button data-id="${v.id}" class="btn" onclick="removeVaccine('${v.id}')">Remover</button></div>`;
+      vList.appendChild(div);
+    });
+  }
 
-  const cList = $('#consultList'); cList.innerHTML = '';
-  (pet.consultations || []).slice().reverse().forEach(c=>{
-    const div = document.createElement('div');
-    div.className = 'timeline-item';
-    div.innerHTML = `<strong>${escapeHtml(c.reason || 'Consulta')}</strong>
-    <div class="meta">${formatDate(c.date)}</div>
-    <div style="margin-top:6px">${escapeHtml(c.notes || '')}</div>
-    <div style="margin-top:8px"><button data-id="${c.id}" class="btn" onclick="removeConsult('${c.id}')">Remover</button></div>`;
-    cList.appendChild(div);
-  });
+  const cList = must$('#consultList'); if(cList){
+    cList.innerHTML = '';
+    (pet.consultations || []).slice().reverse().forEach(c=>{
+      const div = document.createElement('div');
+      div.className = 'timeline-item';
+      div.innerHTML = `<strong>${escapeHtml(c.reason || 'Consulta')}</strong>
+        <div class="meta">${formatDate(c.date)}</div>
+        <div style="margin-top:6px">${escapeHtml(c.notes || '')}</div>
+        <div style="margin-top:8px"><button data-id="${c.id}" class="btn" onclick="removeConsult('${c.id}')">Remover</button></div>`;
+      cList.appendChild(div);
+    });
+  }
 
-  const upList = $('#uploadsList'); upList.innerHTML = '';
-  (pet.uploads || []).forEach(u=>{
-    const img = document.createElement('img');
-    img.className = 'upload-thumb';
-    img.src = u.data;
-    img.title = u.name;
-    upList.appendChild(img);
-  });
+  const upList = must$('#uploadsList'); if(upList){
+    upList.innerHTML = '';
+    (pet.uploads || []).forEach(u=>{
+      const img = document.createElement('img');
+      img.className = 'upload-thumb';
+      img.src = u.data;
+      img.title = u.name;
+      upList.appendChild(img);
+    });
+  }
 
   renderNotice(pet);
   renderReminders();
 }
 
 function renderNotice(pet){
-  const box = $('#noticeBox');
+  const box = must$('#noticeBox'); if(!box) return;
   const upcoming = (pet.vaccines || [])
     .filter(v => v.next)
     .map(v => ({...v, days: daysUntil(v.next)}))
@@ -201,7 +219,7 @@ function renderNotice(pet){
 }
 
 function renderReminders(){
-  const container = $('#reminders');
+  const container = must$('#reminders'); if(!container) return;
   container.innerHTML = '';
   const items = [];
   state.pets.forEach(p => {
@@ -223,17 +241,23 @@ function renderReminders(){
 }
 
 // ====== Helpers ======
+function normalizeId(id){ return id != null ? String(id) : null; }
+
 function formatDate(d){ if(!d) return ''; const dt = new Date(d); return dt.toLocaleDateString(); }
-function daysUntil(d){
-  const t = new Date(d); const now = new Date();
-  return Math.ceil((t - now) / (1000*60*60*24));
-}
+function daysUntil(d){ const t = new Date(d); const now = new Date(); return Math.ceil((t - now) / (1000*60*60*24)); }
+
 function ageFromDOB(dob){
-  if(!dob) return '';
-  const b = new Date(dob); const now = new Date();
-  const years = now.getFullYear() - b.getFullYear();
-  return years + ' ano(s)';
+  if(!dob) return 'idade desconhecida';
+  const b = new Date(dob);
+  const now = new Date();
+  let years = now.getFullYear() - b.getFullYear();
+  let months = now.getMonth() - b.getMonth();
+  if (now.getDate() < b.getDate()) months -= 1;
+  if (months < 0) { years -= 1; months += 12; }
+  if (years > 0) return `${years} ano(s) e ${months} mes(es)`;
+  return `${months} mes(es)`;
 }
+
 function escapeHtml(s){ if(!s) return ''; return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 async function readFileAsDataURL(file){
   return new Promise((res, rej)=>{
@@ -246,84 +270,91 @@ async function readFileAsDataURL(file){
 
 // ====== Actions ======
 function selectPet(id){
-  state.selectedPetId = id;
+  state.selectedPetId = normalizeId(id);
   renderPetsList(); renderSelected();
 }
 
-// Remoções (agora chamam API)
+// Expor no escopo global os removers usados em onclick
 window.removeVaccine = async function(vId){
-  const pet = state.pets.find(p=>p.id===state.selectedPetId);
+  const pet = state.pets.find(p=>normalizeId(p.id)===state.selectedPetId);
   if(!pet) return;
   try{
     await API.removeVaccine(pet.id, vId);
     pet.vaccines = (pet.vaccines || []).filter(v=>v.id !== vId);
     renderSelected(); renderPetsList();
   }catch(e){ alert('Falha ao remover vacina'); }
-}
+};
 window.removeConsult = async function(cId){
-  const pet = state.pets.find(p=>p.id===state.selectedPetId);
+  const pet = state.pets.find(p=>normalizeId(p.id)===state.selectedPetId);
   if(!pet) return;
   try{
     await API.removeConsult(pet.id, cId);
     pet.consultations = (pet.consultations || []).filter(c=>c.id !== cId);
     renderSelected(); renderPetsList();
   }catch(e){ alert('Falha ao remover consulta'); }
-}
+};
 
 // ====== Forms & events ======
 function wireEvents(){
-  // Novo Pet: mostrar/ocultar
-  $('#btnNewPet').addEventListener('click', ()=>{
-    $('#newPetCard').style.display = 'block'; $('#petName').focus();
+  const btnNewPet = must$('#btnNewPet');
+  const cancelPet = must$('#cancelPet');
+  const savePet = must$('#savePet');
+
+  const vaccineForm = must$('#vaccineForm');
+  const consultForm = must$('#consultForm');
+  const fileInput = must$('#fileInput');
+
+  const editPetBtn = must$('#editPet');
+  const deletePetBtn = must$('#deletePet');
+
+  // Se algum elemento essencial não existe, não quebra
+  if(btnNewPet) btnNewPet.addEventListener('click', ()=>{
+    const card = must$('#newPetCard'); if(card) { card.style.display = 'block'; const nm = must$('#petName'); if(nm) nm.focus(); }
   });
-  $('#cancelPet').addEventListener('click', ()=>{
-    $('#newPetCard').style.display = 'none';
+  if(cancelPet) cancelPet.addEventListener('click', ()=>{
+    const card = must$('#newPetCard'); if(card) card.style.display = 'none';
     clearNewPetForm();
   });
 
-  // Salvar (criar ou atualizar)
-  $('#savePet').addEventListener('click', async ()=>{
-    const editId = $('#savePet').dataset.editId || null;
-    const name = $('#petName').value.trim();
+  if(savePet) savePet.addEventListener('click', async ()=>{
+    const card = must$('#newPetCard'); // opcional
+    const editId = savePet.dataset.editId || null;
+    const name = (must$('#petName')?.value || '').trim();
     if(!name){ alert('Nome é obrigatório'); return; }
-    const species = $('#petSpecies').value.trim();
-    const breed = $('#petBreed').value.trim();
-    const dob = $('#petDOB').value || null;
-    const weight = $('#petWeight').value.trim();
-    const file = $('#petPhoto').files[0];
+    const species = (must$('#petSpecies')?.value || '').trim();
+    const sexo    = (must$('#petSexo')?.value || '').trim();
+    const breed   = (must$('#petBreed')?.value || '').trim();
+    const dob     = must$('#petDOB')?.value || null;
+    const weight  = (must$('#petWeight')?.value || '').trim();
+    const file    = must$('#petPhoto')?.files?.[0];
 
     let photo = null;
     if(file) photo = await readFileAsDataURL(file);
 
-    const payload = { name, species, breed, dob, weight, photo };
-
+    const payload = { name, species, sexo, breed, dob, weight, photo };
     try{
       if(!editId){
-        // CREATE
         const created = await API.createPet(payload);
-        // servidor deve retornar { id, name, species, breed, dob, weight, photo, vaccines:[], consultations:[], uploads:[] }
-        if(!created.vaccines) created.vaccines = [];
-        if(!created.consultations) created.consultations = [];
-        if(!created.uploads) created.uploads = [];
+        created.vaccines ??= [];
+        created.consultations ??= [];
+        created.uploads ??= [];
         state.pets.push(created);
-        state.selectedPetId = created.id;
+        state.selectedPetId = normalizeId(created.id);
       }else{
-        // UPDATE
         const updated = await API.updatePet(editId, payload);
-        const idx = state.pets.findIndex(p=>p.id===editId);
+        const idx = state.pets.findIndex(p=>normalizeId(p.id)===normalizeId(editId));
         if(idx>=0){
-          // preserva timelines/ uploads locais se o backend ainda não devolver
           updated.vaccines = updated.vaccines ?? state.pets[idx].vaccines ?? [];
           updated.consultations = updated.consultations ?? state.pets[idx].consultations ?? [];
           updated.uploads = updated.uploads ?? state.pets[idx].uploads ?? [];
           state.pets[idx] = updated;
-          state.selectedPetId = updated.id;
+          state.selectedPetId = normalizeId(updated.id);
         }
-        delete $('#savePet').dataset.editId;
+        delete savePet.dataset.editId;
       }
       renderPetsList();
       renderSelected();
-      $('#newPetCard').style.display = 'none';
+      if(card) card.style.display = 'none';
       clearNewPetForm();
     }catch(e){
       console.error(e);
@@ -331,82 +362,82 @@ function wireEvents(){
     }
   });
 
-  // Vacina
-  $('#vaccineForm').addEventListener('submit', async (e)=>{
+  if(vaccineForm) vaccineForm.addEventListener('submit', async (e)=>{
     e.preventDefault();
-    const pet = state.pets.find(p=>p.id===state.selectedPetId);
+    const pet = state.pets.find(p=>normalizeId(p.id)===state.selectedPetId);
     if(!pet){ alert('Selecione um pet'); return; }
-    const name = $('#vacName').value.trim();
-    const date = $('#vacDate').value;
-    const next = $('#vacNext').value || null;
-    const notes = $('#vacNotes').value.trim() || null;
+    const name = (must$('#vacName')?.value || '').trim();
+    const date = must$('#vacDate')?.value;
+    const next = must$('#vacNext')?.value || null;
+    const notes = (must$('#vacNotes')?.value || '').trim() || null;
     if(!name || !date){ alert('Nome e data são obrigatórios'); return; }
     try{
       const created = await API.addVaccine(pet.id, { name, date, next, notes });
-      // `created` deve trazer id da vacina
-      pet.vaccines = pet.vaccines || [];
+      pet.vaccines ??= [];
       pet.vaccines.push(created);
       renderSelected(); renderPetsList();
-      $('#vaccineForm').reset();
+      vaccineForm.reset();
     }catch(e){ alert('Falha ao salvar vacina'); }
   });
 
-  // Consulta
-  $('#consultForm').addEventListener('submit', async (e)=>{
+  if(consultForm) consultForm.addEventListener('submit', async (e)=>{
     e.preventDefault();
-    const pet = state.pets.find(p=>p.id===state.selectedPetId);
+    const pet = state.pets.find(p=>normalizeId(p.id)===state.selectedPetId);
     if(!pet){ alert('Selecione um pet'); return; }
-    const date = $('#consDate').value;
-    const reason = $('#consReason').value.trim();
-    const notes = $('#consNotes').value.trim();
+    const date = must$('#consDate')?.value;
+    const reason = (must$('#consReason')?.value || '').trim();
+    const notes  = (must$('#consNotes')?.value || '').trim();
     if(!date){ alert('Data é obrigatória'); return; }
     try{
       const created = await API.addConsult(pet.id, { date, reason, notes });
-      pet.consultations = pet.consultations || [];
+      pet.consultations ??= [];
       pet.consultations.push(created);
       renderSelected(); renderPetsList();
-      $('#consultForm').reset();
+      consultForm.reset();
     }catch(e){ alert('Falha ao salvar consulta'); }
   });
 
-  // Upload (client-side preview; se quiser salvar no backend, crie endpoint)
-  $('#fileInput').addEventListener('change', async (e)=>{
-    const file = e.target.files[0];
+  if(fileInput) fileInput.addEventListener('change', async (e)=>{
+    const file = e.target.files?.[0];
     if(!file) return;
-    const pet = state.pets.find(p=>p.id===state.selectedPetId);
+    const pet = state.pets.find(p=>normalizeId(p.id)===state.selectedPetId);
     if(!pet){ alert('Selecione um pet'); return; }
     const data = await readFileAsDataURL(file);
-    pet.uploads = pet.uploads || [];
+    pet.uploads ??= [];
     pet.uploads.push({ id: uid(), name: file.name, data });
-    // se quiser persistir uploads no server, crie endpoint /api/pets/:id/uploads
-    renderSelected(); $('#fileInput').value = '';
+    renderSelected(); fileInput.value = '';
   });
 
-  // Editar
-  $('#editPet').addEventListener('click', ()=>{
-    const pet = state.pets.find(p=>p.id===state.selectedPetId); if(!pet) return;
-    $('#newPetCard').style.display = 'block';
-    $('#petName').value = pet.name; $('#petSpecies').value = pet.species || ''; $('#petBreed').value = pet.breed || '';
-    $('#petDOB').value = pet.dob || ''; $('#petWeight').value = pet.weight || '';
-    $('#savePet').dataset.editId = pet.id;
+  if(editPetBtn) editPetBtn.addEventListener('click', ()=>{
+    const pet = state.pets.find(p=>normalizeId(p.id)===state.selectedPetId); if(!pet) return;
+    const card = must$('#newPetCard'); if(card) card.style.display = 'block';
+    const set = (sel, val) => { const el = must$(sel); if(el) el.value = val ?? ''; };
+    set('#petName', pet.name);
+    set('#petSpecies', pet.species);
+    set('#petSexo', pet.sexo);
+    set('#petBreed', pet.breed);
+    set('#petDOB', pet.dob);
+    set('#petWeight', pet.weight);
+    if(savePetBtnExists()) document.querySelector('#savePet').dataset.editId = normalizeId(pet.id);
   });
 
-  // Excluir
-  $('#deletePet').addEventListener('click', async ()=>{
+  if(deletePetBtn) deletePetBtn.addEventListener('click', async ()=>{
     const id = state.selectedPetId;
     if(!id) return;
     if(!confirm('Remover este pet?')) return;
     try{
       await API.deletePet(id);
-      state.pets = state.pets.filter(p=>p.id !== id);
-      state.selectedPetId = state.pets.length ? state.pets[0].id : null;
+      state.pets = state.pets.filter(p=>normalizeId(p.id) !== id);
+      state.selectedPetId = state.pets.length ? normalizeId(state.pets[0].id) : null;
       renderPetsList(); renderSelected();
     }catch(e){ alert('Falha ao excluir pet'); }
   });
 
-  // Seleção inicial já foi feita em boot()
+  function savePetBtnExists(){ return !!$('#savePet'); }
 }
 
 function clearNewPetForm(){
-  $('#newPetCard').querySelectorAll('input,textarea,select').forEach(i=>i.value='');
+  const card = must$('#newPetCard');
+  if(!card) return;
+  card.querySelectorAll('input,textarea,select').forEach(i=>{ i.value=''; });
 }
