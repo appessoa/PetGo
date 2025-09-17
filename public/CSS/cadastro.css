@@ -1,0 +1,179 @@
+/* ===== VARIÁVEIS GLOBAIS (Consistente com o resto do site) ===== */
+:root {
+  --bg: #fafafa;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --primary: #FF914D;
+  --primary-600: #ff7d2e;
+  --border-color: #e2e8f0;
+  --radius: 16px;
+  --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== ESTILOS GERAIS ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 40px 20px; /* Impede que o card cole nas bordas */
+  
+  /* Mesmo fundo da tela de login para consistência */
+  background-image: url('../img/Mascotes.jpg'); /* <-- AJUSTE O CAMINHO PARA SUA IMAGEM */
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: var(--bg);
+}
+
+/* ===== CAIXA DE CADASTRO (EFEITO VIDRO) ===== */
+.signup-box {
+  width: 100%;
+  max-width: 700px; /* Mais largo para acomodar 2 colunas */
+  padding: 40px;
+  text-align: center;
+  
+  background-color: rgba(255, 255, 255, 0.9); /* Mais opaco para legibilidade */
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(181, 168, 168, 0.5);
+  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+
+.logo .paw {
+  font-size: 24px;
+}
+
+h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: var(--muted);
+  margin-bottom: 32px;
+}
+
+/* ===== LAYOUT DO FORMULÁRIO EM GRADE ===== */
+.form-grid {
+  display: grid;
+  /* Por padrão (mobile), 1 coluna */
+  grid-template-columns: 1fr;
+  gap: 20px;
+  text-align: left;
+}
+
+/* Em telas maiores (desktops/tablets), 2 colunas */
+@media (min-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Classe para um item ocupar 2 colunas */
+.grid-col-span-2 {
+  grid-column: span 2;
+}
+
+
+/* ===== ELEMENTOS DO FORMULÁRIO ===== */
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  background-color: rgba(255, 255, 255, 0.5);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 145, 77, 0.3);
+}
+
+.form-group-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  text-align: left;
+}
+.form-group-checkbox input[type="checkbox"] {
+  width: auto; /* Checkbox não ocupa 100% */
+}
+.form-group-checkbox label {
+  margin-bottom: 0;
+  font-weight: normal;
+  font-size: 14px;
+}
+.form-group-checkbox a {
+  color: var(--primary);
+  font-weight: 500;
+  text-decoration: none;
+}
+.form-group-checkbox a:hover {
+  text-decoration: underline;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background: var(--primary-600);
+}
+
+.login-link {
+  margin-top: 24px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.login-link a {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+.login-link a:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastre-se - PetGo</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/public/CSS/cadastro.css">
+</head>
+<body>
+
+  <div class="signup-box">
+    <div class="logo">
+      <span class="paw">🐾</span> PetGo
+    </div>
+    <h2>Crie sua conta</h2>
+    <p class="subtitle">Junte-se à nossa comunidade e cuide do seu pet com a gente!</p>
+    
+    <form id="signupForm">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="name">Nome completo</label>
+          <input type="text" id="name" required placeholder="Seu nome completo">
+        </div>
+
+        <div class="form-group">
+          <label for="cpf">CPF</label>
+          <input type="text" id="cpf" required placeholder="000.000.000-00" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}">
+        </div>
+
+        <div class="form-group">
+            <label for="phone">Celular</label>
+            <input type="tel" id="phone" required placeholder="(00) 90000-0000" pattern="\(\d{2}\)\s\d{5}-\d{4}">
+        </div>
+        
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" required placeholder="seuemail@exemplo.com">
+        </div>
+
+        <div class="form-group grid-col-span-2">
+            <label for="address">Endereço</label>
+            <input type="text" id="address" required placeholder="Sua rua, número e bairro">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Senha</label>
+          <input type="password" id="password" required placeholder="No mínimo 8 caracteres">
+        </div>
+
+        <div class="form-group">
+          <label for="confirm-password">Confirmar Senha</label>
+          <input type="password" id="confirm-password" required placeholder="Repita sua senha">
+        </div>
+      </div>
+
+      <div class="form-group-checkbox">
+        <input type="checkbox" id="terms" required>
+        <label for="terms">Eu li e aceito os <a href="#">Termos de Serviço</a></label>
+      </div>
+
+      <button type="submit">Criar Conta</button>
+    </form>
+
+    <p class="login-link">
+      Já tem uma conta? <a href="login.html">Entre agora</a>
+    </p>
+  </div>
+  
+  <script src="public/js/cadastro.js"></script>
+</body>
+</html>
