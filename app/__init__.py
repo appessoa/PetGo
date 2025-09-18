@@ -27,12 +27,13 @@ def create_app():
     from routes.pets import pets_api
     from routes.user import user_api
     from routes.agendamento import sched_api
+    from routes.endereco import addr_api
     app.register_blueprint(user_api)
     app.register_blueprint(auth_bp)
     app.register_blueprint(front_bp)
     app.register_blueprint(pets_api)
     app.register_blueprint(sched_api)
-
+    app.register_blueprint(addr_api)
 
 
     with app.app_context():

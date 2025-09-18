@@ -196,3 +196,127 @@
         .form-novidades .btn {
         flex-shrink: 0;
         }
+
+/* ===== MODAL (versão polida, mantendo o tema) ===== */
+.modal{
+  position:fixed; inset:0;
+  display:none;
+  align-items:center; justify-content:center;
+  z-index:9999;
+}
+.modal.show,
+.modal[aria-hidden="false"]{ display:flex; }
+
+/* Backdrop com blur suave */
+.modal .modal-backdrop{
+  position:absolute; inset:0;
+  background: rgba(2,6,23,.45);
+  backdrop-filter: saturate(1.1) blur(6px);
+}
+
+/* Cartão do modal */
+.modal .modal-dialog,
+.modal .modal-content{
+  position:relative; z-index:1;
+  width:min(640px, 92vw);
+  max-height:90vh; overflow:auto;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(8px) scale(.98);
+  opacity:0;
+  animation: modal-in .22s cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+/* Header com leve “glass” + detalhe de gradiente */
+.modal .modal-header{
+  position:sticky; top:0;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 20px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.75)),
+    var(--card);
+  backdrop-filter: saturate(1.2) blur(4px);
+  border-bottom:1px solid rgba(2,6,23,.06);
+}
+.modal .modal-header h3,
+.modal .modal-header h4{
+  margin:0; font-family:Poppins, sans-serif; font-size:20px;
+}
+
+/* Filete acentuado no topo do card (sutil) */
+.modal .modal-dialog::before,
+.modal .modal-content::before{
+  content:""; position:absolute; inset:0 0 auto 0; height:3px; border-radius:999px 999px 0 0;
+  background: linear-gradient(90deg, var(--accent), var(--primary));
+  opacity:.18;
+}
+
+/* Corpo & ações */
+.modal .modal-body{ padding:16px 20px; display:grid; gap:12px; }
+.modal .modal-actions{
+  padding:14px 20px; display:flex; gap:10px; justify-content:flex-end;
+  border-top:1px solid rgba(2,6,23,.06);
+}
+
+/* Form modal – grupos e grid */
+#addrModal .form-group{ display:flex; flex-direction:column; gap:6px; }
+#addrModal .grid-two{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media (max-width: 720px){
+  #addrModal .grid-two{ grid-template-columns:1fr; }
+}
+
+/* Inputs coerentes com tema (inclui disabled) */
+#addrModal input, #addrModal select, #addrModal textarea{
+  width:100%;
+  background:#fff;
+  border:1px solid rgba(2,6,23,.14);
+  border-radius:12px;
+  padding:12px 14px;
+  outline:none;
+  transition:border-color .16s ease, box-shadow .16s ease, transform .06s ease;
+  box-shadow: 0 1px 2px rgba(2,6,23,.04);
+}
+#addrModal input:hover{ border-color: rgba(2,6,23,.22); }
+#addrModal input:focus{
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(91,192,248,.22);
+}
+#addrModal input[disabled]{
+  background: #f5f7fb;
+  color: #6b7280;
+  opacity: 1;                 /* mantém legível */
+  cursor: not-allowed;
+}
+
+/* Help text vivo e coerente */
+#addrModal .help-text{
+  font-size:12px; color: var(--muted);
+  min-height: 16px;
+}
+#addrModal .help-text[aria-live="polite"]{
+  transition: opacity .16s ease;
+}
+
+/* Botão fechar no header */
+#addrModal .icon-btn{
+  width:36px; height:36px; border-radius:10px;
+  border:1px solid rgba(2,6,23,.08); background:var(--card);
+  box-shadow:var(--shadow); cursor:pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+#addrModal .icon-btn:hover{ transform: translateY(-1px); }
+
+/* Botões primários/segundários reaproveitando seu tema */
+#addrModal .btn{ box-shadow: var(--shadow); }
+#addrModal .btn.primary{ background: var(--primary); color:#fff; }
+#addrModal .btn.primary:hover{ background: var(--primary-600); box-shadow: var(--shadow-lg); }
+
+/* Micro “pressionar” ao clicar */
+#addrModal input:active{ transform: translateY(0); }
+#addrModal .btn:active{ transform: translateY(0); }
+
+/* Animação de entrada */
+@keyframes modal-in{
+  to{ opacity:1; transform: translateY(0) scale(1); }
+}

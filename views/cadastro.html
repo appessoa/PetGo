@@ -48,10 +48,46 @@
           <input type="email" id="email" required placeholder="seuemail@exemplo.com">
         </div>
 
+        <!-- CEP -->
         <div class="form-group">
-            <label for="address">Endereço</label>
-            <input type="text" id="address" required placeholder="Sua rua, número e bairro">
+          <label for="cep">CEP</label>
+          <input type="text" id="cep" required placeholder="00000-000" inputmode="numeric" maxlength="9" autocomplete="postal-code">
+          <p class="help-text" id="cep-help" aria-live="polite"></p>
         </div>
+
+        <!-- Endereço preenchido automaticamente -->
+        <div class="form-group">
+          <label for="endereco">Endereço</label>
+          <input type="text" id="endereco" required placeholder="Rua/Avenida" disabled>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="numero">Número</label>
+            <input type="text" id="numero" required placeholder="123">
+          </div>
+          <div class="form-group">
+            <label for="complemento">Complemento</label>
+            <input type="text" id="complemento" placeholder="Apto, Bloco, Casa, etc.">
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="bairro">Bairro</label>
+            <input type="text" id="bairro" required placeholder="Bairro" disabled>
+          </div>
+          <div class="form-group">
+            <label for="cidade">Cidade</label>
+            <input type="text" id="cidade" required placeholder="Cidade" disabled>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="estado">Estado (UF)</label>
+          <input type="text" id="estado" required placeholder="Estado" disabled>
+        </div>
+
 
         <div class="form-group">
           <label for="password">Senha</label>
@@ -76,7 +112,7 @@
       Já tem uma conta? <a href="/login">Entre agora</a>
     </p>
   </div>
-  
+  <script src="/public/js/utils/cep.js"></script>
   <script type="module" src="/public/js/cadastro.js"></script>
 </body>
 </html>

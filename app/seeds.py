@@ -47,7 +47,7 @@ def seed_db(config):
     admin = User.query.filter_by(email=config.ADMIN_EMAIL).first()
     if not admin:
         hashed = bcrypt.generate_password_hash(config.ADMIN_PASS).decode("utf-8")
-        admin = User(username=config.ADMIN_USER, email=config.ADMIN_EMAIL, password=hashed, nome=config.NAME, endereco=config.Endereco,
+        admin = User(username=config.ADMIN_USER, email=config.ADMIN_EMAIL, password=hashed, nome=config.NAME,
                      numero= config.Telefone, cpf= config.CPF, is_active=True)
         db.session.add(admin)
 

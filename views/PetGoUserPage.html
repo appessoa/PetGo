@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
   <script type="module" src="/public/js/userPage.js"></script>
 
+
 </head>
 <body>
   <header>
@@ -128,6 +129,63 @@
             <button class="btn primary" type="submit">Salvar</button>
           </div>
         </form>
+      </div>
+    </div>
+    <!-- Modal: Editar Endereço -->
+    <div id="addrModal" class="modal" aria-hidden="true">
+      <div class="modal-backdrop" data-close></div>
+      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="addrModalTitle">
+        <div class="modal-header">
+          <h3 id="addrModalTitle">Editar Endereço</h3>
+          <button class="icon-btn" data-close aria-label="Fechar">×</button>
+        </div>
+        <div class="modal-body">
+          <form id="addrForm">
+            <div class="form-group">
+              <label for="addrCep">CEP *</label>
+              <input type="text" id="addrCep" required placeholder="00000-000" inputmode="numeric" maxlength="9" autocomplete="postal-code">
+              <small class="help-text" id="addrCepHelp" aria-live="polite"></small>
+            </div>
+
+            <div class="form-group">
+              <label for="addrLogradouro">Endereço</label>
+              <input type="text" id="addrLogradouro" required placeholder="Rua/Avenida" disabled>
+            </div>
+
+            <div class="grid-two">
+              <div class="form-group">
+                <label for="addrNumero">Número *</label>
+                <input type="text" id="addrNumero" required placeholder="123">
+              </div>
+              <div class="form-group">
+                <label for="addrComplemento">Complemento</label>
+                <input type="text" id="addrComplemento" placeholder="Apto, Bloco, Casa, etc.">
+              </div>
+            </div>
+
+            <div class="grid-two">
+              <div class="form-group">
+                <label for="addrBairro">Bairro</label>
+                <input type="text" id="addrBairro" required placeholder="Bairro" disabled>
+              </div>
+              <div class="form-group">
+                <label for="cidade">Cidade</label>
+                <input type="text" id="addrCidade" required placeholder="Cidade" disabled>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="addrEstado">Estado (UF)</label>
+              <input type="text" id="addrEstado" required placeholder="UF" disabled>
+              </select>
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" class="btn" data-close>Cancelar</button>
+              <button type="submit" class="btn primary">Salvar</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 

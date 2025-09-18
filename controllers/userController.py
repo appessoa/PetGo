@@ -169,7 +169,6 @@ class UsersController:
         username = _s(data.get("username"))
         email    = _s(data.get("email"))
         nome     = _s(data.get("name"))
-        endereco = _s(data.get("address"))
         cpf      = _s(data.get("cpf"))
         celular  = _s(data.get("phone"))
         senha    = data.get("password")
@@ -179,7 +178,6 @@ class UsersController:
         "username": username,
         "email": email,
         "name": nome,
-        "address": endereco,
         "cpf": cpf,
         "phone": celular,
         "password": senha,
@@ -189,7 +187,7 @@ class UsersController:
         missing = [k for k, v in required.items() if not v]
         problems = {}
         if missing:
-            return api_error(400, "Campos obrigatórios ausentes.", {"required": missing})
+            return api_error(400, f"Campos obrigatórios ausentes.{missing}", {"required": missing})
 
         if not _email_re.match(email):
             problems["email"] = "E-mail inválido."
@@ -216,7 +214,7 @@ class UsersController:
         
         try:
             user = User(username=username, email=email.lower(),
-                        nome=nome, numero = celular,cpf=cpf,endereco=endereco,password = bcrypt.generate_password_hash(senha).decode("utf-8"))
+                        nome=nome, numero = celular,cpf=cpf,password = bcrypt.generate_password_hash(senha).decode("utf-8"))
             
             db.session.add(user)
             db.session.commit()

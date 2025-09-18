@@ -1,3 +1,4 @@
+// /public/js/userpage.js
 import { initHeader } from './header.js';
 import { showToast } from './utils/toast.js';
 
@@ -10,11 +11,11 @@ async function boot(){
   try{
     const me = await fetchJSON('/api/me');
     renderProfile(me);
+    await loadAndRenderAddress(me);
 
-    const pets = await fetchJSON('/api/me/pets');
+    const pets  = await fetchJSON('/api/me/pets');
     renderPets(pets);
 
-    // 👉 NOVO: carrega agendamentos do usuário
     const sched = await fetchJSON('/api/agendamentos');
     renderScheduling(sched);
 
@@ -24,12 +25,57 @@ async function boot(){
     wireActions(me);
   }catch(e){
     console.error(e);
-    showToast('Faça login para ver sua conta.', 'error');  // em vez de alert
+    showToast('Faça login para ver sua conta.', 'error');
     location.href = '/login';
   }
 }
 
+/* =========================
+ * ENDEREÇO
+ * ========================= */
+async function loadAndRenderAddress(me){
+  const userId = me?.id || me?.id_user;
+  if(!userId){ setAddressValueInGrid('-'); return; }
 
+  try{
+    const list = await fetchJSON(`/api/users/${userId}/addresses`, { credentials:'include' });
+    if (Array.isArray(list) && list.length){
+      const primary = list.find(a => a.is_primary) || list[0];
+      try { localStorage.setItem('primary_addr_id', String(primary.id || primary.id_address)); } catch {}
+      const full = primary.full_address || composeFullAddress(primary) || '-';
+      setAddressValueInGrid(full);
+      return;
+    }
+  }catch(err){
+    console.debug('Lista de endereços indisponível, tentando item único…', err?.message || err);
+  }
+
+  let addrId = null;
+  try{ addrId = localStorage.getItem('primary_addr_id'); }catch{}
+  if(addrId){
+    try{
+      const addr = await fetchJSON(`/api/users/${userId}/addresses/${addrId}`, { credentials:'include' });
+      const full = addr?.full_address || composeFullAddress(addr) || '-';
+      setAddressValueInGrid(full);
+      return;
+    }catch(err){
+      console.debug('Falha ao buscar endereço específico:', err?.message || err);
+    }
+  }
+
+  setAddressValueInGrid('-');
+}
+
+function setAddressValueInGrid(text){
+  const row = document.querySelector('.info-row[data-field="endereco"]');
+  if(!row) return;
+  const span = row.querySelector('[data-role="value"]');
+  if(span) span.textContent = text || '-';
+}
+
+/* =========================
+ * AGENDAMENTOS
+ * ========================= */
 function renderScheduling(items){
   const list = document.getElementById('schedList');
   if(!list) return;
@@ -64,54 +110,49 @@ function renderScheduling(items){
     list.appendChild(el);
   }
 }
-
 function labelService(s){
-  const map = {
-    banho: 'Banho & Tosa',
-    veterinario: 'Veterinário Online',
-    passeio: 'Passeio PetGo',
-    hotel: 'Hotelzinho',
-  };
+  const map = { banho:'Banho & Tosa', veterinario:'Veterinário Online', passeio:'Passeio PetGo', hotel:'Hotelzinho' };
   return map[(s||'').toLowerCase()] || (s || 'Serviço');
 }
-
 function classByStatus(st){
   const s = (st||'').toLowerCase();
   if(s === 'confirmado') return 'status-confirmado';
-  if(s === 'concluido') return 'status-concluido';
-  if(s === 'cancelado') return 'status-cancelado';
-  return 'status-marcado'; // default
+  if(s === 'concluido')  return 'status-concluido';
+  if(s === 'cancelado')  return 'status-cancelado';
+  return 'status-marcado';
 }
-
 function labelStatus(st){
   const s = (st||'').toLowerCase();
   if(s === 'confirmado') return 'Confirmado';
-  if(s === 'concluido') return 'Concluído';
-  if(s === 'cancelado') return 'Cancelado';
+  if(s === 'concluido')  return 'Concluído';
+  if(s === 'cancelado')  return 'Cancelado';
   return 'Marcado';
 }
-
 function formatBRDate(iso){
-  // aceita "YYYY-MM-DD" ou Date ISO completo
   try{
     const d = new Date(iso);
     if(!isNaN(d)) return d.toLocaleDateString('pt-BR');
-    // fallback para string YYYY-MM-DD
     const [y,m,dd] = String(iso).split('-');
     return `${dd}/${m}/${y}`;
   }catch{ return iso; }
 }
 
-
+/* =========================
+ * FETCH
+ * ========================= */
 async function fetchJSON(url, opts={}){
   const r = await fetch(url, { credentials: 'include', ...opts });
   if(!r.ok) {
     let msg = 'Erro';
-    try { const j = await r.json(); msg = j.error || JSON.stringify(j); } catch {}
+    try { const j = await r.json(); msg = j.error || j.message || JSON.stringify(j); } catch {}
     throw new Error(`${r.status}: ${msg}`);
   }
   return r.json();
 }
+
+/* =========================
+ * PERFIL + GRID
+ * ========================= */
 function ageFromDOB(dob){
   if(!dob) return 'idade desconhecida';
   const b = new Date(dob);
@@ -123,8 +164,8 @@ function ageFromDOB(dob){
   if (years > 0) return `${years} ano(s) e ${months} mes(es)`;
   return `${months} mes(es)`;
 }
+
 function renderProfile(me){
-  // header do perfil
   const card = document.querySelector('.profile-card .profile-info');
   if(card){
     card.querySelector('h2').textContent = me.nome || 'Usuário';
@@ -137,7 +178,6 @@ function renderProfile(me){
     }
   }
 
-  // grade de informações com "caneta" por campo
   const grid = document.getElementById('infoGrid');
   if(!grid) return;
 
@@ -146,25 +186,28 @@ function renderProfile(me){
     { key:'email',    label:'Email',    value: me.email },
     { key:'cpf',      label:'CPF',      value: me.cpf },
     { key:'numero',   label:'Telefone', value: me.numero },
-    { key:'endereco', label:'Endereço', value: me.endereco },
+    { key:'endereco', label:'Endereço', value: '-', readonly: true },
   ];
 
-  grid.innerHTML = fields.map(f => infoRowTpl(f.key, f.label, f.value)).join('');
-
-  // delega edição inline
+  grid.innerHTML = fields.map(f => infoRowTpl(f.key, f.label, f.value, f.readonly)).join('');
   grid.addEventListener('click', onGridClick, { once: true });
 }
 
-function infoRowTpl(key, label, value){
+function infoRowTpl(key, label, value, readonly=false){
+  const isAddress = key === 'endereco';
   return `
     <div class="info-row" data-field="${key}">
       <div class="info-meta">
         <span class="info-label">${label}:</span>
         <span class="info-value" data-role="value">${escapeHtml(value || '-')}</span>
       </div>
-      <button class="icon-btn" data-role="edit" aria-label="Editar ${label}" title="Editar">
-        ${pencilSVG()}
-      </button>
+      ${
+        isAddress
+          ? `<button class="btn" data-role="addr-edit">Editar</button>`
+          : `<button class="icon-btn" data-role="edit" aria-label="Editar ${label}" title="Editar">
+               ${pencilSVG()}
+             </button>`
+      }
     </div>
   `;
 }
@@ -172,7 +215,7 @@ function infoRowTpl(key, label, value){
 function onGridClick(e){
   const grid = e.currentTarget;
   grid.addEventListener('click', async ev => {
-    const btn = ev.target.closest('[data-role="edit"],[data-role="save"],[data-role="cancel"]');
+    const btn = ev.target.closest('[data-role="edit"],[data-role="save"],[data-role="cancel"],[data-role="addr-edit"]');
     if(!btn) return;
 
     const row = ev.target.closest('.info-row');
@@ -181,7 +224,16 @@ function onGridClick(e){
     const field = row.dataset.field;
     const label = row.querySelector('.info-label')?.textContent.replace(':','') || field;
 
-    // entrar em modo edição
+    // Endereço: sempre abre o modal
+    if (btn.dataset.role === 'addr-edit' || (btn.dataset.role === 'edit' && field === 'endereco')) {
+      if (typeof window.openAddressModal === 'function') {
+        window.openAddressModal();
+      } else {
+        showToast('Modal de endereço indisponível.', 'error');
+      }
+      return;
+    }
+
     if(btn.dataset.role === 'edit'){
       const current = row.querySelector('[data-role="value"]')?.textContent?.trim() || '';
       row.innerHTML = `
@@ -198,21 +250,18 @@ function onGridClick(e){
       return;
     }
 
-    // cancelar
     if(btn.dataset.role === 'cancel'){
-      // re-render somente esta linha a partir do DOM atual do card
       const me = await fetchJSON('/api/me');
-      row.outerHTML = infoRowTpl(field, capitalize(fieldLabel(field)), me[field] || '');
+      const val = me[field] || '';
+      row.outerHTML = infoRowTpl(field, capitalize(fieldLabel(field)), val, field==='endereco');
       showToast('Edição cancelada.');
       return;
     }
 
-    // salvar
     if(btn.dataset.role === 'save'){
       const input = row.querySelector('[data-role="input"]');
       const newValue = (input?.value || '').trim();
 
-      // payload apenas com o campo alterado
       const body = {};
       body[field] = newValue;
 
@@ -225,7 +274,6 @@ function onGridClick(e){
           body: JSON.stringify(body)
         });
 
-        // re-render linha com valor novo confirmado pelo backend
         row.outerHTML = infoRowTpl(field, capitalize(fieldLabel(field)), updated[field] || '');
         showToast('Informação atualizada!', 'success');
       }catch(err){
@@ -236,21 +284,9 @@ function onGridClick(e){
   });
 }
 
-function fieldLabel(key){
-  const map = { nome:'Nome', email:'Email', cpf:'CPF', numero:'Telefone', endereco:'Endereço' };
-  return map[key] || key;
-}
-function capitalize(s){ return (s||'').charAt(0).toUpperCase() + (s||'').slice(1); }
-function escapeAttr(s){ return String(s).replaceAll('"','&quot;'); }
-
-function pencilSVG(){
-  return `
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <path d="M12 20h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L8 18l-4 1 1-4L16.5 3.5z" stroke="currentColor" stroke-width="2" fill="none"/>
-  </svg>`;
-}
-
+/* =========================
+ * PETS
+ * ========================= */
 function renderPets(pets){
   const grid = document.querySelector('.pets-grid');
   if(!grid) return;
@@ -276,13 +312,15 @@ function renderPets(pets){
         ${ageFromDOB(p.dob)}
         ${p.weight ? ` - ${p.weight} kg` : ''}
         </p>
-
       </div>
     `;
     grid.appendChild(el);
   }
 }
 
+/* =========================
+ * PEDIDOS
+ * ========================= */
 function renderOrders(orders){
   const list = document.querySelector('.orders-list');
   if(!list) return;
@@ -311,9 +349,10 @@ function renderOrders(orders){
   }
 }
 
-// Ações: editar perfil & alterar senha
+/* =========================
+ * AÇÕES: ALTERAR SENHA
+ * ========================= */
 function wireActions(me){
-  // apenas senha (edição de perfil agora é inline por campo)
   const toggle = document.getElementById('togglePwForm');
   const form = document.getElementById('pwForm');
   const cancel = document.getElementById('pwCancel');
@@ -360,7 +399,10 @@ function wireActions(me){
     });
   }
 }
-// ---- Modal Alterar Senha ----
+
+/* =========================
+ * MODAL ALTERAR SENHA
+ * ========================= */
 (function setupPasswordModal(){
   const openBtn = document.getElementById('openPwModal');
   const modal = document.getElementById('pwModal');
@@ -377,18 +419,13 @@ function wireActions(me){
   const open = () => {
     modal.classList.add('show');
     modal.setAttribute('aria-hidden','false');
-    // foco no primeiro campo
     setTimeout(()=> document.getElementById('pwOld')?.focus(), 0);
   };
 
   openBtn.addEventListener('click', open);
   closeEls.forEach(el => el.addEventListener('click', close));
-  modal.addEventListener('click', (e)=> {
-    if(e.target === modal) close(); // (backup)
-  });
-  document.addEventListener('keydown', (e)=> {
-    if(modal.classList.contains('show') && e.key === 'Escape') close();
-  });
+  modal.addEventListener('click', (e)=> { if(e.target === modal) close(); });
+  document.addEventListener('keydown', (e)=> { if(modal.classList.contains('show') && e.key === 'Escape') close(); });
 
   form.addEventListener('submit', async (e)=>{
     e.preventDefault();
@@ -420,6 +457,247 @@ function wireActions(me){
   });
 })();
 
+/* ===== Modal de Endereço ===== */
+(function setupAddressModal(){
+  const modal = document.getElementById('addrModal');
+  const form  = document.getElementById('addrForm');
+  if(!modal || !form) return;
+
+  // seleciona os elementos *quando* o modal abre (evita null)
+  function queryAddrEls(){
+    return {
+      $cep:        document.getElementById('addrCep'),
+      $logradouro: document.getElementById('addrLogradouro'),
+      $bairro:     document.getElementById('addrBairro'),
+      $cidade:     document.getElementById('addrCidade'),
+      $estado:     document.getElementById('addrEstado'),
+      $numero:     document.getElementById('addrNumero'),
+      $compl:      document.getElementById('addrComplemento'),
+      $help:       document.getElementById('addrCepHelp'),
+    };
+  }
+
+  // máscara & ViaCEP (delegado ao abrir para ter refs recentes)
+  function wireCepMaskAndLookup($cep, $logradouro, $bairro, $cidade, $estado, $help){
+    const cleanup = [];
+    const onInput = (e) => {
+      const d = e.target.value.replace(/\D/g, '').slice(0,8);
+      e.target.value = d.length > 5 ? d.slice(0,5) + '-' + d.slice(5) : d;
+    };
+    const onBlur = () => fetchCepIfReady();
+    const onKey = () => { if ($cep.value.replace(/\D/g, '').length === 8) fetchCepIfReady(); };
+
+    $cep.addEventListener('input', onInput);
+    $cep.addEventListener('blur', onBlur);
+    $cep.addEventListener('keyup', onKey);
+    cleanup.push(()=> $cep.removeEventListener('input', onInput));
+    cleanup.push(()=> $cep.removeEventListener('blur', onBlur));
+    cleanup.push(()=> $cep.removeEventListener('keyup', onKey));
+
+    async function fetchCepIfReady(){
+      const digits = $cep.value.replace(/\D/g, '');
+      if (digits.length !== 8){
+        setHelp('Digite um CEP com 8 dígitos.');
+        clearAuto();
+        return;
+      }
+      setHelp('Buscando endereço…');
+      try {
+        const resp = await fetch(`https://viacep.com.br/ws/${digits}/json/`, { cache: 'no-store' });
+        if (!resp.ok) throw new Error();
+        const data = await resp.json();
+        if (data.erro){
+          setHelp('CEP não encontrado.');
+          clearAuto();
+          return;
+        }
+        $logradouro.value = data.logradouro || '';
+        $bairro.value     = data.bairro || '';
+        $cidade.value     = data.localidade || '';
+        $estado.value     = data.uf || '';
+        setHelp('Endereço preenchido. Informe número e complemento.');
+      } catch {
+        setHelp('Falha na consulta do CEP.');
+        clearAuto();
+      }
+    }
+    function clearAuto(){ $logradouro.value=''; $bairro.value=''; $cidade.value=''; $estado.value=''; }
+    function setHelp(msg){ if($help) $help.textContent = msg || ''; }
+
+    return () => cleanup.forEach(fn => fn());
+  }
+
+  let removeCepListeners = null;
+
+  // API pública para abrir modal
+  window.openAddressModal = async function openAddressModal(){
+    const els = queryAddrEls();
+    const { $cep, $logradouro, $bairro, $cidade, $estado, $numero, $compl, $help } = els;
+
+    // se algum essencial não existir, aborta com aviso
+    if (!$cep || !$logradouro || !$bairro || !$cidade || !$estado || !$numero || !$compl) {
+      console.warn('Campos do modal de endereço não encontrados no DOM.');
+      showToast('Modal de endereço indisponível no momento.', 'error');
+      return;
+    }
+
+    // (re)liga máscara & ViaCEP sempre que abrir
+    if (removeCepListeners) removeCepListeners();
+    removeCepListeners = wireCepMaskAndLookup($cep, $logradouro, $bairro, $cidade, $estado, $help);
+
+    // carrega dados atuais
+    try{
+      const me = await fetchJSON('/api/me');
+      const userId = me?.id || me?.id_user;
+
+      let addr = null;
+      try{
+        const list = await fetchJSON(`/api/users/${userId}/addresses`);
+        if (Array.isArray(list) && list.length){
+          addr = list.find(a => a.is_primary) || list[0];
+          try { localStorage.setItem('primary_addr_id', String(addr.id || addr.id_address)); } catch {}
+        }
+      }catch{}
+
+      if(!addr){
+        let addrId = null; try{ addrId = localStorage.getItem('primary_addr_id'); }catch{}
+        if(addrId){
+          try{ addr = await fetchJSON(`/api/users/${userId}/addresses/${addrId}`); }catch{}
+        }
+      }
+
+      // preenche form (com segurança)
+      $cep.value        = (addr?.cep || '').replace(/\D/g,'').replace(/^(\d{5})(\d{0,3})$/, (_,a,b)=> b? `${a}-${b}` : a);
+      $logradouro.value = addr?.logradouro || addr?.endereco || '';
+      $bairro.value     = addr?.bairro || '';
+      $cidade.value     = addr?.cidade || '';
+      $estado.value     = addr?.estado || '';
+      $numero.value     = addr?.numero || '';
+      $compl.value      = addr?.complemento || '';
+
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
+      setTimeout(()=> $cep.focus(), 0);
+    }catch(e){
+      console.error(e);
+      showToast('Não foi possível carregar seu endereço.', 'error');
+    }
+  };
+
+  function closeModal(){
+    const { $help } = queryAddrEls();
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    const form = document.getElementById('addrForm');
+    form?.reset();
+    if ($help) $help.textContent = '';
+    if (removeCepListeners) { removeCepListeners(); removeCepListeners = null; }
+  }
+
+  modal.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', closeModal));
+  modal.addEventListener('click', (e)=> { if(e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e)=> { if(modal.classList.contains('show') && e.key === 'Escape') closeModal(); });
+
+  // submit
+  document.getElementById('addrForm')?.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+
+    const { $cep, $logradouro, $bairro, $cidade, $estado, $numero, $compl } = queryAddrEls();
+    if (!$cep || !$logradouro || !$bairro || !$cidade || !$estado || !$numero) {
+      showToast('Preencha o formulário de endereço corretamente.', 'error');
+      return;
+    }
+
+    const cepDigits = $cep.value.replace(/\D/g,'');
+    if (cepDigits.length !== 8){ showToast('Informe um CEP válido (8 dígitos).', 'error'); $cep.focus(); return; }
+    if (!$logradouro.value || !$bairro.value || !$cidade.value || !$estado.value){ showToast('Use o CEP para preencher o endereço.', 'error'); $cep.focus(); return; }
+    if (!$numero.value){ showToast('Informe o número.', 'error'); $numero.focus(); return; }
+
+    const payload = {
+      cep: $cep.value,
+      logradouro: $logradouro.value,
+      numero: $numero.value,
+      complemento: $compl?.value || '',
+      bairro: $bairro.value,
+      cidade: $cidade.value,
+      estado: $estado.value,
+      pais: 'BR',
+      is_primary: true,
+    };
+
+    const submitBtn = document.querySelector('#addrForm .primary');
+    if (submitBtn) submitBtn.disabled = true;
+
+    try{
+      const me = await fetchJSON('/api/me');
+      const userId = me?.id || me?.id_user;
+
+      let addrId = null;
+      try{
+        const list = await fetchJSON(`/api/users/${userId}/addresses`);
+        if (Array.isArray(list) && list.length){
+          const primary = list.find(a => a.is_primary) || list[0];
+          addrId = primary.id || primary.id_address;
+        }
+      }catch{}
+
+      let saved;
+      if (addrId){
+        saved = await fetchJSON(`/api/users/${userId}/addresses/${addrId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type':'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload),
+        });
+      } else {
+        saved = await fetchJSON(`/api/users/${userId}/addresses`, {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload),
+        });
+        try { localStorage.setItem('primary_addr_id', String(saved.id || saved.id_address)); } catch {}
+      }
+
+      const full = saved?.full_address || composeFullAddress(saved) || composeFullAddress(payload) || '-';
+      setAddressValueInGrid(full);
+
+      showToast('Endereço atualizado com sucesso!', 'success');
+      closeModal();
+    }catch(err){
+      console.error(err);
+      showToast(err.message || 'Erro ao salvar endereço.', 'error');
+    }finally{
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+})();
+
+/* =========================
+ * UTILS
+ * ========================= */
+function composeFullAddress(addr){
+  if(!addr) return '';
+  const street = addr.logradouro || addr.endereco || addr.street || '';
+  const numero = addr.numero || addr.number || '';
+  const complemento = addr.complemento || addr.complement || '';
+  const bairro = addr.bairro || addr.district || '';
+  const cidade = addr.cidade || addr.city || '';
+  const estado = addr.estado || addr.state || '';
+  const cep = addr.cep || addr.zip || '';
+  const pais = addr.pais || addr.country || 'BR';
+
+  const parts = [];
+  if(street) parts.push(numero ? `${street}, ${numero}` : street);
+  if(complemento) parts.push(complemento);
+  if(bairro) parts.push(bairro);
+  if(cidade) parts.push(cidade);
+  if(estado) parts.push(estado);
+  if(cep) parts.push(`CEP ${cep}`);
+  if(pais) parts.push(pais);
+
+  return parts.filter(Boolean).join(' - ');
+}
 
 function defaultAvatar(breed){
   const b = (breed || '').toLowerCase();
@@ -427,10 +705,20 @@ function defaultAvatar(breed){
   if(b.includes('cach') || b.includes('dog')) return 'https://placedog.net/400/250';
   return 'https://placehold.co/400x250?text=PET';
 }
-
+function fieldLabel(key){
+  const map = { nome:'Nome', email:'Email', cpf:'CPF', numero:'Telefone', endereco:'Endereço' };
+  return map[key] || key;
+}
+function capitalize(s){ return (s||'').charAt(0).toUpperCase() + (s||'').slice(1); }
+function escapeAttr(s){ return String(s).replaceAll('"','&quot;'); }
 function escapeHtml(s){
   if(!s) return '';
-  return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+  return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>');
 }
-
-
+function pencilSVG(){
+  return `
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M12 20h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L8 18l-4 1 1-4L16.5 3.5z" stroke="currentColor" stroke-width="2" fill="none"/>
+  </svg>`;
+}

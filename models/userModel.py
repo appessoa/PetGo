@@ -23,7 +23,6 @@ class User(db.Model):
     nome = db.Column(db.Text, nullable=True)
     numero = db.Column(db.String(20), nullable=True)
     cpf = db.Column(db.String(14), nullable=True)
-    endereco = db.Column(db.String(255), nullable=True)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -38,15 +37,29 @@ class User(db.Model):
         lazy="selectin"  # carrega eficiente p/ listas
     )
 
+    addresses = db.relationship(
+        "Address",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin"
+    )
     # Índices úteis 
     __table_args__ = (
         db.Index("ix_users_username", "username"),
         db.Index("ix_users_email", "email"),
     )
 
+    @property
+    def primary_address(self):
+        if not self.addresses:
+            return None
+        # prioriza o marcado como principal; senão, o mais recente
+        prim = next((a for a in self.addresses if a.is_primary), None)
+        return prim or sorted(self.addresses, key=lambda a: a.created_at or datetime.min, reverse=True)[0]
+
+
     def to_safe_dict(self):
-        """Representação segura do usuário (sem senha)."""
-        return {
+        data = {
             "id": self.id_user,
             "username": self.username,
             "email": self.email,
@@ -54,6 +67,12 @@ class User(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
+        if self.primary_address:
+            data["address"] = self.primary_address.to_dict()
+        else:
+            data["address"] = None
+        return data
 
-    def __repr__(self) -> str:  # debug amigável
+
+    def __repr__(self) -> str:  # debug 
         return f"<User id={self.id_user} username={self.username!r}>"
