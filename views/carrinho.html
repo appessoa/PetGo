@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seu Carrinho - PetGo</title>
+    <link rel="stylesheet" href="/public/CSS/style.css">
+    <link rel="stylesheet" href="/public\CSS\compras.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container header-inner" id="Header">
+            <div class="logo"><span class="paw">🐾</span> PetGo</div>
+        </div>
+    </header>
+
+    <main class="container cart-layout">
+        <section class="cart-items">
+            <h2 class="section-title">Seu Carrinho</h2>
+            <article class="cart-item-card">
+                <img src="/public/img/racao-exemplo.png" alt="Ração de Cachorro" class="item-image">
+                <div class="item-details">
+                    <h4>Ração Premium para Cães Adultos</h4>
+                    <p class="subtitle">5kg - Sabor Frango</p>
+                    <div class="item-actions">
+                        <div class="quantity-control">
+                            <button class="btn-qty">-</button>
+                            <input type="number" value="1" min="1" class="qty-input">
+                            <button class="btn-qty">+</button>
+                        </div>
+                        <button class="btn-remove">Remover</button>
+                    </div>
+                </div>
+                <div class="item-price">R$ 89,90</div>
+            </article>
+            <article class="cart-item-card">
+                <img src="/public/img/brinquedo-exemplo.png" alt="Brinquedo de Corda" class="item-image">
+                <div class="item-details">
+                    <h4>Brinquedo de Corda para Cães</h4>
+                    <p class="subtitle">Tamanho Médio - Resistente</p>
+                    <div class="item-actions">
+                        <div class="quantity-control">
+                            <button class="btn-qty">-</button>
+                            <input type="number" value="1" min="1" class="qty-input">
+                            <button class="btn-qty">+</button>
+                        </div>
+                        <button class="btn-remove">Remover</button>
+                    </div>
+                </div>
+                <div class="item-price">R$ 25,00</div>
+            </article>
+        </section>
+
+        <aside class="cart-summary">
+            <h3>Resumo da Compra</h3>
+            <div class="summary-line">
+                <span>Subtotal</span>
+                <span>R$ 114,90</span>
+            </div>
+            <div class="summary-line">
+                <span>Frete</span>
+                <span>R$ 15,00</span>
+            </div>
+            <div class="summary-total">
+                <strong>Total</strong>
+                <strong>R$ 129,90</strong>
+            </div>
+            <div class="payment-options">
+            </div>
+            <a href="pagamento.html" class="btn primary" style="width: 100%; text-align: center;">Continuar</a>
+        </aside>
+    </main>
+</body>
+</html>

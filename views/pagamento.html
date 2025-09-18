@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento - PetGo</title>
+    <link rel="stylesheet" href="/public/CSS/style.css">
+    <link rel="stylesheet" href="/public\CSS\pagamento.css">
+    <link rel="stylesheet" href="/public\CSS\compras.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container header-inner" id="Header">
+            <div class="logo"><span class="paw">🐾</span> PetGo</div>
+        </div>
+    </header>
+
+    <main class="container payment-layout">
+        <section class="payment-options-section">
+            <h2 class="section-title">Escolha a Opção de Pagamento</h2>
+            
+            <form id="paymentForm">
+                <div class="payment-method-group">
+                    <label class="payment-method-card">
+                        <input type="radio" name="payment_method" value="credit_card" checked>
+                        <span>💳 Cartão de Crédito</span>
+                    </label>
+                    <label class="payment-method-card">
+                        <input type="radio" name="payment_method" value="pix">
+                        <span>🔑 Pix</span>
+                    </label>
+                </div>
+
+                <div class="payment-form" id="creditCardForm">
+                    <div class="form-group">
+                        <label for="cardNumber">Número do Cartão *</label>
+                        <input type="text" id="cardNumber" name="cardNumber" required placeholder="XXXX XXXX XXXX XXXX">
+                    </div>
+                    <div class="form-group">
+                        <label for="cardName">Nome no Cartão *</label>
+                        <input type="text" id="cardName" name="cardName" required placeholder="Nome Completo">
+                    </div>
+                    <div class="grid-two">
+                        <div class="form-group">
+                            <label for="expiryDate">Validade *</label>
+                            <input type="text" id="expiryDate" name="expiryDate" required placeholder="MM/AA">
+                        </div>
+                        <div class="form-group">
+                            <label for="cvv">CVV *</label>
+                            <input type="text" id="cvv" name="cvv" required placeholder="123">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="installments">Parcelamento *</label>
+                        <select id="installments" name="installments" required>
+                            <option value="1">1x de R$ 129,90 sem juros</option>
+                            <option value="2">2x de R$ 64,95 sem juros</option>
+                            <option value="3">3x de R$ 43,30 sem juros</option>
+                            <option value="6">6x de R$ 21,65 com juros</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="payment-form" id="pixForm" style="display: none;">
+                    <p class="subtitle">O pagamento por Pix é instantâneo. Após a confirmação, o pedido será enviado.</p>
+                    <div class="form-group">
+                        <label for="cpfPix">CPF/CNPJ para o Pix *</label>
+                        <input type="text" id="cpfPix" name="cpfPix" placeholder="XXX.XXX.XXX-XX ou XX.XXX.XXX/XXXX-XX">
+                        <p class="help-text">Utilizado para identificar o pagamento.</p>
+                    </div>
+                    <div class="pix-info">
+                        <p>O QR Code será gerado na próxima tela.</p>
+                    </div>
+                </div>
+                
+                <div class="btn-row justify-end">
+                    <a href="confirmacao.html" class="btn primary">Finalizar Pedido</a>
+                </div>
+            </form>
+        </section>
+
+        <aside class="order-summary">
+            <h3>Seu Pedido</h3>
+            <div class="order-item">
+                <img src="/public/img/racao-exemplo.png" alt="Ração de Cachorro">
+                <span>Ração Premium (1x)</span>
+                <span>R$ 89,90</span>
+            </div>
+            <div class="order-item">
+                <img src="/public/img/brinquedo-exemplo.png" alt="Brinquedo de Corda">
+                <span>Brinquedo de Corda (1x)</span>
+                <span>R$ 25,00</span>
+            </div>
+            <div class="order-total-summary">
+                <span>Total</span>
+                <span>R$ 129,90</span>
+            </div>
+        </aside>
+    </main>
+</body>
+</html>
