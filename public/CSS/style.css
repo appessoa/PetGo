@@ -31,6 +31,31 @@ nav a{font-weight:600;color:#0f172a;opacity:.85}
 nav a:hover{opacity:1}
 .actions{display:flex;gap:12px;align-items:center}
 
+/* ===== ESTILO DO ÍCONE DO CARRINHO ===== */
+.cart-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px; /* Mesma altura dos botões para alinhar perfeitamente */
+  height: 44px;
+  background-color: var(--card);
+  color: var(--text);
+  border-radius: 50%; /* Deixa o ícone circular */
+  box-shadow: var(--shadow);
+  transition: transform .18s ease, box-shadow .18s ease, color .18s ease;
+}
+
+.cart-icon:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  color: var(--primary); /* Muda a cor do ícone no hover */
+}
+
+.cart-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
 /* ===== BOTÕES ===== */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:999px;padding:12px 18px;font-weight:700;cursor:pointer;transition:transform .18s ease, box-shadow .18s ease, background .18s ease;box-shadow:var(--shadow);background:var(--card)}
 .btn.primary{background:var(--primary);color:white}
