@@ -220,6 +220,7 @@ class UsersController:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
+            print(e)
             return api_error(500, "Erro ao criar usuário.", {"exception": str(e)})
         
         session["user_id"] = user.id_user

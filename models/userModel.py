@@ -25,9 +25,12 @@ class User(db.Model):
     cpf = db.Column(db.String(14), nullable=True)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
+    is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    is_active = db.Column(db.Boolean, default=True)
+    deleted = db.Column(db.Boolean, default=False)  # soft delete
+    
 
     # Relacionamento 1:N com Pet
     pets = db.relationship(

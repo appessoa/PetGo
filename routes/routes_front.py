@@ -28,9 +28,11 @@ def agendamento():
 @front_bp.route('/PetGoHealth')
 def health():
     return render_template('PetGoHealth.html')
+
 @front_bp.route('/PetGoFormularioAdocao')
 def formularioAdocao():
     return render_template('PetGoFormularioAdocao.html')
+
 @front_bp.route('/PetGoProdutosV2')
 def produtosV2():
     return render_template('PetGoProdutosV2.html')

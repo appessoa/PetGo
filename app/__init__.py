@@ -40,7 +40,6 @@ def create_app():
         import models
         db.create_all()
 
-        if config.SEED_ON_STARTUP:
-            seed_db(config)
+
 
     return app

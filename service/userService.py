@@ -1,6 +1,8 @@
 from models.userModel import User
 from config.db import db
 from flask_bcrypt import Bcrypt
+from service.Helpers import api_error
+from sqlalchemy.exc import SQLAlchemyError
 bcrypt = Bcrypt()
 
 
@@ -43,3 +45,17 @@ def change_password(user_id, new_password):
 
 def get_active_users():
     return User.query.filter_by(is_active=True).all()
+
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+    user.deleted = user.id_user  # marca como deletado
+    try:
+    
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return api_error(500, "Falha ao deletar usuário", exc=e)
+    except Exception as e:
+        db.session.rollback()
+        return api_error(500, "Erro inesperado ao deletar usuário", exc=e)
+    return True
