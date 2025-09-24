@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PetGo — Painel Administrativo</title>
+  <link rel="stylesheet" href="/public/CSS/style.css">
+  <link rel="stylesheet" href="/public/CSS/admin.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo"><span class="paw">🐾</span> PetGo ADM</div>
+    </div>
+    <nav class="sidebar-nav">
+      <ul>
+        <li>
+          <a href="#" class="active">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <span>Veterinários</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+            <span>Produtos</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8c-3.866 0-7 1.84-7 4s3.134 4 7 4 7-1.84 7-4-3.134-4-7-4z"></path><path d="M12 8v1.45A3.499 3.499 0 0 1 15.5 12M12 8V5"></path><path d="M5.022 10.218A3.5 3.5 0 0 1 8.5 8.514M18.978 10.218A3.5 3.5 0 0 0 15.5 8.514"></path><path d="M12 16a7 7 0 0 0-7 4h14a7 7 0 0 0-7-4z"></path><path d="M12 16v1.45a3.499 3.499 0 0 0 3.5 3.036M12 16v1.45A3.499 3.499 0 0 1 8.5 14.514"></path><path d="M12 20a3.5 3.5 0 0 1-3.5-3.036"></path><path d="M12 20a3.5 3.5 0 0 0 3.5-3.036"></path></svg>
+            <span>Histórico de Vendas</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <h1 class="title">Dashboard</h1>
+    <p class="subtitle">Bem-vindo ao painel de administração da PetGo.</p>
+
+    <section class="content-card">
+      <div class="card-header">
+        <h2>Veterinários Cadastrados</h2>
+        <button id="open-vet-modal-btn" class="btn primary">+ Cadastrar Veterinário</button>
+      </div>
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Especialidade</th>
+            <th>CRMV</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Dr. João Silva</td>
+            <td>Clínico Geral</td>
+            <td>CRMV-SP 12345</td>
+            <td><span class="status active">Ativo</span></td>
+            <td class="actions-cell">
+              <button title="Editar">✏️</button>
+              <button title="Remover">🗑️</button>
+            </td>
+          </tr>
+          <tr>
+            <td>Dra. Maria Oliveira</td>
+            <td>Dermatologia</td>
+            <td>CRMV-SP 54321</td>
+            <td><span class="status active">Ativo</span></td>
+            <td class="actions-cell">
+              <button title="Editar">✏️</button>
+              <button title="Remover">🗑️</button>
+            </td>
+          </tr>
+           <tr>
+            <td>Dr. Carlos Pereira</td>
+            <td>Ortopedia</td>
+            <td>CRMV-SP 67890</td>
+            <td><span class="status inactive">Inativo</span></td>
+            <td class="actions-cell">
+              <button title="Editar">✏️</button>
+              <button title="Remover">🗑️</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="content-card">
+       <div class="card-header">
+        <h2>Adicionar Novo Produto</h2>
+      </div>
+      <form class="product-form">
+        <div class="form-group">
+          <label for="product-name">Nome do Produto</label>
+          <input type="text" id="product-name" placeholder="Ex: Ração Premium para Cães Adultos">
+        </div>
+        <div class="grid-three">
+            <div class="form-group">
+                <label for="product-price">Preço (R$)</label>
+                <input type="number" id="product-price" placeholder="Ex: 89.99">
+            </div>
+            <div class="form-group">
+                <label for="product-stock">Estoque</label>
+                <input type="number" id="product-stock" placeholder="Ex: 50">
+            </div>
+            <div class="form-group">
+                <label for="product-category">Categoria</label>
+                <select id="product-category">
+                    <option>Ração</option>
+                    <option>Brinquedos</option>
+                    <option>Higiene</option>
+                    <option>Acessórios</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="product-desc">Descrição</label>
+            <textarea id="product-desc" rows="3" placeholder="Detalhes do produto..."></textarea>
+        </div>
+        <div class="btn-row">
+            <button type="submit" class="btn primary">Adicionar Produto</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="content-card">
+      <div class="card-header">
+        <h2>Histórico de Vendas Recentes</h2>
+        <a href="#" class="btn">Ver Histórico Completo</a>
+      </div>
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>ID da Venda</th>
+            <th>Cliente</th>
+            <th>Data</th>
+            <th>Itens</th>
+            <th>Valor Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>#A5F12</td>
+            <td>Luir Oliveira</td>
+            <td>23/09/2025</td>
+            <td>3</td>
+            <td>R$ 145,50</td>
+          </tr>
+           <tr>
+            <td>#A5F11</td>
+            <td>Maria Costa</td>
+            <td>22/09/2025</td>
+            <td>1</td>
+            <td>R$ 89,99</td>
+          </tr>
+           <tr>
+            <td>#A5F10</td>
+            <td>Carlos Almeida</td>
+            <td>22/09/2025</td>
+            <td>5</td>
+            <td>R$ 210,00</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <div id="vet-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Cadastrar Novo Veterinário</h2>
+        <button class="close-btn" title="Fechar">&times;</button>
+      </div>
+      <form id="vet-form">
+        <div class="form-group">
+          <label for="vet-name">Nome Completo</label>
+          <input type="text" id="vet-name" required placeholder="Dr. Fulano de Tal">
+        </div>
+        <div class="grid-two">
+          <div class="form-group">
+            <label for="vet-specialty">Especialidade</label>
+            <input type="text" id="vet-specialty" required placeholder="Clínico Geral">
+          </div>
+          <div class="form-group">
+            <label for="vet-crmv">CRMV</label>
+            <input type="text" id="vet-crmv" required placeholder="CRMV-SP 12345">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="vet-status">Status</label>
+          <select id="vet-status">
+            <option value="active">Ativo</option>
+            <option value="inactive">Inativo</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn">Cancelar</button>
+          <button type="submit" class="btn primary">Salvar Veterinário</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/public/js/admin.js"></script>
+
+</body>
+</html>

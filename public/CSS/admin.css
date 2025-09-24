@@ -1,0 +1,376 @@
+/* ======================================= */
+/* =====  CSS para Painel Administrativo  ===== */
+/* ======================================= */
+
+/* Importando as variáveis de cor para manter a consistência */
+:root {
+  --bg: #f8f9fa; /* Um fundo um pouco diferente para o admin */
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #475569;
+  --primary: #FF914D;
+  --primary-600: #ff7d2e;
+  --accent: #5BC0F8;
+  --accent-100: #E6F5FE;
+  --radius: 16px;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,.07), 0 2px 4px -2px rgba(0,0,0,.05);
+  --sidebar-bg: #1f2937;
+  --sidebar-text: #d1d5db;
+  --sidebar-hover: #374151;
+  --sidebar-active: var(--primary);
+}
+
+body {
+  display: flex;
+  background-color: var(--bg);
+}
+
+/* ===== MENU LATERAL (SIDEBAR) ===== */
+.sidebar {
+  width: 260px;
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-height: 100vh;
+}
+
+.sidebar-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--sidebar-hover);
+}
+
+.sidebar .logo {
+  color: #fff;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 16px;
+}
+
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background-color 0.2s, color 0.2s;
+  color: var(--sidebar-text);
+}
+
+.sidebar-nav a:hover {
+  background-color: var(--sidebar-hover);
+  color: #fff;
+}
+
+.sidebar-nav a.active {
+  background-color: var(--sidebar-active);
+  color: #fff;
+}
+
+.sidebar-nav a svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ===== CONTEÚDO PRINCIPAL ===== */
+.main-content {
+  flex-grow: 1;
+  padding: 40px;
+  overflow-y: auto;
+}
+
+.main-content .title {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.main-content .subtitle {
+  margin-top: 0;
+  margin-bottom: 32px;
+}
+
+/* ===== CARDS DE CONTEÚDO ===== */
+.content-card {
+  background-color: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.card-header h2 {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  font-size: 20px;
+}
+
+/* ===== TABELAS ===== */
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.custom-table th, .custom-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.custom-table th {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.custom-table td {
+  font-size: 15px;
+}
+
+.custom-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.actions-cell button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.status.active {
+  background-color: #dcfce7;
+  color: #166534;
+}
+.status.inactive {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* ===== FORMULÁRIO DE PRODUTOS ===== */
+.product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.grid-three {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+.product-form .btn-row {
+    justify-content: flex-end; /* Alinha botão à direita */
+    margin-top: 0;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 992px) {
+    body {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .sidebar-nav {
+        display: flex;
+    }
+    .sidebar-nav ul {
+        display: flex;
+        gap: 8px;
+        padding: 0 16px;
+    }
+    .sidebar-nav span {
+        display: none; /* Esconde texto dos links no mobile */
+    }
+    .main-content {
+        padding: 24px;
+    }
+    .grid-three {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 768px) {
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+}
+
+
+/* ================================================= */
+/* ===== ESTILOS DE FORMULÁRIO (Inputs, Labels, etc.) ===== */
+/* ================================================= */
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 8px; /* Espaço entre o título e a caixa */
+  display: block;
+}
+
+/* Estilo unificado para todos os campos do formulário no admin */
+.main-content input[type="text"],
+.main-content input[type="number"],
+.main-content select,
+.main-content textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0; /* Borda cinza clara */
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  background-color: #f8f9fa; /* Fundo sutilmente cinza */
+  transition: border-color 0.2s, box-shadow 0.2s;
+  
+  /* Remove a aparência padrão e adiciona uma seta customizada ao SELECT */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px; /* Garante espaço para a seta */
+}
+
+/* O select não precisa de seta, então removemos a imagem para ele */
+.main-content textarea {
+    background-image: none;
+    padding-right: 12px;
+}
+
+
+/* Efeito ao focar no campo (clicar) */
+.main-content input[type="text"]:focus,
+.main-content input[type="number"]:focus,
+.main-content select:focus,
+.main-content textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  background-color: var(--card);
+  box-shadow: 0 0 0 3px rgba(255, 145, 77, 0.3);
+}
+
+/* ======================================= */
+/* ===== ESTILOS DO MODAL ===== */
+/* ======================================= */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Classe para esconder o modal */
+.modal-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.modal-content {
+  background-color: var(--card);
+  padding: 32px;
+  border-radius: var(--radius);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 600px;
+  transform: scale(1);
+  transition: transform 0.3s ease;
+}
+
+.modal-overlay.hidden .modal-content {
+  transform: scale(0.95);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h2 {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  font-size: 20px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--muted);
+  cursor: pointer;
+  line-height: 1;
+}
+
+#vet-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* Nova regra para garantir o estilo correto dos botões no rodapé do modal */
+.modal-footer .btn {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 10px 20px;
+}
