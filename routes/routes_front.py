@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template
 
+from config.decorators import login_required, admin_required
+
 
 front_bp = Blueprint('front',__name__)
 
@@ -22,9 +24,12 @@ def adocao():
 @front_bp.route('/PetGoHotelzinho')
 def hotelzinho():
     return render_template('PetGoHotelzinho.html')
+
 @front_bp.route('/PetGoAgendamento')
 def agendamento():
     return render_template('PetGoAgendamento.html')
+
+@login_required
 @front_bp.route('/PetGoHealth')
 def health():
     return render_template('PetGoHealth.html')
@@ -37,6 +42,7 @@ def formularioAdocao():
 def produtosV2():
     return render_template('PetGoProdutosV2.html')
 
+@login_required
 @front_bp.route('/UserPage')
 def userPage():
     return render_template('PetGoUserPage.html')
@@ -44,3 +50,28 @@ def userPage():
 @front_bp.route('/cadastro')
 def cadastro():
     return render_template('cadastro.html')
+
+@front_bp.route('/adminPage')
+@admin_required
+def adminPage():
+    return render_template('admin.html')
+
+@front_bp.route('/carrinho')
+@login_required
+def carrinho():
+    return render_template('carrinho.html')
+
+@front_bp.route('/checkout')
+@login_required
+def checkout():
+    return render_template('pagamento.html')
+
+@front_bp.route('/orderConfirmed')
+@login_required
+def historico():
+    return render_template('confirmacao.html')
+
+@front_bp.route('/vet_page')
+@admin_required
+def veterinarios():
+    return render_template('veterinarios.html')

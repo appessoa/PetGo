@@ -68,6 +68,7 @@ class User(db.Model):
             "username": self.username,
             "email": self.email,
             "is_active": self.is_active,
+            "is_admin": self.is_admin,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }

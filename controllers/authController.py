@@ -1,5 +1,5 @@
 
-from flask import flash, jsonify, redirect, render_template, request, session, url_for
+from flask import jsonify, redirect, render_template, request, session, url_for
 from flask_bcrypt import Bcrypt
 from models.userModel import User
 bcrypt = Bcrypt()
@@ -21,6 +21,10 @@ class authController():
             # salva id e username na sessão
             session["user_id"] = user.id_user
             session["username"] = user.username
+            session["is_admin"] = user.is_admin
+
+            if user.is_admin:
+                return redirect(url_for("front.adminPage"))
             return redirect(url_for("front.index"))
         except Exception as e:
             print("Erro ao fazer login:", e)
@@ -32,7 +36,8 @@ class authController():
         if "user_id" in session:
             return jsonify({
                 "logged_in": True,
-                "username": session["username"]
+                "username": session["username"],
+                "is_admin": session.get("is_admin", False)
             })
         return jsonify({"logged_in": False})
     
@@ -40,7 +45,6 @@ class authController():
     def logout():
         """Remove dados da sessão e volta para a home"""
         session.clear()
-        flash("Você saiu da sua conta.", "info")
         return redirect(url_for("front.index"))
 
     @staticmethod

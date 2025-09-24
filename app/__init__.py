@@ -29,6 +29,7 @@ def create_app():
     from routes.agendamento import sched_api
     from routes.endereco import addr_api
     from routes.formularioAdocao import adocao_api
+    from routes.veterinarios import vet_bp
     app.register_blueprint(user_api)
     app.register_blueprint(auth_bp)
     app.register_blueprint(front_bp)
@@ -36,11 +37,15 @@ def create_app():
     app.register_blueprint(sched_api)
     app.register_blueprint(addr_api)
     app.register_blueprint(adocao_api)
+    app.register_blueprint(vet_bp)
 
 
     with app.app_context():
         import models
         db.create_all()
+
+        if config.SEED_ON_STARTUP == True:
+            seed_db(config)
 
 
 

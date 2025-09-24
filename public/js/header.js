@@ -21,7 +21,7 @@ export async function initHeader() {
     </nav>
   `;
 
-  let actionsHtml = `
+  let baseActions = `
     <a href="/PetGoAgendamento"><button class="btn primary">Agende um serviço</button></a>
     <a href="/carrinho.html" class="cart-icon" aria-label="Ver carrinho de compras">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -32,6 +32,7 @@ export async function initHeader() {
     </a>
   `;
 
+  let actionsHtml = "";
   if (user && user.logged_in) {
     const username = user.username || "Usuário";
     actionsHtml = `
@@ -42,17 +43,26 @@ export async function initHeader() {
           <span class="caret">▾</span>
         </button>
         <div class="dropdown" role="menu">
+        `
+        if (user.is_admin) {
+          actionsHtml += `<a role="menuitem" href="/adminPage">Administração</a>`;
+        }
+        else { actionsHtml +=
+        `
           <a role="menuitem" href="/UserPage">Dados do usuário</a>
           <a role="menuitem" href="/PetGoHealth">Plano Health</a>
+          `
+          
+        }actionsHtml += `
           <a role="menuitem" href="/logout">Sair</a>
         </div>
       </div>
-      ${actionsHtml}
+      ${baseActions}
     `;
   } else {
     actionsHtml = `
       <a href="/login"><button class="btn">Entrar</button></a>
-      ${actionsHtml}
+      ${baseActions}
     `;
   }
 
