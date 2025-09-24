@@ -11,11 +11,10 @@ class AdoptionApplication(db.Model):
     id_adoption_applications = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     # relacionamento obrigatório
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id_user"), nullable=False, index=True)
-    user = db.relationship("User", back_populates="adoption_applications", lazy="joined")
+    id_user = db.Column(db.Integer, db.ForeignKey("users.id_user"), nullable=False, index=True)
 
     # opcional: quando a aplicação é para um pet específico
-    pet_id = db.Column(db.Integer, db.ForeignKey("pets.id_pet"), nullable=True, index=True)
+    id_pet = db.Column(db.Integer, db.ForeignKey("pets.id_pet"), nullable=True, index=True)
 
     # preferências escolhidas no formulário
     tipo_pet = db.Column(db.String(20), nullable=True)            # "Gato" | "Cachorro"
@@ -36,14 +35,14 @@ class AdoptionApplication(db.Model):
     deleted = db.Column(db.Boolean, default=False, nullable=False)  # soft delete
 
     __table_args__ = (
-        db.Index("ix_adopt_user_status", "user_id", "status"),
+        db.Index("ix_adopt_user_status", "id_user", "status"),
     )
 
     def to_dict(self):
         return {
-            "id": self.id,
-            "user_id": self.user_id,
-            "pet_id": self.pet_id,
+            "id_adoption_applications": self.id_adoption_applications,
+            "id_user": self.id_user,
+            "id_pet": self.id_pet,
             "tipo_pet": self.tipo_pet,
             "residencia_tipo": self.residencia_tipo,
             "telas_protecao": self.telas_protecao,

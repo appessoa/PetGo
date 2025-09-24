@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      showToast("Conta criada com sucesso! Endereço vinculado ✅", "success");
+      showToast("Conta criada com sucesso!", "success");
       setTimeout(() => (window.location.href = "/UserPage"), 1500);
     } catch (err) {
       console.error(err);

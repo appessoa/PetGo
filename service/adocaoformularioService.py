@@ -1,4 +1,3 @@
-# services/adoption_service.py
 from datetime import datetime
 from flask import session
 from config.db import db
@@ -58,7 +57,7 @@ class AdoptionService:
             errs["pet_id"] = "pet_id inválido."
 
         out.update({
-            "pet_id": pet_id,
+            "id_pet": pet_id,
             "tipo_pet": tipo_pet,
             "residencia_tipo": residencia_tipo,
             "telas_protecao": telas_protecao,
@@ -73,46 +72,51 @@ class AdoptionService:
     def create_or_update_for_user(user_id: int, data: dict) -> AdoptionApplication:
         payload, errs = AdoptionService._validate_payload(data)
         if errs:
-            from Helpers import api_error  # seu helper
+            from .Helpers import api_error
+            print (errs)
             return api_error(400, "Falha de validação.", errs)
+        try:
+            # regra de negócio: mantém 1 aplicação "aberta" por usuário; se existir, atualiza
+            app = (AdoptionApplication.query
+                .filter(AdoptionApplication.id_user == user_id,
+                        AdoptionApplication.status.in_(["aberta","em_avaliacao"]))
+                .order_by(AdoptionApplication.created_at.desc())
+                .first())
 
-        # regra de negócio: mantém 1 aplicação "aberta" por usuário; se existir, atualiza
-        app = (AdoptionApplication.query
-               .filter(AdoptionApplication.user_id == user_id,
-                       AdoptionApplication.status.in_(["aberta","em_avaliacao"]))
-               .order_by(AdoptionApplication.created_at.desc())
-               .first())
+            if app:
+                for k,v in payload.items():
+                    setattr(app, k, v)
+                app.updated_at = datetime.utcnow()
+            else:
+                app = AdoptionApplication(id_user=user_id, **payload)
+                db.session.add(app)
 
-        if app:
-            for k,v in payload.items():
-                setattr(app, k, v)
-            app.updated_at = datetime.utcnow()
-        else:
-            app = AdoptionApplication(user_id=user_id, **payload)
-            db.session.add(app)
-
-        db.session.commit()
-        return app
+            db.session.commit()
+            return app
+        except Exception as e:
+            db.session.rollback()
+            from .Helpers import api_error
+            return api_error(500, "Erro ao salvar formulário.", exc=e)
 
     @staticmethod
     def list_my(user_id: int):
         return (AdoptionApplication.query
-                .filter_by(user_id=user_id)
+                .filter_by(id_user=user_id)
                 .order_by(AdoptionApplication.created_at.desc())
                 .all())
 
     @staticmethod
     def get_my(user_id: int, app_id: int) -> AdoptionApplication:
         app = AdoptionApplication.query.get_or_404(app_id)
-        if app.user_id != user_id:
-            from Helpers import api_error
+        if app.id_user != user_id:
+            from .Helpers import api_error
             return api_error(403, "Acesso negado.")
         return app
 
     @staticmethod
     def set_status(user_id: int, app_id: int, status: str) -> AdoptionApplication:
         if status not in ("aberta","em_avaliacao","aprovada","rejeitada","cancelada"):
-            from Helpers import api_error
+            from .Helpers import api_error
             return api_error(400, "Status inválido.")
         app = AdoptionService.get_my(user_id, app_id)
         if isinstance(app, dict):  # api_error
@@ -131,6 +135,6 @@ class AdoptionService:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            from Helpers import api_error
+            from .Helpers import api_error
             return api_error(500, "Erro ao deletar formulário", exc=e)
         return True

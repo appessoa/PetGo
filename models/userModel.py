@@ -46,6 +46,7 @@ class User(db.Model):
         cascade="all, delete-orphan",
         lazy="selectin"
     )
+
     # Índices úteis 
     __table_args__ = (
         db.Index("ix_users_username", "username"),
