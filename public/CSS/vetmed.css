@@ -1,0 +1,401 @@
+/* ======================================= */
+/* ===== CSS para Portal do Veterinário ===== */
+/* ======================================= */
+
+:root {
+  --bg: #f8f9fa;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --primary: #FF914D;
+  --accent: #5BC0F8;
+  --accent-100: #E6F5FE;
+  --radius: 16px;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,.07), 0 2px 4px -2px rgba(0,0,0,.05);
+  --sidebar-bg: #1f2937;
+  --sidebar-text: #d1d5db;
+  --sidebar-hover: #374151;
+  --sidebar-active: var(--primary);
+}
+body {
+  display: flex;
+  background-color: var(--bg);
+}
+.main-content {
+  flex-grow: 1;
+  padding: 40px;
+  overflow-y: auto;
+}
+.main-content .title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+.main-content .subtitle {
+  margin-top: 0;
+  margin-bottom: 32px;
+  color: var(--muted);
+}
+.content-card {
+  background-color: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  margin-bottom: 32px;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.card-header h2 {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  font-size: 20px;
+}
+.search-input.filter-input {
+  max-width: 300px;
+}
+.sidebar {
+  width: 260px;
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-height: 100vh;
+}
+.sidebar-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--sidebar-hover);
+}
+.sidebar .logo {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  color: #fff;
+}
+.sidebar-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 16px;
+}
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background-color 0.2s, color 0.2s;
+  color: var(--sidebar-text);
+}
+.sidebar-nav a:hover {
+  background-color: var(--sidebar-hover);
+  color: #fff;
+}
+.sidebar-nav a.active {
+  background-color: var(--sidebar-active);
+  color: #fff;
+}
+.sidebar-profile {
+  margin-top: auto;
+  padding: 24px;
+  border-top: 1px solid var(--sidebar-hover);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  background-color: #111827;
+}
+.sidebar-profile span {
+  font-weight: 600;
+  color: #fff;
+}
+.sidebar-profile a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 12px;
+}
+.sidebar-profile a:hover {
+  color: var(--primary);
+}
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.custom-table th, .custom-table td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+.custom-table th {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.custom-table td {
+  font-size: 15px;
+}
+.custom-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+.status {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.status.finished {
+  background-color: #dcfce7;
+  color: #166534;
+  font-weight: 600;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 24px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .18s ease;
+  box-shadow: var(--shadow);
+  background: var(--card);
+}
+.btn.primary {
+  background: var(--primary);
+  color: white;
+}
+.btn.primary:hover {
+  background: var(--primary-600);
+  box-shadow: var(--shadow-lg);
+}
+.btn.small {
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 1; visibility: visible;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.modal-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+.modal-content {
+  background-color: var(--card);
+  padding: 32px;
+  border-radius: var(--radius);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 600px;
+  z-index: 1001;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.modal-header h2 {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  font-size: 20px;
+}
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--muted);
+  cursor: pointer;
+}
+#prontuario-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.form-group label {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 8px;
+  display: block;
+}
+.modal-content input[type="text"],
+.modal-content textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  background-color: #f8f9fa;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+}
+.modal-content input[type="text"]:focus,
+.modal-content textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  background-color: var(--card);
+  box-shadow: 0 0 0 3px rgba(255, 145, 77, 0.4);
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+.modal-footer .btn:not(.primary) {
+  background-color: var(--card);
+  color: var(--muted);
+  border: 1px solid #e2e8f0;
+  box-shadow: none;
+  font-weight: 600;
+  padding: 8px 18px;
+  font-size: 14px;
+}
+.modal-footer .btn:not(.primary):hover {
+  background-color: #f8f9fa;
+  border-color: #d1d5db;
+}
+.record-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.record-field span {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 6px;
+  display: block;
+}
+.record-field p {
+  background-color: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.history-accordion {
+  border-top: 1px solid #e5e7eb;
+}
+.history-item {
+  border-bottom: 1px solid #e5e7eb;
+}
+.history-item-header {
+  width: 100%;
+  background: none;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 8px;
+  cursor: pointer;
+  text-align: left;
+}
+.history-item-header:hover {
+  background-color: #f9fafb;
+}
+.history-item-header .accordion-arrow {
+  font-size: 24px;
+  color: var(--muted);
+  transition: transform 0.3s ease;
+}
+.history-item-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+  padding: 0 16px;
+  color: var(--muted);
+}
+.history-item.is-open .accordion-arrow {
+  transform: rotate(180deg);
+}
+.history-item.is-open .history-item-content {
+  max-height: 300px;
+  padding: 0 16px 16px 16px;
+}
+
+/* ============================================== */
+/* ===== PÁGINA MEUS PACIENTES (NOVO) ===== */
+/* ============================================== */
+
+/* Barra de Filtros */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.filter-bar .search-input {
+  flex-grow: 1; /* Faz a busca ocupar mais espaço */
+}
+.filter-input {
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  background-color: #f8f9fa;
+}
+.filter-bar .btn {
+  padding: 10px 16px;
+  font-size: 14px;
+}
+
+/* Paginação */
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+.pagination a {
+  color: var(--primary);
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+.pagination a:hover {
+  background-color: #fff1e8;
+}
+.pagination a.current {
+  background-color: var(--primary);
+  color: #fff;
+}
+.pagination a.disabled {
+  color: var(--muted);
+  pointer-events: none;
+}

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PetGo — Meus Pacientes</title>
+  <link rel="stylesheet" href="/public/CSS/vetmed.css">
+  <link rel="stylesheet" href="/public/CSS/style.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo"><span class="paw">🐾</span> PetGo</div>
+    </div>
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="/vetmed.html"><span>Minha Agenda</span></a></li>
+        <li><a href="/vetpaciente.html" class="active"><span>Meus Pacientes</span></a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-profile">
+        <span>Dr. João Silva</span>
+        <a href="/logout">Sair</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <h1 class="title">Meus Pacientes</h1>
+    <p class="subtitle">Gerencie e consulte o histórico de todos os seus pacientes.</p>
+
+    <section class="content-card">
+      <div class="filter-bar">
+        <input type="search" placeholder="Buscar por nome do pet ou tutor..." class="search-input filter-input">
+        <select class="filter-input">
+            <option value="">Todas as Espécies</option>
+            <option value="cachorro">Cachorro</option>
+            <option value="gato">Gato</option>
+        </select>
+        <button id="open-add-paciente-modal" class="btn primary"> + Adicionar Paciente</button>
+      </div>
+      
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Paciente</th>
+            <th>Espécie/Raça</th>
+            <th>Tutor</th>
+            <th>Última Consulta</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="patient-name"><strong>Rex</strong></td>
+            <td>Cachorro (Golden Retriever)</td>
+            <td>Carlos Almeida</td>
+            <td>25/09/2025</td>
+            <td><button class="btn small open-view-historico-modal">Ver Histórico</button></td>
+          </tr>
+           <tr>
+            <td class="patient-name"><strong>Mimi</strong></td>
+            <td>Gato (Siamês)</td>
+            <td>Ana Costa</td>
+            <td>25/09/2025</td>
+            <td><button class="btn small open-view-historico-modal">Ver Histórico</button></td>
+          </tr>
+           <tr>
+            <td class="patient-name"><strong>Thor</strong></td>
+            <td>Cachorro (Bulldog Francês)</td>
+            <td>Mariana Lima</td>
+            <td>15/08/2025</td>
+            <td><button class="btn small open-view-historico-modal">Ver Histórico</button></td>
+          </tr>
+          <tr>
+            <td class="patient-name"><strong>Luna</strong></td>
+            <td>Cachorro (Poodle)</td>
+            <td>Joana Santos</td>
+            <td>03/07/2025</td>
+            <td><button class="btn small open-view-historico-modal">Ver Histórico</button></td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div class="pagination">
+          <a href="#" id="prev-page" class="page-link disabled">&laquo; Anterior</a>
+          <a href="#" class="page-link current">1</a>
+          <a href="#" class="page-link">2</a>
+          <a href="#" class="page-link">3</a>
+          <a href="#" id="next-page" class="page-link">Próximo &raquo;</a>
+      </div>
+    </section>
+  </main>
+  
+  <div id="add-paciente-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Adicionar Novo Paciente</h2>
+        <button class="close-btn" title="Fechar">&times;</button>
+      </div>
+      <form id="add-paciente-form">
+        <div class="form-group">
+          <label for="pet-name">Nome do Pet</label>
+          <input type="text" id="pet-name" required placeholder="Ex: Bobi">
+        </div>
+        <div class="grid-two">
+            <div class="form-group">
+                <label for="pet-species">Espécie</label>
+                <input type="text" id="pet-species" required placeholder="Ex: Cachorro">
+            </div>
+            <div class="form-group">
+                <label for="pet-breed">Raça</label>
+                <input type="text" id="pet-breed" required placeholder="Ex: Vira-lata">
+            </div>
+        </div>
+        <div class="form-group">
+          <label for="tutor-name">Nome do Tutor</label>
+          <input type="text" id="tutor-name" required placeholder="Ex: João da Silva">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn close-btn">Cancelar</button>
+          <button type="submit" class="btn primary">Salvar Paciente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="view-historico-modal" class="modal-overlay hidden">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h2 id="view-historico-title">Histórico Completo do Paciente</h2>
+              <button class="close-btn" title="Fechar">&times;</button>
+          </div>
+          <div class="history-accordion">
+              <article class="history-item">
+                  <button class="history-item-header">
+                      <span><strong>Consulta de Rotina</strong> - 25/09/2025</span>
+                      <span class="accordion-arrow">▾</span>
+                  </button>
+                  <div class="history-item-content">
+                      <p><strong>Diagnóstico:</strong> Check-up geral, sem anormalidades.</p>
+                      <p><strong>Tratamento:</strong> N/A. Recomendado antipulgas.</p>
+                  </div>
+              </article>
+              <article class="history-item">
+                  <button class="history-item-header">
+                      <span><strong>Aplicação de Vacina</strong> - 15/04/2025</span>
+                      <span class="accordion-arrow">▾</span>
+                  </button>
+                  <div class="history-item-content">
+                      <p><strong>Diagnóstico:</strong> N/A.</p>
+                      <p><strong>Tratamento:</strong> Aplicada vacina Polivalente (V10).</p>
+                  </div>
+              </article>
+          </div>
+           <div class="modal-footer">
+              <button type="button" class="btn primary close-btn">Fechar</button>
+          </div>
+      </div>
+  </div>
+
+  <script src="/public/js/portal-vet.js"></script>
+</body>
+</html>
