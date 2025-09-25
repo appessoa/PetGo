@@ -19,7 +19,8 @@ def created_veterinario(data):
 
 def get_all_veterinarios():
     from models.veterinarioModel import veterinarianModel
-    vets = veterinarianModel.query.filter_by(deleted=False).all()
+    from models.agendamentoModel import Scheduling
+    vets = veterinarianModel.query.filter_by(deleted=False).join(Scheduling,  Scheduling.vet_id == veterinarianModel.id_veterinarian,).all()
     return [vet.to_dict() for vet in vets]
 
 def get_veterinario_by_id(vet_id):
@@ -55,3 +56,9 @@ def delete_veterinario(vet_id):
     vet.deleted = vet.id_veterinarian  # marca como deletado
     db.session.commit()
     return True
+
+
+def get_veterinarios_disponiveis():
+    from models.veterinarioModel import veterinarianModel
+    vets = veterinarianModel.query.filter_by(status=True, deleted=False).all()
+    return [vet.to_dict() for vet in vets]

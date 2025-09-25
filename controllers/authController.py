@@ -15,8 +15,8 @@ class authController():
             user = User.query.filter_by(username=username).first()
             if not user or not bcrypt.check_password_hash(user.password, password):
                 print("Erro ao fazer login:", "Credenciais inválidas")
-                jsonify({"error": "Credenciais inválidas"}), 401
-                return redirect(url_for("auth.login_form"))
+                return jsonify({"error": "Credenciais inválidas"}), 401
+
 
             # salva id e username na sessão
             session["user_id"] = user.id_user

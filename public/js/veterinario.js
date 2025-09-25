@@ -143,7 +143,7 @@ async function loadVeterinarios() {
     const vets = await fetchJSON(`${API_BASE}/veterinarios`);
     console.log("Veterinários carregados:", vets);
     const list = Array.isArray(vets) ? vets : (vets.items || vets.veterinarios || []);
-
+    console.log('Lista de veterinários:', list);
     if (!list?.length) {
       container.innerHTML = `<p class="no-data-message">Nenhum veterinário cadastrado.</p>`;
       return;

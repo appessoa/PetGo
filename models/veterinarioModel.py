@@ -18,6 +18,12 @@ class veterinarianModel(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     deleted = db.Column(db.Boolean, default=False)
 
+    consultations = db.relationship(
+        "Consultation", back_populates="vet", passive_deletes=True
+    )
+    schedulings = db.relationship(
+        "Scheduling", back_populates="vet_all", passive_deletes=True
+    )
     # Índices úteis
     __table_args__ = (
         db.Index("ix_veterinarians_username", "username"),
@@ -37,5 +43,6 @@ class veterinarianModel(db.Model):
             "status": self.status,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
-            "deleted": self.deleted
+            "deleted": self.deleted,
+            "shedulings": [s.to_dict() for s in self.schedulings] if hasattr(self, 'schedulings') else []
         }

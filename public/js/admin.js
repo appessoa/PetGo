@@ -132,7 +132,8 @@ async function loadVeterinariosRecentes() {
 
   try {
     const vets = await fetchJSON(`${API_BASE}/veterinarios`);
-    const list = Array.isArray(vets) ? vets : (vets.items || []);
+    console.log('Veterinários carregados:', vets);
+    const list = Array.isArray(vets) ? vets : (vets.veterinarios || []);
 
     if (!list.length) {
       tbody.innerHTML = `<tr><td colspan="3">Nenhum veterinário encontrado.</td></tr>`;

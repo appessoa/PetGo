@@ -3,6 +3,7 @@ from config.db import db
 from models.agendamentoModel import Scheduling
 from models.petsModel import Pet  
 from sqlalchemy.exc import SQLAlchemyError
+from models.veterinarioModel import veterinarianModel as vet
 
 ALLOWED_SERVICES = {"banho", "veterinario", "passeio", "hotel"}
 ALLOWED_STATUS   = {"marcado", "confirmado", "concluido", "cancelado"}
@@ -31,7 +32,7 @@ class SchedulingService:
         return pet
 
     @staticmethod
-    def create(user_id: int, pet_id: int, service: str, date, time, notes: str | None):
+    def create(user_id: int, pet_id: int,vet_id: int ,service: str, date, time, notes: str | None):
         SchedulingService._assert_service(service)
         SchedulingService._assert_pet_ownership(user_id, pet_id)
 
@@ -46,6 +47,7 @@ class SchedulingService:
         ag = Scheduling(
             user_id=user_id,
             pet_id=pet_id,
+            vet_id=vet_id,  
             service=service,
             date=date,
             time=time,
@@ -62,7 +64,7 @@ class SchedulingService:
 
     @staticmethod
     def list_for_user(user_id: int, status: str | None = None):
-        q = Scheduling.query.filter_by(user_id=user_id).order_by(Scheduling.date.desc(), Scheduling.time.desc())
+        q = Scheduling.query.filter_by(user_id=user_id).join(vet, vet.id_veterinarian == Scheduling.vet_id).order_by(Scheduling.date.desc(), Scheduling.time.desc())
         if status:
             SchedulingService._assert_status(status)
             q = q.filter_by(status=status)

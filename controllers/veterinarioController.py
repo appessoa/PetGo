@@ -68,3 +68,9 @@ class veterinarioController:
         if success:
             return {"message": "Veterinário deletado com sucesso"}, 204
         return {"error": "Veterinário não encontrado"}, 404
+    
+    @staticmethod
+    def get_veterinarios_disponiveis():
+        from service.veterinarioService import get_veterinarios_disponiveis
+        vets = get_veterinarios_disponiveis()
+        return {"veterinarios": vets}, 200

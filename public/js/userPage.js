@@ -87,6 +87,8 @@ function renderScheduling(items){
     return;
   }
 
+  console.log('Agendamentos:', items);
+
   for(const ag of items){
     const dt = ag.date ? formatBRDate(ag.date) : '-';
     const hr = ag.time || '';
@@ -102,6 +104,7 @@ function renderScheduling(items){
     el.innerHTML = `
       <div class="scheduling-info">
         <strong>${serv} — ${escapeHtml(petNome)}</strong>
+        <small>Dr. ${escapeHtml(ag.vet?.name || ag.vet?.nome || 'Veterinário(a)')} - ${ag.vet?.especialidade}</small>
         <small>Data: ${dt} • Horário: ${hr}</small>
         ${notes ? `<small>Obs.: ${escapeHtml(notes)}</small>` : ''}
       </div>
