@@ -34,6 +34,7 @@ class authController():
     @staticmethod
     def me():
         if "user_id" in session:
+            print(session)
             return jsonify({
                 "logged_in": True,
                 "username": session["username"],

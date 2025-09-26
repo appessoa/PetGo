@@ -74,3 +74,4 @@ class veterinarioController:
         from service.veterinarioService import get_veterinarios_disponiveis
         vets = get_veterinarios_disponiveis()
         return {"veterinarios": vets}, 200
+    

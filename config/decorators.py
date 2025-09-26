@@ -14,7 +14,7 @@ def admin_required(f):
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if session.get('logged_in') == False:
+        if not session.get("user_id") :
             return jsonify({"error":"Você não esta logado para acessar essa pagina"})  
         return f(*args, **kwargs)
     return decorated_function

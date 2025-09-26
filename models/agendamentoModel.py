@@ -21,9 +21,12 @@ class Scheduling(db.Model):
 
     user = db.relationship("User", backref=db.backref("agendamentos", lazy="dynamic"))
     pet  = db.relationship("Pet",  backref=db.backref("agendamentos", lazy="dynamic"))
-    vet = db.relationship("veterinarianModel", backref=db.backref("agendamentos", lazy= "dynamic"))
-    vet_all = db.relationship("veterinarianModel", back_populates="agendamentos")
-
+    vet = db.relationship(
+        "veterinarianModel",
+        back_populates="schedulings",
+        lazy="joined",
+        foreign_keys=[vet_id],
+    )
     __table_args__ = (
         db.Index("idx_sched_user_date", "user_id", "date","vet_id","status","pet_id"),
     )
@@ -31,7 +34,6 @@ class Scheduling(db.Model):
     def to_dict(self):
         return {
             "id": self.id_agendamento,
-            "user_id": self.user_id,
             "pet_id": self.pet_id,
             "vet_id": self.vet_id,
             "service": self.service,
@@ -42,6 +44,17 @@ class Scheduling(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             # extras úteis no front:
-            "pet": {"id": self.pet_id, "nome": getattr(self.pet, "nome", None) or getattr(self.pet, "name", None)},
-            "vet": {"id": self.vet_id, "name": getattr(self.vet, "name", None) or None, "especialidade": getattr(self.vet, "especialidade", None) or None} if self.vet else None,
+            "pet": {"id": self.pet_id,
+                     "nome": getattr(self.pet, "nome", None) or getattr(self.pet, "name", None),
+                     "raca": getattr(self.pet, "raca", None) or getattr(self.pet, "breed", None),
+                     "especie":getattr(self.pet, "species", None),
+                     "sexo": getattr(self.pet, "sexo", None),
+                     } if self.pet else None,
+            "vet": {
+                "id": self.vet_id, 
+                "name": getattr(self.vet, "name", None) or None, 
+                "especialidade": getattr(self.vet, "especialidade", None) or None
+                } if self.vet else None,
+            "user": {"id": self.user_id, "nome": getattr(self.user, "nome", None) or None}
+
         }

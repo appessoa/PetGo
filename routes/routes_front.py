@@ -75,3 +75,13 @@ def historico():
 @admin_required
 def veterinarios():
     return render_template('veterinarios.html')
+
+@front_bp.route('/produtosadmin')
+@admin_required
+def produtosadmin():
+    return render_template('produtosadmin.html')
+
+@front_bp.route('/histvendas')
+@admin_required
+def histvendas():
+    return render_template('histvendas.html')

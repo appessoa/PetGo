@@ -6,15 +6,17 @@ from models.consultasModel import Consultation
 from models.petsModel import Pet
 from models.vacinaModel import Vaccine
 from service.Helpers import api_error
+from config.decorators import login_required
 
 pets_api = Blueprint("pets_api", __name__, url_prefix="/api")
 
-pets_api.get("/pets")(PetsController.get_pets)
-pets_api.post("/pets")(PetsController.create)
-pets_api.put("/pets/<int:pet_id>")(PetsController.update)
-pets_api.delete("/pets/<int:pet_id>")(PetsController.delete)
+pets_api.get("/pets")(login_required(PetsController.get_pets))
+pets_api.post("/pets")(login_required(PetsController.create))
+pets_api.put("/pets/<int:pet_id>")(login_required(PetsController.update))
+pets_api.delete("/pets/<int:pet_id>")(login_required(PetsController.delete))
 
 @pets_api.post('/pets/<int:pid>/vaccines')
+@login_required
 def add_vaccine(pid):
     try:
         Pet.query.get_or_404(pid)  # valida FK
@@ -36,6 +38,7 @@ def add_vaccine(pid):
         return api_error(500, "Erro ao adicionar vacina", exc=e)
 
 @pets_api.delete('/pets/<int:pid>/vaccines/<int:vid>')
+@login_required
 def del_vaccine(pid, vid):
     try:
         v = Vaccine.query.filter_by(pet_id=pid).filter(
@@ -48,6 +51,7 @@ def del_vaccine(pid, vid):
         return api_error(500, "Erro ao remover vacina", exc=e)
 
 @pets_api.post('/pets/<int:pid>/consultations')
+@login_required
 def add_consult(pid):
     try:
         Pet.query.get_or_404(pid)
@@ -68,6 +72,7 @@ def add_consult(pid):
         return api_error(500, "Erro ao adicionar consulta", exc=e)
 
 @pets_api.delete('/pets/<int:pid>/consultations/<int:cid>')
+@login_required
 def del_consult(pid, cid):
     try:
         c = Consultation.query.filter_by(pet_id=pid).filter(
@@ -80,6 +85,7 @@ def del_consult(pid, cid):
         return api_error(500, "Erro ao remover consulta", exc=e)
 
 @pets_api.get('/pets/<int:pid>/photo')
+@login_required
 def pet_photo(pid):
     try:
         p = Pet.query.get_or_404(pid)

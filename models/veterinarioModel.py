@@ -13,7 +13,7 @@ class veterinarianModel(db.Model):
     especialidade = db.Column(db.String(100), nullable=True)
     phone = db.Column(db.String(20), nullable=True)
     email = db.Column(db.String(150), unique=True, nullable=False)
-    status = db.Column(db.Boolean, nullable=True)
+    status = db.Column(db.Boolean, nullable=True, default=True)  # ativo/inativo
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     deleted = db.Column(db.Boolean, default=False)
@@ -22,7 +22,11 @@ class veterinarianModel(db.Model):
         "Consultation", back_populates="vet", passive_deletes=True
     )
     schedulings = db.relationship(
-        "Scheduling", back_populates="vet_all", passive_deletes=True
+        "Scheduling",
+        back_populates="vet",
+        passive_deletes=True,
+        lazy="selectin",
+        cascade="all, delete-orphan"
     )
     # Índices úteis
     __table_args__ = (
@@ -44,5 +48,5 @@ class veterinarianModel(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             "deleted": self.deleted,
-            "shedulings": [s.to_dict() for s in self.schedulings] if hasattr(self, 'schedulings') else []
+            "schedulings": [s.to_dict() for s in self.schedulings],
         }

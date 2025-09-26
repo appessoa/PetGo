@@ -17,11 +17,36 @@ def created_veterinario(data):
     db.session.commit()
     return new_vet.to_dict()
 
+from sqlalchemy.orm import selectinload
+from models.veterinarioModel import veterinarianModel
+
 def get_all_veterinarios():
-    from models.veterinarioModel import veterinarianModel
-    from models.agendamentoModel import Scheduling
-    vets = veterinarianModel.query.filter_by(deleted=False).join(Scheduling,  Scheduling.vet_id == veterinarianModel.id_veterinarian,).all()
-    return [vet.to_dict() for vet in vets]
+    # Carrega todos, inclusive sem agendamentos, e evita N+1
+    vets = (
+        veterinarianModel.query
+        .filter_by(deleted=False)
+        .options(selectinload(veterinarianModel.schedulings))
+        .all()
+    )
+
+    resultado = []
+    for vet in vets:
+        d = vet.to_dict()  # seu to_dict já monta os campos básicos
+
+        # Garante coerência: se não houver agendamentos, omite a chave
+        # (troque por d.setdefault("schedulings", []) se quiser sempre a chave)
+        scheds = getattr(vet, "schedulings", [])
+        if not scheds:
+            d.pop("schedulings", None)
+            d["has_schedulings"] = False
+        else:
+            # Reforça que são dicts atualizados; se seu to_dict já faz isso, pode pular
+            d["schedulings"] = [s.to_dict() for s in scheds]
+            d["has_schedulings"] = True
+
+        resultado.append(d)
+
+    return resultado
 
 def get_veterinario_by_id(vet_id):
     from models.veterinarioModel import veterinarianModel

@@ -1,3 +1,5 @@
+import { initSidebar } from './sidebar.js';
+
 document.addEventListener('DOMContentLoaded', () => {
 
   // --- LÓGICA PARA O MODAL DE CADASTRO ---
@@ -76,6 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadVeterinariosRecentes();
   loadVendasRecentes();
   wireProductForm();
+  initSidebar();
 });
 
 /* ================= HELPERS ================= */
