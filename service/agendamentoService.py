@@ -22,7 +22,6 @@ class SchedulingService:
 
     @staticmethod
     def _assert_pet_ownership(user_id: int, pet_id: int):
-        # ajuste o nome do campo do dono do pet (owner_id / user_id / tutor_id)
         pet = Pet.query.filter_by(id_pet=pet_id, dono=user_id).first()
         if not pet:
             # tenta variação comum de campo
