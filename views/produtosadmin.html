@@ -12,18 +12,18 @@
 <body>
 
   <aside class="sidebar" id="sidebar">
-  </aside>
+    </aside>
 
   <main class="main-content">
     <section class="content-card">
       <div class="card-header">
         <h2>Gerenciar Produtos</h2>
-        <button class="btn primary">+ Adicionar Novo Produto</button>
+        <button class="btn primary" id="add-product-btn">+ Adicionar Novo Produto</button>
       </div>
 
       <div class="product-grid">
 
-        <article class="product-card">
+        <article class="product-card" data-product-id="1">
           <img src="https://placehold.co/600x400/FF914D/FFFFFF?text=Ração" alt="Imagem do Produto">
           <div class="product-card-content">
             <span class="product-category">Ração</span>
@@ -34,12 +34,12 @@
             </div>
           </div>
           <div class="product-card-footer">
-            <button class="btn">Editar</button>
-            <button class="btn danger">Remover</button>
+            <button class="btn edit-product-btn">Editar</button>
+            <button class="btn danger remove-product-btn">Remover</button>
           </div>
         </article>
 
-        <article class="product-card">
+        <article class="product-card" data-product-id="2">
           <img src="https://placehold.co/600x400/5BC0F8/FFFFFF?text=Brinquedo" alt="Imagem do Produto">
           <div class="product-card-content">
             <span class="product-category">Brinquedos</span>
@@ -50,12 +50,12 @@
             </div>
           </div>
           <div class="product-card-footer">
-            <button class="btn">Editar</button>
-            <button class="btn danger">Remover</button>
+            <button class="btn edit-product-btn">Editar</button>
+            <button class="btn danger remove-product-btn">Remover</button>
           </div>
         </article>
         
-        <article class="product-card">
+        <article class="product-card" data-product-id="3">
           <img src="https://placehold.co/600x400/a0a0a0/FFFFFF?text=Cama" alt="Imagem do Produto">
           <div class="product-card-content">
             <span class="product-category">Acessórios</span>
@@ -66,8 +66,8 @@
             </div>
           </div>
           <div class="product-card-footer">
-            <button class="btn">Editar</button>
-            <button class="btn danger">Remover</button>
+            <button class="btn edit-product-btn">Editar</button>
+            <button class="btn danger remove-product-btn">Remover</button>
           </div>
         </article>
 
@@ -75,6 +75,60 @@
     </section>
   </main>
   
+  <div class="modal-overlay hidden" id="editProductModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">Editar Produto</h2>
+        <button class="close-btn" id="close-modal-btn" aria-label="Fechar Modal">&times;</button>
+      </div>
+      <form id="edit-product-form">
+        <div class="form-group image-upload-group">
+          <label for="product-image">Imagem do Produto</label>
+          <div class="image-preview-area">
+            <img id="current-product-image" src="" alt="Pré-visualização da imagem" class="product-preview-img">
+            <input type="file" id="product-image" name="productImage" accept="image/*" class="file-input">
+            <label for="product-image" class="btn secondary upload-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+              <span>Alterar Imagem</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="product-name">Nome do Produto</label>
+          <input type="text" id="product-name" name="productName" required>
+        </div>
+
+        <div class="grid-two">
+          <div class="form-group">
+            <label for="product-price">Preço (R$)</label>
+            <input type="number" id="product-price" name="productPrice" step="0.01" min="0" required>
+          </div>
+          <div class="form-group">
+            <label for="product-stock">Estoque (un.)</label>
+            <input type="number" id="product-stock" name="productStock" min="0" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="product-category">Categoria</label>
+          <select id="product-category" name="productCategory" required>
+            <option value="Racao">Ração</option>
+            <option value="Brinquedos">Brinquedos</option>
+            <option value="Acessorios">Acessórios</option>
+            <option value="Higiene">Higiene</option>
+            <option value="Medicamentos">Medicamentos</option>
+          </select>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn secondary" id="cancel-edit-btn">Cancelar</button>
+          <button type="submit" class="btn primary">Salvar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script type="module" src="/public/js/admin.js"></script>
 </body>
 </html>

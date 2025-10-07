@@ -1,84 +1,20 @@
 import { initSidebar } from './sidebar.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-
-  // --- LÓGICA PARA O MODAL DE CADASTRO ---
-  const openModalBtn = document.getElementById('open-vet-modal-btn');
-  const modal = document.getElementById('vet-modal');
-  
-  // Verifica se os elementos do modal existem na página antes de adicionar os eventos
-  if (openModalBtn && modal) {
-    const closeButtons = modal.querySelectorAll('.close-btn');
-
-    const openModal = () => {
-      modal.classList.remove('hidden');
-    };
-
-    const closeModal = () => {
-      modal.classList.add('hidden');
-    };
-
-    // Abre o modal
-    openModalBtn.addEventListener('click', openModal);
-
-    // Fecha o modal clicando nos botões de fechar/cancelar
-    closeButtons.forEach(button => {
-      button.addEventListener('click', closeModal);
-    });
-
-    // Fecha o modal clicando fora dele (no overlay)
-    modal.addEventListener('click', (event) => {
-      if (event.target === modal) {
-        closeModal();
-      }
-    });
-
-    // Fecha o modal pressionando a tecla "Escape"
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
-        closeModal();
-      }
-    });
-  }
-
-
-  // --- LÓGICA PARA O ACORDEÃO DE VETERINÁRIOS ---
-  const accordionItems = document.querySelectorAll('.vet-accordion-item');
-
-  accordionItems.forEach(item => {
-    const header = item.querySelector('.vet-accordion-header');
-    
-    // Verifica se o cabeçalho do acordeão existe
-    if (header) {
-      header.addEventListener('click', () => {
-        const isOpen = item.classList.contains('is-open');
-
-        // Fecha todos os outros itens para ter apenas um aberto por vez
-        accordionItems.forEach(otherItem => {
-          otherItem.classList.remove('is-open');
-        });
-        
-        // Se o item clicado não estava aberto, ele abre.
-        // Se já estava aberto, o loop acima já o fechou.
-        if (!isOpen) {
-            item.classList.add('is-open');
-        }
-      });
-    }
-  });
-
-});
-
-// /public/js/admin.js
 const API_BASE = ""; // "" = mesma origem. Ex.: "http://127.0.0.1:8000"
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Inicializa a sidebar
+  initSidebar();
+
+  // Inicializa os modais e acordeões
   wireVetModal();
   wireVetAccordion();
+  wireProductEditModal(); // <-- Nova função para o modal de produtos
+  wireProductForm(); // <-- Mantém a lógica do formulário de adicionar (se for diferente do modal)
+
+  // Carrega dados
   loadVeterinariosRecentes();
   loadVendasRecentes();
-  wireProductForm();
-  initSidebar();
 });
 
 /* ================= HELPERS ================= */
@@ -161,8 +97,11 @@ async function loadVeterinariosRecentes() {
 }
 
 /* ================= PRODUTOS ================= */
+// Esta função parece ser para um formulário de ADICIONAR produto à parte,
+// se for o mesmo que o modal, ela pode ser integrada ou removida.
+// Se for um formulário de adicionar que NÃO é o modal, mantenha-o.
 function wireProductForm() {
-  const form = document.querySelector("form.product-form");
+  const form = document.querySelector("form.product-form"); // Assumindo uma classe 'product-form'
   if (!form) return;
 
   form.addEventListener("submit", async (e) => {
@@ -188,6 +127,9 @@ function wireProductForm() {
       alert("Produto adicionado com sucesso!");
       form.reset();
       console.log("Produto criado:", created);
+      // Opcional: Recarregar produtos para atualizar a lista
+      // loadProductsList();
+
     } catch (err) {
       alert("Erro ao adicionar produto: " + (err?.message || "Erro desconhecido"));
       console.error("ERRO produto:", err);
@@ -196,6 +138,186 @@ function wireProductForm() {
     }
   });
 }
+
+// ============== LÓGICA DO MODAL DE EDIÇÃO DE PRODUTO CONSOLIDADA ==============
+function wireProductEditModal() {
+  const editProductModal = document.getElementById('editProductModal');
+  const closeModalBtn = document.getElementById('close-modal-btn');
+  const cancelEditBtn = document.getElementById('cancel-edit-btn');
+  const editProductButtons = document.querySelectorAll('.edit-product-btn');
+  const addProductBtn = document.getElementById('add-product-btn');
+  const modalTitle = document.getElementById('modal-title');
+  const editProductForm = document.getElementById('edit-product-form');
+
+  // Campos do formulário no modal
+  const productImageInput = document.getElementById('product-image');
+  const currentProductImage = document.getElementById('current-product-image');
+  const productNameInput = document.getElementById('product-name');
+  const productPriceInput = document.getElementById('product-price');
+  const productStockInput = document.getElementById('product-stock');
+  const productCategoryInput = document.getElementById('product-category');
+
+  // Variável para armazenar o ID do produto que está sendo editado
+  let currentProductId = null;
+
+  // Função para abrir o modal
+  function openModal(isNewProduct = false, productData = {}) {
+    editProductModal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Impede scroll do body
+
+    editProductForm.reset(); // Limpa o formulário antes de preencher
+
+    if (isNewProduct) {
+      modalTitle.textContent = 'Adicionar Novo Produto';
+      currentProductId = null; // Zera o ID para um novo produto
+      currentProductImage.src = 'https://placehold.co/600x400/CCCCCC/FFFFFF?text=Sem+Imagem'; // Imagem padrão para adicionar
+      currentProductImage.style.display = 'block';
+    } else {
+      modalTitle.textContent = `Editar Produto: ${productData.name || '—'}`; // Título com nome do produto
+      currentProductId = productData.id;
+
+      // Preenche os campos do formulário com os dados do produto
+      productNameInput.value = productData.name || '';
+      // Garante que o valor seja numérico e com ponto decimal para inputs type="number"
+      productPriceInput.value = (parseFloat(productData.price) || 0).toFixed(2);
+      productStockInput.value = parseInt(productData.stock) || 0;
+      productCategoryInput.value = productData.category || '';
+      
+      currentProductImage.src = productData.image || 'https://placehold.co/600x400/CCCCCC/FFFFFF?text=Sem+Imagem';
+      currentProductImage.style.display = 'block';
+    }
+  }
+
+  // Função para fechar o modal
+  function closeModal() {
+    editProductModal.classList.remove('active');
+    document.body.style.overflow = ''; // Restaura scroll do body
+    editProductForm.reset(); // Limpa o formulário ao fechar
+    currentProductId = null; // Garante que o ID seja resetado
+    currentProductImage.style.display = 'none'; // Esconde a imagem de preview
+    currentProductImage.src = ''; // Limpa a src da imagem
+  }
+
+  // Evento para abrir o modal ao clicar em "Editar"
+  editProductButtons.forEach(button => {
+    button.addEventListener('click', (event) => {
+      const productCard = event.target.closest('.product-card');
+      if (!productCard) {
+        console.error("Não foi possível encontrar o product-card pai do botão Editar.");
+        return;
+      }
+
+      const productId = productCard.dataset.productId;
+      
+      const productName = productCard.querySelector('h4').textContent;
+      const priceElement = productCard.querySelector('.product-info strong:nth-child(1)');
+      const stockElement = productCard.querySelector('.product-info strong:nth-child(2)');
+      const productCategory = productCard.querySelector('.product-category').textContent;
+      const productImage = productCard.querySelector('img').src;
+
+      // Extrai o texto e remove "R$", "un.", espaços e substitui vírgula por ponto.
+      const productPrice = priceElement ? priceElement.textContent.replace('R$', '').replace('.', '').replace(',', '.').trim() : '0';
+      const productStock = stockElement ? stockElement.textContent.replace(' un.', '').trim() : '0';
+
+      const productData = {
+        id: productId,
+        name: productName,
+        price: parseFloat(productPrice),
+        stock: parseInt(productStock),
+        category: productCategory,
+        image: productImage
+      };
+      
+      openModal(false, productData);
+    });
+  });
+
+  // Evento para abrir o modal ao clicar em "Adicionar Novo Produto"
+  addProductBtn.addEventListener('click', () => {
+    openModal(true);
+  });
+
+  // Eventos para fechar o modal
+  closeModalBtn.addEventListener('click', closeModal);
+  cancelEditBtn.addEventListener('click', closeModal);
+  editProductModal.addEventListener('click', (event) => {
+    if (event.target === editProductModal) {
+      closeModal();
+    }
+  });
+
+  // Pré-visualização da imagem ao selecionar um arquivo
+  productImageInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        currentProductImage.src = e.target.result;
+        currentProductImage.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      currentProductImage.src = '';
+      currentProductImage.style.display = 'none';
+    }
+  });
+
+  // Lidar com o envio do formulário do modal
+  editProductForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    
+    const formData = new FormData(editProductForm);
+    const productData = {};
+    for (let [key, value] of formData.entries()) {
+      productData[key] = value;
+    }
+
+    if (currentProductId) {
+      productData.id = currentProductId;
+    }
+
+    console.log('Dados do produto a serem salvos:', productData);
+
+    // TODO: Exemplo de envio para API
+    try {
+      const url = `${API_BASE}/produtos` + (productData.id ? `/${productData.id}` : '');
+      const method = productData.id ? 'PUT' : 'POST';
+
+      // Se você está enviando arquivos, use FormData diretamente
+      // Se apenas dados JSON, use JSON.stringify(productData)
+      const headers = productData.productImage instanceof File
+        ? {} // FormData com arquivo não precisa de Content-Type manual
+        : { 'Content-Type': 'application/json' };
+
+      const body = productData.productImage instanceof File
+        ? formData // Envia o FormData completo com o arquivo
+        : JSON.stringify(productData); // Envia como JSON
+
+      const response = await fetch(url, {
+        method: method,
+        body: body,
+        headers: headers
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Sucesso:', result);
+      alert('Produto salvo com sucesso!');
+      closeModal();
+      // Opcional: Recarregar a lista de produtos na UI
+      // loadProductsList();
+    } catch (error) {
+      console.error('Erro ao salvar produto:', error);
+      alert('Erro ao salvar produto: ' + error.message);
+    }
+  });
+}
+// =========================================================================
+
 
 /* ================= VENDAS ================= */
 function loadVendasRecentes() {
@@ -222,6 +344,8 @@ function loadVendasRecentes() {
 }
 
 /* ================= UI EXISTENTE ================= */
+// Esta função `wireVetModal` já existe no seu código, a duplicação no início do arquivo
+// `DOMContentLoaded` foi removida.
 function wireVetModal() {
   const openModalBtn = document.getElementById("open-vet-modal-btn");
   const modal = document.getElementById("vet-modal");
@@ -237,6 +361,8 @@ function wireVetModal() {
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !modal.classList.contains("hidden")) closeModal(); });
 }
 
+// Esta função `wireVetAccordion` já existe no seu código, a duplicação no início do arquivo
+// `DOMContentLoaded` foi removida.
 function wireVetAccordion() {
   const items = document.querySelectorAll(".vet-accordion-item");
   items.forEach((item) => {
