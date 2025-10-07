@@ -30,7 +30,8 @@ class produto(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
+    deleted = db.Column(db.Integer, nullable = False, default = False)
+    
     @staticmethod
     def _is_gzip(data: bytes) -> bool:
         # assinatura do gzip: 1f 8b
@@ -84,6 +85,7 @@ class produto(db.Model):
         data = {
             "id": self.id_produto,
             "nome": self.nome,
+            "preco": self.preco,
             "descricao":self.descricao,
             "categoria": self.categoria,
             "estoque": self.estoque,

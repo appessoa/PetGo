@@ -1,5 +1,4 @@
-from urllib.parse import parse_qsl
-from flask import Blueprint, request, jsonify, send_file, url_for, current_app
+from flask import request, jsonify, send_file
 from werkzeug.exceptions import NotFound, BadRequest
 from io import BytesIO
 from typing import Any, Dict, Optional
@@ -11,7 +10,7 @@ from service.produtoService import (
     create_produto,
     update_produto,
     set_estoque,
-    toggle_ativo,
+    deleted_produto,
     ValidationError,
 )
 
@@ -26,7 +25,7 @@ class produtoController:
             "preco": p.preco,
             "estoque": p.estoque,
             "categoria": p.categoria,
-            "imagem_url": url_for("produtos_bp.get_imagem", produto_id=getattr(p, "id_produto", getattr(p, "id", None)), _external=False),
+            "imagem_url": p.imagem
         }
         return data
 
@@ -42,21 +41,20 @@ class produtoController:
         Retorna lista (com paginação simples opcional).
         """
         categoria = request.args.get("categoria") or None
-        only_active = parse_qsl(request.args.get("only_active"), default=True)
 
         # paginação opcional (feita no controller para não mexer no service)
         page = int(request.args.get("page", 1))
         per_page = int(request.args.get("per_page", 50))
         per_page = max(1, min(per_page, 100))
 
-        all_items = list_produtos(categoria=categoria, only_active=only_active)
+        all_items = list_produtos(categoria=categoria)
         total = len(all_items)
         start = (page - 1) * per_page
         end = start + per_page
         items = all_items[start:end]
 
         return jsonify({
-            "items": [produtoController.serialize_produto(p) for p in items],
+            "items": [p.to_dict() for p in items],
             "pagination": {
                 "page": page,
                 "per_page": per_page,
@@ -64,14 +62,15 @@ class produtoController:
                 "has_next": end < total,
                 "has_prev": start > 0,
             }
-        })
+        }),200
 
     def get_one(produto_id : int):
         """
         GET /produtos/:id
         """
         p = get_produto(produto_id)
-        return jsonify(produtoController.serialize_produto(p))
+        return jsonify(p.to_dict()),200
+    
     def create_one():
         """
         POST /produtos
@@ -87,7 +86,7 @@ class produtoController:
             raise BadRequest("JSON inválido ou ausente.")
 
         p = create_produto(data)
-        return jsonify(produtoController.serialize_produto(p)), 201
+        return jsonify(p.to_dict()), 201
     
     def update_one(produto_id: int):
         """
@@ -99,7 +98,7 @@ class produtoController:
             raise BadRequest("JSON inválido ou ausente.")
 
         p = update_produto(produto_id, data)
-        return jsonify(produtoController.serialize_produto(p))
+        return jsonify(p.to_dict),200
     
     def update_stock(produto_id: int):
         """
@@ -115,7 +114,7 @@ class produtoController:
             raise ValidationError("Estoque inválido.", field="estoque")
 
         p = set_estoque(produto_id, novo_estoque)
-        return jsonify(produtoController.serialize_produto(p))
+        return jsonify(p.to_dict())
     
     def get_imagem(produto_id: int):
         """
@@ -130,3 +129,9 @@ class produtoController:
 
         # Ajuste o mimetype se você persistir o tipo real no model (ex.: p.imagem_mime)
         return send_file(BytesIO(blob), mimetype="image/jpeg", download_name=f"produto_{produto_id}.jpg")
+    
+    def deleted_product(produto_id: int):
+        
+        deleted_produto(produto_id)
+
+        return jsonify({"sucesso": f"produto '{produto_id}' com sucesso"}),201

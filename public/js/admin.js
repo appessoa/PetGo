@@ -1,5 +1,6 @@
 // /public/js/admin.js
 import { initSidebar } from './sidebar.js';
+import {showToast} from './utils/toast.js';
 
 const API_BASE = '';                 // seus controllers estão com url_prefix "/api"
 const MAX_IMG_BYTES = 10 * 1024 * 1024;  // 10 MB (igual ao service)
@@ -16,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
   loadVendasRecentes();
   // Produto (form + arquivo + upload)
   wireProductForm();
+
+
 });
 
 /* ========================== HELPERS ========================== */
@@ -37,22 +40,7 @@ async function fetchJSON(url, opts = {}) {
   return data;
 }
 
-function toast(message, type = 'success') {
-  const div = document.createElement('div');
-  div.textContent = message;
-  div.style.position = 'fixed';
-  div.style.right = '16px';
-  div.style.bottom = '16px';
-  div.style.padding = '12px 16px';
-  div.style.borderRadius = '12px';
-  div.style.boxShadow = 'var(--shadow)';
-  div.style.zIndex = '9999';
-  div.style.fontWeight = '600';
-  div.style.background = type === 'success' ? '#dcfce7' : '#fee2e2';
-  div.style.color = type === 'success' ? '#166534' : '#991b1b';
-  document.body.appendChild(div);
-  setTimeout(() => div.remove(), 3500);
-}
+
 
 function clearErrors(root = document) {
   root.querySelectorAll('.field-error').forEach(e => e.remove());
@@ -60,7 +48,7 @@ function clearErrors(root = document) {
 }
 
 function fieldError(inputEl, message) {
-  if (!inputEl) return toast(message, 'error');
+  if (!inputEl) return showToast(message, 'error');
   inputEl.classList.add('has-error');
   const small = document.createElement('small');
   small.className = 'field-error';
@@ -336,7 +324,7 @@ function wireProductForm() {
       if (file) {
         if (!file.type.startsWith('image/')) throw new Error('Imagem inválida.');
         if (file.size > MAX_IMG_BYTES) throw new Error('Imagem excede 10 MB.');
-        payload.photo = await toDataURL(file); // casa com _set_image_from_payload
+        payload.imagem = await toDataURL(file); // casa com _set_image_from_payload
       }
     } catch (err) {
       fieldError(fileInput, err.message || 'Erro ao processar a imagem.');
@@ -356,7 +344,7 @@ function wireProductForm() {
       form.reset();
       updateFileMeta(null);
       showPreview(null);
-      toast(`Produto “${created?.nome ?? nome}” criado com sucesso!`, 'success');
+      showToast(`Produto “${created?.nome ?? nome}” criado com sucesso!`, 'success');
       // aqui você pode atualizar uma lista/cards de produtos, se houver
     } catch (err) {
       const p = err.payload || {};
@@ -365,13 +353,13 @@ function wireProductForm() {
         else if (p.field === 'preco') fieldError(priceInput, p.message);
         else if (p.field === 'estoque') fieldError(stockInput, p.message);
         else if (p.field === 'imagem') fieldError(fileInput, p.message);
-        else toast(p.message || 'Erro de validação.', 'error');
+        else showToast(p.message || 'Erro de validação.', 'error');
       } else if (p.error === 'database_error') {
-        toast('Erro de banco de dados.', 'error');
+        showToast('Erro de banco de dados.', 'error');
       } else if (p.error === 'http_error') {
-        toast(p.message || 'Erro HTTP.', 'error');
+        showToast(p.message || 'Erro HTTP.', 'error');
       } else {
-        toast(p.message || err.message || 'Erro interno.', 'error');
+        showToast(p.message || err.message || 'Erro interno.', 'error');
       }
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = old; }
@@ -393,3 +381,4 @@ async function setProdutoEstoque(id, estoque) {
     body: JSON.stringify({ estoque: Number(estoque) }),
   });
 }
+

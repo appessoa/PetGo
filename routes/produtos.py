@@ -15,3 +15,4 @@ produtos_bp.add_url_rule(
 )
 produtos_bp.patch("/produtos/<int:produto_id>/estoque")(admin_required(PC.update_stock))
 produtos_bp.get("/produtos/<int:produto_id>/imagem")(PC.get_imagem)
+produtos_bp.delete("/produtos/<int:produto_id>")(admin_required(PC.deleted_product))

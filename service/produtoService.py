@@ -34,10 +34,9 @@ def _set_image_from_payload(p: produto, data: Dict[str, Any]):
     except Exception as e:
         raise ValidationError("Falha ao comprimir a foto.", field="photo") from e
 
-def list_produtos(categoria: Optional[str] = None, only_active: bool = True) -> List[produto]:
+def list_produtos(categoria: Optional[str] = None) -> List[produto]:
     q = produto.query
-    if only_active:
-        q = q.filter_by(is_active=True)
+    q = q.filter_by(is_active=True, deleted = 0)
     if categoria:
         q = q.filter_by(categoria=categoria)
     return q.order_by(produto.id_produto.desc()).all()
@@ -150,3 +149,19 @@ def toggle_ativo(produto_id: int, ativo: bool) -> produto:
         db.session.rollback()
         current_app.logger.exception("Erro ao alterar status do produto")
         raise RuntimeError("Erro ao alterar status do produto.") from e
+
+def deleted_produto(produto_id:int)-> produto:
+
+    Produto = produto.query.get_or_404(produto_id)
+    Produto.deleted = Produto.id_produto  # marca como deletado
+    try:
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        raise RuntimeError("Falha ao deletar usuário") from e
+    except Exception as e:
+        db.session.rollback()
+        raise RuntimeError("Erro inesperado ao deletar produto") from e
+    return True
+
+
