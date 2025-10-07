@@ -58,6 +58,24 @@
           <div class="form-group"><label for="product-price">Preço (R$)</label><input type="number" id="product-price" placeholder="Ex: 89.99"></div>
           <div class="form-group"><label for="product-stock">Estoque</label><input type="number" id="product-stock" placeholder="Ex: 50"></div>
           <div class="form-group"><label for="product-category">Categoria</label><select id="product-category"><option>Ração</option><option>Brinquedos</option></select></div>
+          <div class="form-group">
+            <label for="photo-product">Foto</label>
+
+            <div class="file-input">
+              <input type="file" id="photo-product" accept="image/*">
+              <label class="file-drop" for="photo-product">
+                <div class="file-drop__icon" aria-hidden="true"></div>
+                <div class="file-drop__text">
+                  <strong>Arraste e solte</strong> ou <span class="file-drop__btn">selecione</span> uma imagem
+                  <small class="file-drop__hint">PNG, JPG, até 10 MB</small>
+                </div>
+              </label>
+
+              <div class="file-meta" id="photo-product-meta">Nenhum arquivo selecionado</div>
+              <!-- Pré-visualização opcional (preenchida por JS, se quiser) -->
+              <div class="file-preview" id="photo-product-preview" style="display: none"></div>
+            </div>
+          </div>
         </div>
         <div class="btn-row">
             <button type="submit" class="btn primary">Adicionar Produto</button>

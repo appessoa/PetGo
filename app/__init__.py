@@ -3,6 +3,8 @@ from flask_cors import CORS
 from app.seeds import seed_db
 from config.db import db
 from config import config
+from app.erros import register_error_handlers
+from routes.routes_front import produtos
 
 def create_app():
     app = Flask(
@@ -22,6 +24,8 @@ def create_app():
     def load_user_from_session():
         g.user_id = session.get("user_id")  # None se não logado
 
+    register_error_handlers(app)
+
     from routes.routes_front import front_bp
     from routes.auth import auth_bp
     from routes.pets import pets_api
@@ -30,6 +34,9 @@ def create_app():
     from routes.endereco import addr_api
     from routes.formularioAdocao import adocao_api
     from routes.veterinarios import vet_bp
+    from routes.carrinho import cart_bp
+    from routes.produtos import produtos_bp
+    
     app.register_blueprint(user_api)
     app.register_blueprint(auth_bp)
     app.register_blueprint(front_bp)
@@ -38,7 +45,8 @@ def create_app():
     app.register_blueprint(addr_api)
     app.register_blueprint(adocao_api)
     app.register_blueprint(vet_bp)
-
+    app.register_blueprint(cart_bp)
+    app.register_blueprint(produtos_bp)
 
     with app.app_context():
         import models

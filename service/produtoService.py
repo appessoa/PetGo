@@ -1,60 +1,38 @@
+import gzip
 from models.produtoModel import produto
-from config.db import db
-
-def get_produto_by_id(produto_id):
-    return produto.query.get(produto_id)
-
-def get_all_produtos():
-    return produto.query.all()
-def create_produto(nome, descricao, preco, estoque, categoria=None, imagem_bloob=None):
-    new_produto = produto(
-        nome=nome,
-        descricao=descricao,
-        preco=preco,
-        estoque=estoque,
-        categoria=categoria,
-        imagem_bloob=imagem_bloob
-    )
-    db.session.add(new_produto)
-    db.session.commit()
-    return new_produto
-
-# services/produtosService.py
 from typing import Optional, List, Dict, Any
 from config.db import db
-from models.produtoModel import produto
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from flask import current_app
 import base64, binascii, re
+from app.erros import ValidationError
 
 DATA_URL_RE = re.compile(r'^data:(?P<mime>[\w/+.-]+);base64,(?P<b64>.+)$')
 MAX_IMG_BYTES = 10 * 1024 * 1024  # 10 MB
 
-class ValidationError(ValueError):
-    def __init__(self, message, field: Optional[str] = None):
-        super().__init__(message)
-        self.field = field
-
 def _set_image_from_payload(p: produto, data: Dict[str, Any]):
-    """
-    Aceita 'imagem' como data URL base64 (data:image/...;base64,...) e salva em imagem_bloob.
-    """
-    imagem = data.get("imagem")
-    if not imagem:
+    """Aceita 'photo' como dataURL base64 e compacta com gzip."""
+    photo = data.get("imagem")
+    if not photo:
         return
-    m = DATA_URL_RE.match(imagem)
+    m = DATA_URL_RE.match(photo)
     if not m:
-        raise ValidationError("Formato de imagem inválido (esperado data URL).", field="imagem")
+        raise ValidationError("Formato de foto inválido (esperado data URL).", field="photo")
 
     try:
         raw = base64.b64decode(m.group('b64'), validate=True)
     except binascii.Error as e:
-        raise ValidationError(f"Base64 inválido: {e}", field="imagem") from e
+        raise ValidationError(f"Base64 inválido: {e}", field="photo") from e
 
     if len(raw) > MAX_IMG_BYTES:
-        raise ValidationError(f"Imagem excede {MAX_IMG_BYTES//(1024*1024)}MB.", field="imagem")
+        raise ValidationError(f"Foto excede {MAX_IMG_BYTES//(1024*1024)}MB.", field="photo")
 
-    p.imagem_bloob = raw  # (mantendo SEM gzip para produto, como seu model original)
+    try:
+        p.imagem_bloob = gzip.compress(raw, compresslevel=6)
+        if hasattr(p, "imagem_mime"):
+            p.imagem_mime = m.group('mime')[:50]
+    except Exception as e:
+        raise ValidationError("Falha ao comprimir a foto.", field="photo") from e
 
 def list_produtos(categoria: Optional[str] = None, only_active: bool = True) -> List[produto]:
     q = produto.query
@@ -88,7 +66,6 @@ def create_produto(data: Dict[str, Any]) -> produto:
         preco=preco,
         estoque=estoque,
         categoria=(data.get("categoria") or None),
-        is_active=bool(data.get("is_active", True)),
     )
     _set_image_from_payload(p, data)
 

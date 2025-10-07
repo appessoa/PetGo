@@ -46,6 +46,12 @@ class User(db.Model):
         cascade="all, delete-orphan",
         lazy="selectin"
     )
+    carts = db.relationship(
+        "Cart",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin"
+    )
 
     # Índices úteis 
     __table_args__ = (

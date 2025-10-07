@@ -674,3 +674,139 @@ body {
   background-color: #fef9c3; /* Amarelo */
   color: #854d0e;
 }
+
+/* ===== INPUT DE ARQUIVO (MESMO PADRÃO DO PAINEL) ===== */
+.file-input {
+  display: grid;
+  gap: 10px;
+}
+
+/* Esconde visualmente o input, mantendo acessibilidade via label[for] */
+.file-input input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Zona de drop/seleção */
+.file-drop {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background-color: var(--card);
+  border: 2px dashed #e2e8f0;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s, background-color .2s, transform .1s ease-in-out;
+}
+
+.file-drop:hover {
+  background-color: #fafafa;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.file-input:focus-within .file-drop {
+  outline: none;
+  border-color: var(--primary);
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(255,145,77,.25), 0 1px 3px rgba(0,0,0,.08);
+}
+
+/* Ícone (SVG inline via background) */
+.file-drop__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background-color: var(--accent-100);
+  display: inline-block;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 28px;
+  /* Ícone de upload em SVG, na cor do texto muted */
+  background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%23475669' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='17 8 12 3 7 8'/%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3C/svg%3E");
+}
+
+.file-drop__text {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.file-drop__text strong {
+  color: var(--text);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+}
+
+.file-drop__btn {
+  color: var(--primary-600);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.file-drop__hint {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Metadados (nome do arquivo) */
+.file-meta {
+  font-size: 13px;
+  color: var(--muted);
+  padding: 8px 12px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+/* Pré-visualização opcional */
+.file-preview {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background-color: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.file-preview img {
+  width: 96px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Estado "arrastando" (se aplicar uma classe via JS) */
+.file-drop.is-dragover {
+  border-color: var(--primary);
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(255,145,77,.25);
+}
+
+/* Mobile: empilha */
+@media (max-width: 480px) {
+  .file-drop {
+    grid-template-columns: 40px 1fr;
+    padding: 14px;
+  }
+  .file-drop__icon {
+    width: 40px; height: 40px; background-size: 22px;
+  }
+}
