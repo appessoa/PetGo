@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PetGo — Gerenciar Produtos</title>
   <link rel="stylesheet" href="/public/CSS/style.css">
-  <link rel="stylesheet" href="/public/CSS/produtos.css">
+  <link rel="stylesheet" href="/public/CSS/produtosAdmin.css">
   <link rel="stylesheet" href="/public/CSS/toast.css">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
@@ -98,9 +98,11 @@
         <div class="form-group">
           <label for="product-name">Nome do Produto</label>
           <input type="text" id="product-name" name="productName" required>
+          <label for="product-descricao">Descrição do produto</label>
+          <input type="text" id="product-descricao" name="productdescricao" required>
         </div>
 
-        <div class="grid-two">
+        <div class="grid-three">
           <div class="form-group">
             <label for="product-price">Preço (R$)</label>
             <input type="number" id="product-price" name="productPrice" step="0.01" min="0" required>
@@ -109,18 +111,16 @@
             <label for="product-stock">Estoque (un.)</label>
             <input type="number" id="product-stock" name="productStock" min="0" required>
           </div>
+          <div class="form-group">
+            <label for="product-especie">Especie</label>
+            <select id="product-especie" data-source="especies"></select>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="product-category">Categoria</label>
-          <select id="product-category" name="productCategory" required>
-            <option value="Racao">Ração</option>
-            <option value="Brinquedos">Brinquedos</option>
-            <option value="Acessorios">Acessórios</option>
-            <option value="Higiene">Higiene</option>
-            <option value="Medicamentos">Medicamentos</option>
-          </select>
-        </div>
+          <div class="form-group">
+            <label for="product-category">Categoria</label>
+            <select id="product-category" data-source="categorias"></select>
+          </div>
 
         <div class="modal-footer">
           <button type="button" class="btn secondary" id="cancel-edit-btn">Cancelar</button>
@@ -130,6 +130,6 @@
     </div>
   </div>
 
-  <script type="module" src="/public/js/produtos.js"></script>
+  <script type="module" src="/public/js/produtosAdmin.js"></script>
 </body>
 </html>

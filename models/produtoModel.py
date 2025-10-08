@@ -25,13 +25,14 @@ class produto(db.Model):
     preco = db.Column(db.Float, nullable=False)
     estoque = db.Column(db.Integer, nullable=False)
     categoria = db.Column(db.String(100), nullable=True)
+    especie = db.Column(db.String(20), nullable=False)
     imagem_bloob = db.Column(db.LargeBinary, nullable=True)
     imagem_mime = db.Column(db.String(20), nullable = True)
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     deleted = db.Column(db.Integer, nullable = False, default = False)
-    
+
     @staticmethod
     def _is_gzip(data: bytes) -> bool:
         # assinatura do gzip: 1f 8b
@@ -88,6 +89,7 @@ class produto(db.Model):
             "preco": self.preco,
             "descricao":self.descricao,
             "categoria": self.categoria,
+            "especie": self.especie,
             "estoque": self.estoque,
             "imagem": self.photo
         }

@@ -1,3 +1,4 @@
+// /public/js/header.js
 export async function initHeader() {
   const header = document.getElementById('Header');
   if (!header) return;
@@ -26,13 +27,22 @@ export async function initHeader() {
   `;
 
   if (user && user.logged_in) {
+    // adiciona ícone do carrinho já com badge (0) — atualizamos depois
     baseActions += `
-    <a href="/carrinho" class="cart-icon" aria-label="Ver carrinho de compras">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <a href="/carrinho" class="cart-icon" id="cart-link" aria-label="Ver carrinho de compras" style="position:relative;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+           viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="9" cy="21" r="1"></circle>
         <circle cx="20" cy="21" r="1"></circle>
         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
       </svg>
+      <span id="cart-count"
+            style="position:absolute; top:-6px; right:-6px; min-width:20px; height:20px;
+                   background:var(--primary); color:#fff; font:800 12px/20px Inter, sans-serif;
+                   border-radius:999px; display:inline-block; text-align:center; padding:0 6px; box-shadow:var(--shadow);">
+        0
+      </span>
     </a>
     `;
   }
@@ -48,17 +58,12 @@ export async function initHeader() {
           <span class="caret">▾</span>
         </button>
         <div class="dropdown" role="menu">
-        `
-        if (user.is_admin) {
-          actionsHtml += `<a role="menuitem" href="/adminPage">Administração</a>`;
-        }
-        else { actionsHtml +=
-        `
-          <a role="menuitem" href="/UserPage">Dados do usuário</a>
-          <a role="menuitem" href="/PetGoHealth">Plano Health</a>
-          `
-          
-        }actionsHtml += `
+          ${user.is_admin
+            ? `<a role="menuitem" href="/adminPage">Administração</a>`
+            : `
+              <a role="menuitem" href="/UserPage">Dados do usuário</a>
+              <a role="menuitem" href="/PetGoHealth">Plano Health</a>
+            `}
           <a role="menuitem" href="/logout">Sair</a>
         </div>
       </div>
@@ -115,4 +120,42 @@ export async function initHeader() {
       if (e.key === "ArrowUp") { e.preventDefault(); items[(i-1+items.length)%items.length]?.focus(); }
     });
   }
+
+  // Se o usuário está logado, carrega e exibe a contagem do carrinho
+  if (user && user.logged_in) {
+    updateCartCount().catch(()=>{});
+    // Se o app disparar esse evento após alterações no carrinho, o header atualiza
+    window.addEventListener('cart:updated', (e) => {
+      const maybeCount = e?.detail?.count;
+      updateCartCount(maybeCount).catch(()=>{});
+    });
+  }
+}
+
+/**
+ * Atualiza o badge do carrinho no header.
+ * - Se `forcedCount` for fornecido, usa diretamente;
+ * - Caso contrário, consulta /api/carrinho e soma as quantidades.
+ */
+export async function updateCartCount(forcedCount) {
+  const header = document.getElementById('Header');
+  if (!header) return;
+
+  const badge = header.querySelector('#cart-count');
+  if (!badge) return;
+
+  let count = Number(forcedCount);
+  if (!Number.isFinite(count)) {
+    try {
+      const res = await fetch('/api/carrinho', { credentials: 'include' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      count = (data.items || []).reduce((acc, it) => acc + (it.quantidade || 0), 0);
+    } catch (err) {
+      console.warn('Não foi possível obter o carrinho:', err);
+      count = 0;
+    }
+  }
+
+  badge.textContent = String(count);
 }

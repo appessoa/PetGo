@@ -1,12 +1,13 @@
-
 from flask import jsonify
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, with_loader_criteria
 from config.db import db
 from models.cartModel import Cart, CartItem
 from models.produtoModel import produto
 from app.enums.cartEnum import CartStatus
 from app.enums.modos import modos
+from sqlalchemy.exc import SQLAlchemyError
+
 
 def get_or_create_my_cart(uid : int) -> Cart:
     cart = (
@@ -44,7 +45,7 @@ def add_or_set_item(uid: int, id_produto: int, quantidade: int, *, modo: str = m
     item = (
         db.session.execute(
             select(CartItem)
-            .where(CartItem.id_cart == cart.id_cart, CartItem.id_produto == id_produto)
+            .where(CartItem.id_cart == cart.id_cart, CartItem.id_produto == id_produto, CartItem.is_active == True, CartItem.deleted == 0 )
             .limit(1)
         ).scalars().first()
     )
@@ -67,9 +68,10 @@ def add_or_set_item(uid: int, id_produto: int, quantidade: int, *, modo: str = m
 
 def get_cart(uid):
      
-
     cart = (Cart.query
-        .options(selectinload(Cart.items))
+        .options(selectinload(Cart.items),
+                 with_loader_criteria(CartItem, CartItem.deleted == 0)
+                 )
         .filter_by(id_usuario=uid, status=CartStatus.ABERTO.name, is_active=True)
         .first())
 
@@ -82,3 +84,19 @@ def get_cart(uid):
         "items": items,
         "subtotal": subtotal
     })
+
+def deleted_produto(id_cart_item:int)-> produto:
+    item = CartItem.query.get_or_404(id_cart_item)
+
+    item.deleted = item.id_cart_item  # marca como deletado
+    item.is_active = False
+
+    try:
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        raise RuntimeError("Falha ao deletar usuário") from e
+    except Exception as e:
+        db.session.rollback()
+        raise RuntimeError("Erro inesperado ao deletar produto") from e
+    return True

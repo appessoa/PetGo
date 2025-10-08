@@ -1,7 +1,8 @@
 from flask import request, jsonify, send_file
 from werkzeug.exceptions import NotFound, BadRequest
 from io import BytesIO
-from typing import Any, Dict, Optional
+from app.enums.categoriasEnum import Categorias
+from app.enums.especies import Especies
 
 # importa do teu service (o código que você mandou)
 from service.produtoService import (
@@ -16,42 +17,52 @@ from service.produtoService import (
 
 class produtoController:
 
-    def serialize_produto(p) -> Dict[str, Any]:
-        "Serializa o produto para JSON (não envia o blob)."
-        data = {
-            "id": getattr(p, "id_produto", getattr(p, "id", None)),
-            "nome": p.nome,
-            "descricao": p.descricao,
-            "preco": p.preco,
-            "estoque": p.estoque,
-            "categoria": p.categoria,
-            "imagem_url": p.imagem
-        }
-        return data
-
-    def parse_bool(value: Optional[str], default: bool = True) -> bool:
-        if value is None:
-            return default
-        return str(value).lower() in {"1", "true", "t", "yes", "y", "on"}
-    
-
     def get_all():
         """
-        GET /produtos?categoria=...&only_active=true|false&page=1&per_page=20
-        Retorna lista (com paginação simples opcional).
+        GET /produtos?q=...&categoria=...&especie=...&preco_min=..&preco_max=..
+                 &sort=nome-asc|nome-desc|preco-asc|preco-desc
+                 &page=1&per_page=24
         """
-        categoria = request.args.get("categoria") or None
+        args = request.args
 
-        # paginação opcional (feita no controller para não mexer no service)
-        page = int(request.args.get("page", 1))
-        per_page = int(request.args.get("per_page", 50))
+        categoria = args.get("categoria") or None
+        especie   = args.get("especie") or None
+        q         = args.get("q") or None
+        sort      = args.get("sort") or None
+
+        # paginação
+        try:
+            page = int(args.get("page", 1))
+        except ValueError:
+            page = 1
+        try:
+            per_page = int(args.get("per_page", 24))
+        except ValueError:
+            per_page = 24
         per_page = max(1, min(per_page, 100))
 
-        all_items = list_produtos(categoria=categoria)
-        total = len(all_items)
-        start = (page - 1) * per_page
-        end = start + per_page
-        items = all_items[start:end]
+        # faixa de preço
+        preco_min = args.get("preco_min")
+        preco_max = args.get("preco_max")
+        try:
+            preco_min = float(preco_min) if preco_min is not None else None
+        except ValueError:
+            raise BadRequest("preco_min inválido")
+        try:
+            preco_max = float(preco_max) if preco_max is not None else None
+        except ValueError:
+            raise BadRequest("preco_max inválido")
+
+        items, total = list_produtos(
+            categoria=categoria,
+            especie=especie,
+            q=q,
+            preco_min=preco_min,
+            preco_max=preco_max,
+            sort=sort,
+            page=page,
+            per_page=per_page,
+        )
 
         return jsonify({
             "items": [p.to_dict() for p in items],
@@ -59,10 +70,10 @@ class produtoController:
                 "page": page,
                 "per_page": per_page,
                 "total": total,
-                "has_next": end < total,
-                "has_prev": start > 0,
+                "has_next": page * per_page < total,
+                "has_prev": page > 1,
             }
-        }),200
+        }), 200
 
     def get_one(produto_id : int):
         """
@@ -98,7 +109,7 @@ class produtoController:
             raise BadRequest("JSON inválido ou ausente.")
 
         p = update_produto(produto_id, data)
-        return jsonify(p.to_dict),200
+        return jsonify(p.to_dict()),200
     
     def update_stock(produto_id: int):
         """
@@ -135,3 +146,9 @@ class produtoController:
         deleted_produto(produto_id)
 
         return jsonify({"sucesso": f"produto '{produto_id}' com sucesso"}),201
+    
+    def get_categorias():
+        return [{"key":c.name , "value":c.value } for c in Categorias]
+    
+    def get_especies():
+        return [{"key":c.name , "value":c.value } for c in Especies]

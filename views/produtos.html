@@ -4,187 +4,118 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PetGo — Rações</title>
-  <link rel="stylesheet" href="/public/CSS\style.css">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="/public/CSS\dropdown.css">
-  <link rel="stylesheet" href="/public/CSS/toast.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
-  <script type="module" src="/public/js/produtos.js"></script>
 
+  <link rel="stylesheet" href="/public/CSS/style.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="/public/CSS/dropdown.css">
+  <link rel="stylesheet" href="/public/CSS/toast.css">
+  <link rel="stylesheet" href="/public/CSS/produtos.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+
+  <!-- Estilo básico opcional para a barra de filtros/paginação -->
+  <style>
+    .filters .filters-grid { display:grid; gap:.5rem; grid-template-columns: repeat(6, minmax(0,1fr)); align-items:center; margin: 1rem 0; }
+    .filters input, .filters select { padding:.5rem; }
+    .pagination { display:flex; gap:.75rem; align-items:center; margin: .5rem 0 1rem; }
+    .pagination .btn:disabled { opacity:.5; cursor:not-allowed; }
+    @media (max-width: 900px) {
+      .filters .filters-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+  </style>
+
+  <script type="module" src="/public/js/produtos.js"></script>
 </head>
 <body>
   <!-- header oficial -->
   <header>
-    <div class="container header-inner" id="Header">
+    <div class="container header-inner" id="Header"></div>
   </header>
 
   <main class="container">
-    <!-- RAÇÃO GATOS -->
-    <section>
-      <h3 class="section-title">Ração para Gatos</h3>
-      <div class="grid cols-3">
-        <article class="product-card">
-          <div class="product-info">
-            <h4>Ração Premium Gatos Filhotes</h4>
-            <div class="price">R$ 89,90</div>
-            <button class="btn primary">Adicionar ao Carrinho</button>
-          </div>
-          <img src="/public/img/pacote6.png" alt="Ração Gato 1" class="product-img">
-        </article>
-        <article class="product-card">
-          <div class="product-info">
-            <h4>Ração Golden Gatos Adultos</h4>
-            <div class="price">R$ 119,90</div>
-            <button class="btn primary">Adicionar ao Carrinho</button>
-          </div>
-          <img src="/public/img/pacote1.png" alt="Ração Gato 2" class="product-img">
-        </article>
-        <article class="product-card">
-          <div class="product-info">
-            <h4>Ração Seca Natural Gatos</h4>
-            <div class="price">R$ 99,90</div>
-            <button class="btn primary">Adicionar ao Carrinho</button>
-          </div>
-          <img src="/public/img/pacote9.png" alt="Ração Gato 3" class="product-img">
-        </article>
+
+    <!-- ====== BARRA DE FILTROS ====== -->
+    <section class="filters">
+      <div class="filters-grid">
+        <input id="f-q" type="search" placeholder="Buscar (nome, categoria, espécie)..." />
+        <select id="f-categoria">
+          <option value="">Todas as categorias</option>
+        </select>
+        <select id="f-especie">
+          <option value="">Todas as espécies</option>
+        </select>
+        <input id="f-preco-min" type="number" placeholder="Preço mín" step="0.01" min="0" />
+        <input id="f-preco-max" type="number" placeholder="Preço máx" step="0.01" min="0" />
+        <select id="f-sort">
+          <option value="">Ordenar...</option>
+          <option value="nome-asc">Nome (A→Z)</option>
+          <option value="nome-desc">Nome (Z→A)</option>
+          <option value="preco-asc">Menor preço</option>
+          <option value="preco-desc">Maior preço</option>
+        </select>
+        <button id="f-clear" class="btn">Limpar</button>
       </div>
     </section>
 
-    <!-- RAÇÃO CACHORROS -->
-    <section>
-      <h3 class="section-title">Ração para Cachorros</h3>
-      <div class="grid cols-3">
-        <article class="product-card">
-          <div class="product-info">
-            <h4>Ração Golden Cães Adultos</h4>
-            <div class="price">R$ 149,90</div>
-            <button class="btn primary">Adicionar ao Carrinho</button>
-          </div>
-          <img src="/public/img/pacote8.png" alt="Ração Cachorro 1" class="product-img">
-        </article>
-        <article class="product-card">
-          <div class="product-info">
-            <h4>Ração Premier Cães Filhotes</h4>
-            <div class="price">R$ 189,90</div>
-            <button class="btn primary">Adicionar ao Carrinho</button>
-          </div>
-          <img src="/public/img/pacote2.png" alt="Ração Cachorro 2" class="product-img">
-        </article>
-        <article class="product-card">
-          <div class="product-info">
-            <h4>Ração Light Cães Pequenos</h4>
-            <div class="price">R$ 134,90</div>
-            <button class="btn primary">Adicionar ao Carrinho</button>
-          </div>
-          <img src="/public/img/pacote3.png" alt="Ração Cachorro 3" class="product-img">
-        </article>
-      </div>
-    </section>
+    <!-- ====== PAGINAÇÃO ====== -->
+    <nav class="pagination">
+      <button id="pg-prev" class="btn">← Anterior</button>
+      <span id="pg-info"></span>
+      <button id="pg-next" class="btn">Próxima →</button>
 
-    <!-- AVES -->
-    <section>
-      <h3 class="section-title">Ração para Aves</h3>
-      <div class="grid cols-3">
-        <article class="product-card">
-          <div class="product-info">
-            <h4>Ração Canários Premium</h4>
-            <div class="price">R$ 24,90</div>
-            <button class="btn primary">Adicionar ao Carrinho</button>
-          </div>
-          <img src="/public/img/pacote4.png" alt="Ração Aves 1" class="product-img">
-        </article>
-        <article class="product-card">
-          <div class="product-info">
-            <h4>Ração Papagaio Nutritiva</h4>
-            <div class="price">R$ 39,90</div>
-            <button class="btn primary">Adicionar ao Carrinho</button>
-          </div>
-          <img src="/public/img/pacote5.png" alt="Ração Aves 2" class="product-img">
-        </article>
-        <article class="product-card">
-          <div class="product-info">
-            <h4>Mix de Sementes Pássaros</h4>
-            <div class="price">R$ 29,90</div>
-            <button class="btn primary">Adicionar ao Carrinho</button>
-          </div>
-          <img src="/public/img/pacote7.png" alt="Ração Aves 3" class="product-img">
-        </article>
-      </div>
-    </section>
+      <label class="per-page" style="margin-left:8px;">
+        Itens/página
+        <select id="pg-size">
+          <option>12</option>
+          <option selected>24</option>
+          <option>48</option>
+        </select>
+      </label>
+    </nav>
 
-    <!-- PETISCOS -->
-    <section>
-      <h3 class="section-title">Petiscos & Sachês</h3>
-      <div class="grid cols-3">
-        <article class="product-card">
-          <div class="product-info">
-            <h4>Sachê Gatos Frango ao Molho</h4>
-            <div class="price">R$ 4,90</div>
-            <button class="btn primary">Adicionar ao Carrinho</button>
-          </div>
-          <img src="/public/img/pacote10.png" alt="Sachê Gato" class="product-img">
-        </article>
-        <article class="product-card">
-          <div class="product-info">
-            <h4>Petisco Cães Ossinho</h4>
-            <div class="price">R$ 12,90</div>
-            <button class="btn primary">Adicionar ao Carrinho</button>
-          </div>
-          <img src="/public/img/pacote11.png" alt="Petisco Cachorro" class="product-img">
-        </article>
-        <article class="product-card">
-          <div class="product-info">
-            <h4>Sachê Gourmet Cães Adultos</h4>
-            <div class="price">R$ 6,90</div>
-            <button class="btn primary">Adicionar ao Carrinho</button>
-          </div>
-          <img src="/public/img/pacote12.png" alt="Sachê Cachorro" class="product-img">
-        </article>
-      </div>
-    </section>
+    <!-- As seções de produtos serão inseridas aqui pelo JS -->
   </main>
 
   <!-- footer oficial -->
   <footer id="contato">
-  <div class="container footer-inner">
-    <div>
-      <div class="logo"><span class="paw">🐾</span> PetGo</div>
-      <p class="subtitle">Cuidando do seu pet com carinho e tecnologia.</p>
-    </div>
-
-    <div class="links">
-      <strong>Links</strong>
-      <a href="#">Sobre</a>
-      <a href="#">FAQ</a>
-      <a href="#">Política de Privacidade</a>
-    </div>
-
-    <div class="novidades-sociais">
-      <div class="novidades">
-        <strong>Novidades</strong>
-        <p class="subtitle">Receba ofertas e novidades.</p>
-        <form class="form-novidades" onsubmit="event.preventDefault(); alert('Inscrição realizada!');">
-        <input type="email" placeholder="Seu e-mail" required>
-        <button class="btn primary" type="submit">Cadastrar</button>
-        </form>
+    <div class="container footer-inner">
+      <div>
+        <div class="logo"><span class="paw">🐾</span> PetGo</div>
+        <p class="subtitle">Cuidando do seu pet com carinho e tecnologia.</p>
       </div>
-      
-      <div class="redes-sociais">
-        <strong>Redes Sociais</strong>
-        <div class="social">
-          <a href="#" class="badge" title="Visite nosso instagram">
-            <img src="/public/img/instagram-icon.svg" alt="Instagram">
-          </a>
-          <a href="#" class="badge" title="Visite nosso Facebook">
-            <img src="/public/img/facebook-icon.svg" alt="Facebook">
-          </a>
-          <a href="#" class="badge" title="Visite nosso Tiktok">
-            <img src="/public/img/tiktok-icon.svg" alt="TikTok">
-          </a>
+
+      <div class="links">
+        <strong>Links</strong>
+        <a href="#">Sobre</a>
+        <a href="#">FAQ</a>
+        <a href="#">Política de Privacidade</a>
+      </div>
+
+      <div class="novidades-sociais">
+        <div class="novidades">
+          <strong>Novidades</strong>
+          <p class="subtitle">Receba ofertas e novidades.</p>
+          <form class="form-novidades" onsubmit="event.preventDefault(); alert('Inscrição realizada!');">
+            <input type="email" placeholder="Seu e-mail" required>
+            <button class="btn primary" type="submit">Cadastrar</button>
+          </form>
+        </div>
+        
+        <div class="redes-sociais">
+          <strong>Redes Sociais</strong>
+          <div class="social">
+            <a href="#" class="badge" title="Visite nosso instagram">
+              <img src="/public/img/instagram-icon.svg" alt="Instagram">
+            </a>
+            <a href="#" class="badge" title="Visite nosso Facebook">
+              <img src="/public/img/facebook-icon.svg" alt="Facebook">
+            </a>
+            <a href="#" class="badge" title="Visite nosso Tiktok">
+              <img src="/public/img/tiktok-icon.svg" alt="TikTok">
+            </a>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</footer>
+  </footer>
 </body>
 </html>

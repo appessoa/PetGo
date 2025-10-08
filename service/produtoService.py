@@ -6,6 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from flask import current_app
 import base64, binascii, re
 from app.erros import ValidationError
+from sqlalchemy import or_
 
 DATA_URL_RE = re.compile(r'^data:(?P<mime>[\w/+.-]+);base64,(?P<b64>.+)$')
 MAX_IMG_BYTES = 10 * 1024 * 1024  # 10 MB
@@ -34,12 +35,66 @@ def _set_image_from_payload(p: produto, data: Dict[str, Any]):
     except Exception as e:
         raise ValidationError("Falha ao comprimir a foto.", field="photo") from e
 
-def list_produtos(categoria: Optional[str] = None) -> List[produto]:
-    q = produto.query
-    q = q.filter_by(is_active=True, deleted = 0)
+# produtoService.py
+
+def list_produtos(
+    categoria: Optional[str] = None,
+    especie: Optional[str] = None,
+    q: Optional[str] = None,
+    preco_min: Optional[float] = None,
+    preco_max: Optional[float] = None,
+    sort: Optional[str] = None,
+    page: Optional[int] = None,
+    per_page: Optional[int] = None,
+):
+    """
+    Retorna (items, total) aplicando filtros no banco.
+    sort: 'nome-asc'|'nome-desc'|'preco-asc'|'preco-desc'|None
+    """
+    query = produto.query.filter_by(is_active=True, deleted=0)
+
     if categoria:
-        q = q.filter_by(categoria=categoria)
-    return q.order_by(produto.id_produto.desc()).all()
+        query = query.filter(produto.categoria == categoria)
+
+    if especie:
+        query = query.filter(produto.especie == especie)
+
+    if q:
+        q_like = f"%{q.strip()}%"
+        # ilike para case-insensitive; se houver extensão unaccent no banco, pode aplicar func.unaccent
+        query = query.filter(or_(
+            produto.nome.ilike(q_like),
+            produto.categoria.ilike(q_like),
+            produto.especie.ilike(q_like),
+            produto.descricao.ilike(q_like),
+        ))
+
+    if preco_min is not None:
+        query = query.filter(produto.preco >= float(preco_min))
+    if preco_max is not None:
+        query = query.filter(produto.preco <= float(preco_max))
+
+    # ordenação
+    if sort == 'nome-asc':
+        query = query.order_by(produto.nome.asc())
+    elif sort == 'nome-desc':
+        query = query.order_by(produto.nome.desc())
+    elif sort == 'preco-asc':
+        query = query.order_by(produto.preco.asc())
+    elif sort == 'preco-desc':
+        query = query.order_by(produto.preco.desc())
+    else:
+        query = query.order_by(produto.id_produto.desc())
+
+    total = query.count()
+
+    if page and per_page:
+        items = query.offset((page - 1) * per_page).limit(per_page).all()
+    else:
+        items = query.all()
+
+    return items, total
+
 
 def get_produto(produto_id: int) -> produto:
     return produto.query.get_or_404(produto_id)
@@ -65,6 +120,7 @@ def create_produto(data: Dict[str, Any]) -> produto:
         preco=preco,
         estoque=estoque,
         categoria=(data.get("categoria") or None),
+        especie = data.get("especie")
     )
     _set_image_from_payload(p, data)
 

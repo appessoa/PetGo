@@ -31,9 +31,9 @@ class CartItem(db.Model):
     is_active      = db.Column(db.Boolean, default=True)
     created_at     = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at     = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    deleted = db.Column(db.Integer, nullable = False, default = False)
 
     __table_args__ = (
-        db.UniqueConstraint('id_cart', 'id_produto', name='uix_cart_produto'),
         CheckConstraint('quantidade > 0'),
         CheckConstraint('preco_unitario >= 0'),
     )

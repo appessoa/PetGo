@@ -1,389 +1,382 @@
 // /public/js/produtos.js
-import { showToast } from './utils/toast.js';
-import { initSidebar } from './sidebar.js';
-
-const API_BASE = '/api';
-const MAX_IMG_BYTES = 10 * 1024 * 1024;
+import { initHeader } from './header.js';
+import { showToast } from '/public/js/utils/toast.js';
 
 document.addEventListener("DOMContentLoaded", () => {
-  initSidebar();
-  wireProductEditModal();
-  loadProductsList();
+  initHeader();
+  loadAndRender();
 });
 
-function defaultAvatar(nome){
-  if(!nome) return 'https://placehold.co/200x200?text=?';
-  nome = String(nome).toLowerCase();
-  return 'https://placehold.co/200x200?text=?';
-}
+const API_BASE = '/api';
 
-/* ============== HELPERS ============== */
+/* ---------- helpers ---------- */
 const qs  = (s, r=document) => r.querySelector(s);
-const qsa = (s, r=document) => [...r.querySelectorAll(s)];
-const esc = (s) => (s ?? '').toString()
+const esc = (s='') => String(s)
   .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
   .replaceAll('"','&quot;').replaceAll("'","&#039;");
-const fmtBRL = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(v||0));
+const fmtBRL = (v) => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'})
+  .format(Number(v||0));
+const normalize = (str='') => String(str).toLowerCase()
+  .normalize('NFD').replace(/\p{Diacritic}/gu,'');
 
-async function fetchJSON(url, opts = {}) {
+async function fetchJSON(url, opts={}) {
   const res = await fetch(url, {
-    headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
-    ...opts,
+    headers:{ 'Content-Type':'application/json', ...(opts.headers||{}) },
+    credentials: 'include',
+    ...opts
   });
-  let data = null;
-  try { data = await res.json(); } catch {}
-  if (!res.ok) {
-    const err = new Error((data && (data.message || data.error)) || `HTTP ${res.status}`);
-    err.status = res.status;
-    err.payload = data;
-    throw err;
-  }
+  let data=null; try { data = await res.json(); } catch {}
+  if (!res.ok) throw new Error((data && (data.message||data.error)) || `HTTP ${res.status}`);
   return data;
 }
+const debounced = (fn, ms=250) => { let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms)} };
 
-function inlinePlaceholder(text='Produto') {
-  const svg = encodeURIComponent(
-    `<svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'>
-      <rect width='100%' height='100%' fill='#f3f4f6'/>
-      <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
-        font-family='Inter,Arial' font-size='28' fill='#9ca3af'>${text}</text>
-    </svg>`
-  );
-  return `data:image/svg+xml;charset=utf-8,${svg}`;
+/* ---------- mapeia categoria/especie/nome -> título da seção ---------- */
+function mapToSection(p) {
+  const norm = (s='') => String(s).toLowerCase()
+    .normalize('NFD').replace(/\p{Diacritic}/gu, '');
+
+  const catRaw = (p.categoria || '').trim();
+  const espRaw = (p.especie   || '').trim();
+  const nomeRaw= (p.nome      || '').trim();
+
+  const cat  = norm(catRaw);
+  const esp  = norm(espRaw);
+  const nome = norm(nomeRaw);
+
+  const isRacao = cat.includes('racao') || nome.includes('racao');
+  const isSache = cat.includes('sache') || nome.includes('sache');
+  const isAcess = cat.includes('acess') || nome.includes('acess');
+
+  let isGato = /gato|felin/.test(esp) || /gato|felin/.test(cat)  || /gato|felin/.test(nome);
+  let isCao  = /cachorr|cao|canin/.test(esp) || /cachorr|cao|canin/.test(cat) || /cachorr|cao|canin/.test(nome);
+
+  if (!espRaw && (isGato === isCao)) {
+    isCao  = /cachorr|cao|canin/.test(nome);
+    isGato = !isCao && /gato|felin/.test(nome);
+  }
+
+  if (isAcess) return 'Acessórios';
+  if (isSache && isGato) return 'Sachê para Gatos';
+  if (isSache && isCao)  return 'Sachê para Cachorros';
+  if (isRacao && isGato) return 'Ração para Gatos';
+  if (isRacao && isCao)  return 'Ração para Cachorros';
+
+  if (isRacao) return 'Ração';
+  if (isSache) return 'Sachê';
+
+  if (catRaw) {
+    const t = catRaw.toLowerCase();
+    if (t === 'racao') return 'Ração';
+    if (t === 'sache') return 'Sachê';
+    return catRaw.replace(/(^|\s)\S/g, m => m.toUpperCase());
+  }
+  return 'Outros';
 }
 
-function toDataURL(file) {
-  return new Promise((resolve, reject) => {
-    const fr = new FileReader();
-    fr.onload = () => resolve(fr.result); // data:image/...;base64,xxxx
-    fr.onerror = () => reject(new Error('Falha ao ler arquivo.'));
-    fr.readAsDataURL(file);
+/* ---------- DOM utils para seções ---------- */
+const MANAGED = new Set([
+  'Ração para Gatos',
+  'Ração para Cachorros',
+  'Sachê para Gatos',
+  'Sachê para Cachorros',
+  'Acessórios',
+  'Ração',
+  'Sachê',
+  'Outros',
+]);
+
+function getSectionByTitle(title) {
+  const h3 = [...document.querySelectorAll('main .section-title')]
+    .find(h => normalize(h.textContent) === normalize(title));
+  return h3 ? h3.closest('section') : null;
+}
+
+function createSection(title) {
+  const main = qs('main.container') || qs('main') || document.body;
+  const section = document.createElement('section');
+  const heading = document.createElement('h3');
+  heading.className = 'section-title';
+  heading.textContent = title;
+  const grid = document.createElement('div');
+  grid.className = 'grid cols-3';
+  section.append(heading, grid);
+  main.appendChild(section);
+  return section;
+}
+
+function ensureSection(title) {
+  return getSectionByTitle(title) || createSection(title);
+}
+
+function hideManagedSectionsExcept(visibleTitles) {
+  MANAGED.forEach(title => {
+    if (!visibleTitles.has(title)) {
+      const sec = getSectionByTitle(title);
+      if (sec) sec.remove();
+    }
   });
 }
 
-/* ============== STATE ============== */
-let PRODUCTS = [];       // cache da listagem
-let CURRENT = null;      // produto em edição (obj)
-let CHANGED_FILE = null; // File selecionado no modal
+/* ---------- cards ---------- */
+function cardHTML(p) {
+  const img = p.imagem || '/public/img/placeholder-product.png';
+  return `
+  <article class="product-card" data-product-id="${esc(p.id ?? p.id_produto)}">
+    <div class="product-info">
+      <h4 title="${esc(p.nome || '')}">${esc(p.nome || 'Produto')}</h4>
+      <div class="price">${fmtBRL(p.preco)}</div>
+      <button class="btn primary" data-add>Adicionar ao Carrinho</button>
+    </div>
+    <img src="${esc(img)}" alt="${esc(p.nome || 'Imagem do produto')}" class="product-img">
+  </article>`;
+}
 
-/* ============== LISTAGEM ============== */
-async function loadProductsList() {
-  const grid = qs('.product-grid');
-  if (!grid) return;
-  grid.innerHTML = `<article class="product-card"><div class="product-card-content">Carregando…</div></article>`;
+/* ---------- render ---------- */
+function renderGroups(groups) {
+  const visible = new Set();
+  Object.entries(groups).forEach(([title, list]) => {
+    if (!list.length) return;
+    const sec = ensureSection(title);
+    const grid = sec.querySelector('.grid') || (() => {
+      const g = document.createElement('div'); g.className = 'grid cols-3'; sec.appendChild(g); return g;
+    })();
+
+    if (!STATE?.sort || STATE.sort.startsWith('nome-')) {
+      list.sort((a,b) => String(a.nome||'').localeCompare(String(b.nome||''), 'pt-BR'));
+    }
+
+    grid.innerHTML = list.map(cardHTML).join('');
+    visible.add(title);
+  });
+  hideManagedSectionsExcept(visible);
+}
+
+/* ====================================================================== */
+/* ============================  FILTROS BACK  ========================== */
+/* ====================================================================== */
+
+const STATE = {
+  q: '', categoria: '', especie: '',
+  precoMin: null, precoMax: null, sort: '',
+  page: 1, perPage: 24, lastTotal: 0
+};
+
+function ensureFiltersUI() {
+  const main = qs('main.container') || qs('main') || document.body;
+  if (qs('section.filters')) return;
+
+  const filters = document.createElement('section');
+  filters.className = 'filters';
+  filters.innerHTML = `
+    <div class="filters-grid">
+      <input id="f-q" type="search" placeholder="Buscar (nome, categoria, espécie)..." />
+      <select id="f-categoria"><option value="">Todas as categorias</option></select>
+      <select id="f-especie"><option value="">Todas as espécies</option></select>
+      <input id="f-preco-min" type="number" placeholder="Preço mín" step="0.01" min="0" />
+      <input id="f-preco-max" type="number" placeholder="Preço máx" step="0.01" min="0" />
+      <select id="f-sort">
+        <option value="">Ordenar...</option>
+        <option value="nome-asc">Nome (A→Z)</option>
+        <option value="nome-desc">Nome (Z→A)</option>
+        <option value="preco-asc">Menor preço</option>
+        <option value="preco-desc">Maior preço</option>
+      </select>
+      <button id="f-clear" class="btn">Limpar</button>
+    </div>
+  `;
+
+  const pager = document.createElement('nav');
+  pager.className = 'pagination';
+  pager.innerHTML = `
+    <button id="pg-prev" class="btn">← Anterior</button>
+    <span id="pg-info"></span>
+    <button id="pg-next" class="btn">Próxima →</button>
+    <label class="per-page" style="margin-left:8px;">
+      Itens/página
+      <select id="pg-size">
+        <option>12</option>
+        <option selected>24</option>
+        <option>48</option>
+      </select>
+    </label>
+  `;
+  main.prepend(pager);
+  main.prepend(filters);
+}
+
+function buildQueryParams() {
+  const p = new URLSearchParams();
+  p.set('only_active', 'true');
+  p.set('page', String(STATE.page));
+  p.set('per_page', String(STATE.perPage));
+  if (STATE.q) p.set('q', STATE.q);
+  if (STATE.categoria) p.set('categoria', STATE.categoria);
+  if (STATE.especie) p.set('especie', STATE.especie);
+  if (STATE.precoMin != null) p.set('preco_min', String(STATE.precoMin));
+  if (STATE.precoMax != null) p.set('preco_max', String(STATE.precoMax));
+  if (STATE.sort) p.set('sort', STATE.sort);
+  return p.toString();
+}
+
+async function loadStaticOptions() {
+  const selCat = qs('#f-categoria');
+  const selEsp = qs('#f-especie');
+  if (!selCat || !selEsp) return;
+
   try {
-    const data = await fetchJSON(`${API_BASE}/produtos?page=1&per_page=200`);
-    const items = Array.isArray(data) ? data : (data.items || []);
-    PRODUCTS = items;
-    renderGrid(items);
+    const [cats, esps] = await Promise.all([
+      fetchJSON(`${API_BASE}/produtos/categorias`).catch(()=>[]),
+      fetchJSON(`${API_BASE}/produtos/especies`).catch(()=>[]),
+    ]);
+    if (Array.isArray(cats)) {
+      selCat.innerHTML = ['<option value="">Todas as categorias</option>']
+        .concat(cats.map(c => `<option value="${esc(c.key)}">${esc(c.value)}</option>`)).join('');
+    }
+    if (Array.isArray(esps)) {
+      selEsp.innerHTML = ['<option value="">Todas as espécies</option>']
+        .concat(esps.map(e => `<option value="${esc(e.key)}">${esc(e.value)}</option>`)).join('');
+    }
+  } catch (e) {
+    console.warn('Falha ao carregar categorias/especies', e);
+  }
+}
+
+async function queryAndRender() {
+  const url = `${API_BASE}/produtos?${buildQueryParams()}`;
+  try {
+    const res = await fetchJSON(url);
+    const items = Array.isArray(res) ? res : (res.items || []);
+    const pagination = res.pagination || { page: STATE.page, per_page: STATE.perPage, total: items.length, has_prev:false, has_next:false };
+
+    STATE.page = pagination.page || STATE.page;
+    STATE.perPage = pagination.per_page || STATE.perPage;
+    STATE.lastTotal = pagination.total || 0;
+
+    const groups = {};
+    for (const p of items) {
+      const title = mapToSection(p);
+      (groups[title] ||= []).push(p);
+    }
+    renderGroups(groups);
+
+    const info = qs('#pg-info');
+    const startI = STATE.lastTotal ? (STATE.page-1)*STATE.perPage + 1 : 0;
+    const endI   = Math.min(STATE.page*STATE.perPage, STATE.lastTotal);
+    if (info) info.textContent = STATE.lastTotal ? `${startI}–${endI} de ${STATE.lastTotal}` : `0 resultados`;
+
+    const prev = qs('#pg-prev'), next = qs('#pg-next');
+    if (prev) prev.disabled = !pagination.has_prev;
+    if (next) next.disabled = !pagination.has_next;
   } catch (err) {
-    console.error(err);
-    grid.innerHTML = `<article class="product-card"><div class="product-card-content">Erro ao carregar produtos.</div></article>`;
+    console.error('Erro ao consultar produtos:', err);
     showToast('Erro ao carregar produtos.', 'error');
   }
 }
 
-function productCardHTML(p) {
-  const id = p.id ?? p.id_produto;
-  // usa imagem_url se existir (vem do backend), fallback p.imagem ou avatar
-  const img = p.imagem_url || p.imagem || defaultAvatar(p.nome);
-  const cat = p.categoria || '—';
-  const preco = fmtBRL(p.preco);
-  const estoque = Number(p.estoque ?? 0);
-  const inactive = p.is_active === false;
-  const style = inactive ? `style="opacity:.6;filter:grayscale(.2)"` : '';
+function initFiltersEvents() {
+  const $q   = qs('#f-q');
+  const $cat = qs('#f-categoria');
+  const $esp = qs('#f-especie');
+  const $mn  = qs('#f-preco-min');
+  const $mx  = qs('#f-preco-max');
+  const $sort= qs('#f-sort');
+  const $clr = qs('#f-clear');
+  const $pp  = qs('#pg-size');
 
-  return `
-  <article class="product-card" data-product-id="${id}" ${style}>
-    <img src="${img}" alt="Imagem do Produto">
-    <div class="product-card-content">
-      <span class="product-category">${esc(cat)}</span>
-      <h4 title="${esc(p.nome || '')}">${esc(p.nome || 'Sem nome')}</h4>
-      <div class="product-info">
-        <span>Preço: <strong>${preco}</strong></span>
-        <span>Estoque: <strong>${estoque} un.</strong></span>
-      </div>
-    </div>
-    <div class="product-card-footer">
-      <button class="btn edit-product-btn">Editar</button>
-      <button class="btn danger remove-product-btn">${inactive ? 'Reativar' : 'Remover'}</button>
-    </div>
-  </article>`;
-}
+  const onChange = debounced(() => {
+    STATE.q         = ($q?.value || '').trim();
+    STATE.categoria = ($cat?.value || '');
+    STATE.especie   = ($esp?.value || '');
+    STATE.precoMin  = $mn?.value ? Number($mn.value) : null;
+    STATE.precoMax  = $mx?.value ? Number($mx.value) : null;
+    STATE.sort      = ($sort?.value || '');
+    STATE.page      = 1;
+    queryAndRender();
+  }, 250);
 
-function renderGrid(list) {
-  const grid = qs('.product-grid');
-  if (!grid) return;
-  if (!list.length) {
-    grid.innerHTML = `<article class="product-card"><div class="product-card-content">Nenhum produto cadastrado.</div></article>`;
-    return;
-  }
-  grid.innerHTML = list.map(productCardHTML).join('');
-  // delegação de eventos (editar/remover)
-  grid.addEventListener('click', onGridClick, { once: true });
-}
-
-function onGridClick(e) {
-  const btn = e.target.closest('button');
-  if (!btn) {
-    e.currentTarget.addEventListener('click', onGridClick, { once: true });
-    return;
-  }
-  const card = btn.closest('.product-card');
-  const id = Number(card?.dataset.productId);
-  const prod = PRODUCTS.find(x => (x.id ?? x.id_produto) === id);
-  if (!prod) return;
-
-  if (btn.classList.contains('edit-product-btn')) {
-    openEditModal(prod);
-  } else if (btn.classList.contains('remove-product-btn')) {
-    toggledelete(prod);
-  }
-  // re-anexa para próximos cliques
-  e.currentTarget.addEventListener('click', onGridClick, { once: true });
-}
-
-/* ============== MODAL: NOVO/EDIÇÃO ============== */
-function wireProductEditModal() {
-  const modal = document.getElementById('editProductModal');
-  const closeModalBtn  = document.getElementById('close-modal-btn');
-  const cancelEditBtn  = document.getElementById('cancel-edit-btn');
-  const addProductBtn  = document.getElementById('add-product-btn');
-  const modalTitle     = document.getElementById('modal-title');
-  const form           = document.getElementById('edit-product-form');
-
-  // Campos
-  const imageInput     = document.getElementById('product-image');
-  const imagePreview   = document.getElementById('current-product-image');
-  const nameInput      = document.getElementById('product-name');
-  const priceInput     = document.getElementById('product-price');
-  const stockInput     = document.getElementById('product-stock');
-  const categoryInput  = document.getElementById('product-category');
-
-  function openModal(isNew = false, data = {}) {
-    // FIX: usa o padrão do CSS -> adicionar .active (e pode manter/remover .hidden)
-    modal.classList.remove('hidden');
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    form.reset();
-    CHANGED_FILE = null;
-
-    if (isNew) {
-      CURRENT = null;
-      modalTitle.textContent = 'Adicionar Novo Produto';
-      imagePreview.src = inlinePlaceholder('Sem imagem');
-      imagePreview.style.display = 'block';
-    } else {
-      CURRENT = data;
-      const id = data.id ?? data.id_produto;
-      modalTitle.textContent = `Editar Produto #${id}`;
-      nameInput.value     = data.nome ?? '';
-      priceInput.value    = Number(data.preco ?? 0);
-      stockInput.value    = Number(data.estoque ?? 0);
-      categoryInput.value = data.categoria ?? '';
-      imagePreview.src    = (data.imagem_url || data.imagem || '') || inlinePlaceholder(data.nome || 'Produto');
-      imagePreview.style.display = 'block';
-    }
+  $q && $q.addEventListener('input', onChange);
+  [$cat,$esp,$mn,$mx,$sort].forEach(el => el && el.addEventListener('change', onChange));
+  if ($sort) {
+    const updateSort = () => { STATE.sort = ($sort.value || ''); STATE.page = 1; queryAndRender(); };
+    $sort.addEventListener('input', updateSort);
   }
 
-  function closeModal() {
-    // FIX: remove .active e volta .hidden conforme CSS
-    modal.classList.remove('active');
-    modal.classList.add('hidden');
-    document.body.style.overflow = '';
-    form.reset();
-    imagePreview.style.display = 'none';
-    imagePreview.src = '';
-    CURRENT = null;
-    CHANGED_FILE = null;
-  }
-
-  // abrir novo
-  addProductBtn?.addEventListener('click', () => openModal(true));
-
-  // fechar
-  closeModalBtn?.addEventListener('click', closeModal);
-  cancelEditBtn?.addEventListener('click', closeModal);
-  modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-  document.addEventListener('keydown', (e) => {
-    // FIX: olha .active (não .hidden)
-    if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+  $clr && $clr.addEventListener('click', () => {
+    if ($q)   $q.value='';
+    if ($cat) $cat.value='';
+    if ($esp) $esp.value='';
+    if ($mn)  $mn.value='';
+    if ($mx)  $mx.value='';
+    if ($sort)$sort.value='';
+    Object.assign(STATE, { q:'', categoria:'', especie:'', precoMin:null, precoMax:null, sort:'', page:1 });
+    queryAndRender();
   });
 
-  // preview imagem
-  imageInput?.addEventListener('change', () => {
-    const file = imageInput.files?.[0];
-    if (!file) { CHANGED_FILE = null; imagePreview.style.display='none'; imagePreview.src=''; return; }
-    if (!file.type.startsWith('image/')) { showToast('Selecione uma imagem válida.', 'error'); imageInput.value=''; return; }
-    if (file.size > MAX_IMG_BYTES) { showToast('Imagem excede 10 MB.', 'error'); imageInput.value=''; return; }
-    CHANGED_FILE = file;
-    const url = URL.createObjectURL(file);
-    imagePreview.src = url;
-    imagePreview.style.display = 'block';
+  const prev = qs('#pg-prev'), next = qs('#pg-next');
+  prev && prev.addEventListener('click', () => { if (STATE.page>1) { STATE.page--; queryAndRender(); }});
+  next && next.addEventListener('click', () => { STATE.page++; queryAndRender(); });
+
+  $pp && $pp.addEventListener('change', () => {
+    const v = Number($pp.value) || 24;
+    STATE.perPage = v;
+    STATE.page = 1;
+    queryAndRender();
   });
+}
 
-  // submit
-  form?.addEventListener('submit', async (event) => {
-    event.preventDefault();
+/* ============================  CARRINHO  ============================== */
+let ADD_CART_HANDLER_BOUND = false;
+function bindAddToCart() {
+  if (ADD_CART_HANDLER_BOUND) return;
+  ADD_CART_HANDLER_BOUND = true;
 
-    const payload = {
-      nome: (nameInput.value || '').trim(),
-      preco: Number(priceInput.value),
-      estoque: Number(stockInput.value),
-      categoria: categoryInput.value || null,
-    };
+  document.body.addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-add]');
+    if (!btn) return;
+
+    const card = btn.closest('.product-card');
+    const pid  = card?.getAttribute('data-product-id');
+    if (!pid) return;
+
+    // trava anti-duplo clique
+    if (btn.dataset.loading === '1') return;
+    btn.dataset.loading = '1';
+
+    const old = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Adicionando...';
 
     try {
-      if (CHANGED_FILE) {
-        payload.imagem = await toDataURL(CHANGED_FILE); // casa com _set_image_from_payload
-      }
+      await fetchJSON(`${API_BASE}/carrinho/items`, {
+        method:'POST',
+        body: JSON.stringify({ id_produto: Number(pid), quantidade: 1, modo: 'INCLUIR' }),
+      });
+      btn.textContent = 'Adicionado!';
+      showToast('Adicionado ao carrinho', 'success');
+      window.dispatchEvent(new CustomEvent('cart:updated'));
     } catch (err) {
-      showToast(err.message || 'Erro ao processar a imagem.', 'error');
-      return;
-    }
-
-    const btn = form.querySelector('button[type="submit"]');
-    const old = btn?.textContent;
-    if (btn) { btn.disabled = true; btn.textContent = 'Salvando…'; }
-
-    try {
-      let result;
-      if (CURRENT) {
-        // PATCH /produtos/:id
-        const id = CURRENT.id ?? CURRENT.id_produto;
-        result = await fetchJSON(`${API_BASE}/produtos/${id}`, {
-          method: 'PATCH',
-          body: JSON.stringify(payload),
-        });
-        // Atualiza cache
-        const idx = PRODUCTS.findIndex(x => (x.id ?? x.id_produto) === id);
-        if (idx >= 0) PRODUCTS[idx] = result;
-        // Atualiza card
-        const card = qs(`.product-card[data-product-id="${id}"]`);
-        if (card) card.outerHTML = productCardHTML(result);
-        showToast('Produto atualizado com sucesso!', 'success');
+      btn.textContent = 'Erro! Tente de novo';
+      if ((err.message || '').includes('401')) {
+        showToast('Faça login para adicionar ao carrinho', 'error');
       } else {
-        // POST /produtos
-        result = await fetchJSON(`${API_BASE}/produtos`, {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        });
-        // Adiciona no topo e re-renderiza
-        PRODUCTS.unshift(result);
-        renderGrid(PRODUCTS);
-        showToast('Produto criado com sucesso!', 'success');
+        showToast('Erro de banco de dados.', 'error');
       }
-      closeModal();
-    } catch (err) {
-      const p = err.payload || {};
-      if (p.error === 'validation_error') showToast(p.message || 'Erro de validação.', 'error');
-      else if (p.error === 'database_error') showToast('Erro de banco de dados.', 'error');
-      else showToast(p.message || err.message || 'Erro ao salvar produto.', 'error');
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = old; }
+      setTimeout(() => { btn.textContent = old; btn.disabled = false; btn.dataset.loading = '0'; }, 900);
     }
   });
-
-  // expõe função para abrir a partir da grid
-  window.__openProductModal = openModal;
 }
 
-function openEditModal(prod) {
-  window.__openProductModal?.(false, prod);
-}
-
-function confirmDialog({ 
-  title = 'Confirmar ação', 
-  message = 'Tem certeza?', 
-  confirmText = 'Confirmar', 
-  cancelText = 'Cancelar' 
-} = {}) {
-  return new Promise((resolve) => {
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay active';
-    overlay.setAttribute('role', 'dialog');
-    overlay.setAttribute('aria-modal', 'true');
-
-    overlay.innerHTML = `
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>${title}</h2>
-          <button class="close-btn" aria-label="Fechar">&times;</button>
-        </div>
-        <div class="modal-body" style="color: var(--muted); line-height:1.5;">
-          <p>${message}</p>
-        </div>
-        <div class="modal-footer">
-          <button class="btn" data-cancel>${cancelText}</button>
-          <button class="btn danger" data-confirm>${confirmText}</button>
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(overlay);
-    document.body.style.overflow = 'hidden';
-
-    const closeBtn = overlay.querySelector('.close-btn');
-    const btnCancel = overlay.querySelector('[data-cancel]');
-    const btnConfirm = overlay.querySelector('[data-confirm]');
-
-    const cleanup = (val) => {
-      overlay.classList.remove('active');
-      setTimeout(() => {
-        overlay.remove();
-        document.body.style.overflow = '';
-        resolve(val);
-      }, 150);
-    };
-
-    closeBtn.addEventListener('click', () => cleanup(false));
-    btnCancel.addEventListener('click', () => cleanup(false));
-    btnConfirm.addEventListener('click', () => cleanup(true));
-
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) cleanup(false);
-    });
-
-    const onKey = (e) => {
-      if (e.key === 'Escape') cleanup(false);
-    };
-    document.addEventListener('keydown', onKey, { once: true });
-
-    // foco inicial
-    setTimeout(() => btnConfirm.focus(), 0);
-  });
-}
-
-/* ============== REMOVER/REATIVAR (SOFT DELETE) ============== */
-async function toggledelete(prod) {
-  const id = prod.id ?? prod.id_produto;
-
-  // tela de confirmação
-  const ok = await confirmDialog({
-    title: 'Remover produto?',
-    message: `Tem certeza que deseja remover <strong>${esc(prod.nome || 'este produto')}</strong>? Essa ação não poderá ser desfeita.`,
-    confirmText: 'Remover',
-    cancelText: 'Cancelar'
-  });
-  if (!ok) return;
-
+/* ---------- bootstrap ---------- */
+async function loadAndRender() {
   try {
-    const res = await fetchJSON(`${API_BASE}/produtos/${id}`, { method: 'DELETE' });
-
-    // toast de sucesso
-    showToast(res?.message || 'Produto removido com sucesso!', 'success');
-
-    // remove da UI e do cache
-    PRODUCTS = PRODUCTS.filter(x => (x.id ?? x.id_produto) !== id);
-    const card = document.querySelector(`.product-card[data-product-id="${id}"]`);
-    if (card) card.remove();
-
-    // se preferir, re-renderize tudo:
-    // renderGrid(PRODUCTS);
-
+    ensureFiltersUI();
+    await loadStaticOptions();
+    await queryAndRender();
+    initFiltersEvents();
+    bindAddToCart();
   } catch (err) {
-    const p = err.payload || {};
-    showToast(p.message || err.message || 'Erro ao remover produto.', 'error');
+    console.error('Falha no bootstrap dos produtos:', err);
+    showToast('Erro ao carregar página.', 'error');
   }
 }
-

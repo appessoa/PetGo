@@ -7,6 +7,10 @@ const MAX_IMG_BYTES = 10 * 1024 * 1024;  // 10 MB (igual ao service)
 
 /* ========================== BOOT ========================== */
 document.addEventListener('DOMContentLoaded', () => {
+  const categorySelect = document.getElementById('product-category');
+  const especieSelect = document.getElementById('product-especie');
+  loadCategoriasOptions(categorySelect);
+  loadespeciesOptions(especieSelect);
   // UI existente
   wireVetModal();
   wireVetAccordion();
@@ -190,6 +194,8 @@ function wireProductForm() {
   const priceInput  = qs('#product-price', form);
   const stockInput  = qs('#product-stock', form);
   const categorySel = qs('#product-category', form);
+  const descriptioninput = qs('#description', form);
+  const especiesInput = qs('#product-especie',form);
 
   const fileInput   = qs('#photo-product', form);
   const fileDrop    = qs('.file-drop', form);
@@ -303,6 +309,8 @@ function wireProductForm() {
     const preco = priceInput?.value;
     const estoque = stockInput?.value;
     const categoria = categorySel?.value || null;
+    const descricao = descriptioninput?.value || null;
+    const especies = especiesInput?.value || null;
 
     let hasErr = false;
     if (!nome) { fieldError(nameInput, 'Nome é obrigatório.'); hasErr = true; }
@@ -316,7 +324,8 @@ function wireProductForm() {
       preco: Number(preco),
       estoque: estoque === '' ? 0 : Number(estoque),
       categoria,
-      
+      descricao : descricao,
+      especie: especies
     };
 
     const file = fileInput?.files?.[0];
@@ -382,3 +391,41 @@ async function setProdutoEstoque(id, estoque) {
   });
 }
 
+
+async function loadCategoriasOptions(selectEl, selectedKey = '') {
+  if (!selectEl) return;
+  // placeholder enquanto carrega
+  selectEl.innerHTML = `<option value="">Carregando…</option>`;
+
+  try {
+    const categorias = await fetchJSON(`${API_BASE}/api/produtos/categorias`);
+    const opts = [
+      `<option value="" disabled ${selectedKey ? '' : 'selected'}>Selecione…</option>`,
+      ...categorias.map(c => `<option value="${c.key}">${c.value}</option>`)
+    ];
+    selectEl.innerHTML = opts.join('');
+    if (selectedKey) selectEl.value = selectedKey; // seleciona ao editar
+  } catch (e) {
+    selectEl.innerHTML = `<option value="">Erro ao carregar categorias</option>`;
+    console.error(e);
+  }
+}
+
+async function loadespeciesOptions(selectEl, selectedKey = '') {
+  if (!selectEl) return;
+  // placeholder enquanto carrega
+  selectEl.innerHTML = `<option value="">Carregando…</option>`;
+
+  try {
+    const categorias = await fetchJSON(`${API_BASE}/api/produtos/especies`);
+    const opts = [
+      `<option value="" disabled ${selectedKey ? '' : 'selected'}>Selecione…</option>`,
+      ...categorias.map(c => `<option value="${c.key}">${c.value}</option>`)
+    ];
+    selectEl.innerHTML = opts.join('');
+    if (selectedKey) selectEl.value = selectedKey; // seleciona ao editar
+  } catch (e) {
+    selectEl.innerHTML = `<option value="">Erro ao carregar categorias</option>`;
+    console.error(e);
+  }
+}
