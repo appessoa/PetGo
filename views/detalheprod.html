@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Produto - PetGo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="/public/CSS/detalheprod.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="product-container">
+        
+        <nav class="breadcrumbs">
+            <a href="#">Pet Shop</a> &gt;
+            <a href="#">Gatos</a> &gt;
+            <a href="#">Areias e Banheiros</a> &gt;
+            <span>Areias</span>
+        </nav>
+
+        <div class="product-layout">
+            <div class="image-gallery">
+                <div class="main-image">
+                    <img id="mainProductImage" src="https://i.imgur.com/8QAYxwa.png" alt="Granulado Higiênico de Milho e Mandioca">
+                </div>
+                <div class="thumbnails">
+                    <img src="https://i.imgur.com/8QAYxwa.png" alt="Thumbnail 1" class="active">
+                    <img src="https://i.imgur.com/n1ABV2K.png" alt="Thumbnail 2">
+                    <img src="https://i.imgur.com/1B9qRDr.png" alt="Thumbnail 3">
+                    <img src="https://i.imgur.com/T0b49iU.png" alt="Thumbnail 4">
+                </div>
+                <p class="image-disclaimer">* Imagens meramente ilustrativas</p>
+            </div>
+
+            <div class="product-details">
+                <h1 class="product-title">Granulado Higiênico Petz Biodegradável Milho e Mandioca Grãos Finos para Gatos</h1>
+                
+                <div class="product-meta">
+                    <span>Código: 20035570000088</span> |
+                    <div class="star-rating" title="6 avaliações">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"></path></svg>
+                        <span>(6 avaliações)</span>
+                    </div> |
+                    <span class="stock-status">Em estoque</span>
+                </div>
+
+                <div class="product-price">R$ 62,99</div>
+                
+                <div class="actions">
+                    <div class="quantity-selector">
+                        <button id="decrease-qty">-</button>
+                        <input type="number" id="quantity-input" value="1" min="1">
+                        <button id="increase-qty">+</button>
+                    </div>
+                    <button class="add-to-cart-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                        Adicionar à sacola
+                    </button>
+                    <button class="wishlist-btn" aria-label="Adicionar à lista de desejos">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    </button>
+                </div>
+                
+                <div class="store-availability">
+                    <p>Quer comprar este produto na loja física? <a href="#">Consulte nosso estoque</a></p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+<script src="/public\js\detalheprod.js"></script>
+</body>
+</html>
