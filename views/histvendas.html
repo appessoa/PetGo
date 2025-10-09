@@ -111,7 +111,56 @@
     </section>
 
   </main>
-  
-  <script type="module" src="/public/js/admin.js"></script>
+      <!-- Modal Detalhes do Pedido -->
+      <div id="orderModal" class="modal" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
+          <header class="modal-header">
+            <h3 id="orderModalTitle">Pedido</h3>
+            <button class="modal-close" aria-label="Fechar">×</button>
+          </header>
+
+          <section class="modal-body">
+            <div class="order-head">
+              <div>
+                <div class="order-id-status">
+                  <span class="order-id">#—</span>
+                  <span class="pill pill-muted">status</span>
+                </div>
+                <div class="order-meta">
+                  <span class="meta-item" data-ord-date>—</span>
+                  <span class="meta-item" data-ord-user>—</span>
+                  <span class="meta-item" data-ord-email>—</span>
+                </div>
+              </div>
+              <div class="order-total">
+                <small>Total</small>
+                <strong data-ord-total>R$ 0,00</strong>
+              </div>
+            </div>
+
+            <div class="order-items-wrap">
+              <table class="custom-table modal-table">
+                <thead>
+                  <tr>
+                    <th>Produto</th>
+                    <th>Qtd</th>
+                    <th>Unitário</th>
+                    <th>Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody id="orderItemsBody">
+                  <!-- itens via JS -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <footer class="modal-footer">
+            <button class="btn" id="printOrder">Imprimir</button>
+            <button class="btn primary" id="closeOrderModal">Fechar</button>
+          </footer>
+        </div>
+      </div>
+  <script type="module" src="/public/js/dashboardVenda.js"></script>
 </body>
 </html>

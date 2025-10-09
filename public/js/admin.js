@@ -125,7 +125,61 @@ async function loadVeterinariosRecentes() {
 }
 
 /* ========================== VENDAS (placeholder) ========================== */
-function loadVendasRecentes() {
+/* ===== helpers de formatação (adicione perto dos outros helpers) ===== */
+function formatCurrencyBRL(v) {
+  const n = Number(v || 0);
+  try {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(n);
+  } catch {
+    return `R$ ${n.toFixed(2).replace('.', ',')}`;
+  }
+}
+
+function formatDateTimeBR(dt) {
+  // aceita Date, ISO string, ou já formatada
+  try {
+    const d = (dt instanceof Date) ? dt : new Date(dt);
+    if (isNaN(d.getTime())) return escapeHTML(dt ?? '');
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const yyyy = d.getFullYear();
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mi = String(d.getMinutes()).padStart(2,'0');
+    return `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
+  } catch {
+    return escapeHTML(dt ?? '');
+  }
+}
+
+function renderOrderStatus(statusRaw) {
+  const s = String(statusRaw ?? '').toUpperCase();
+  const classMap = {
+    'FINALIZADO': 'active',
+    'PAGO': 'active',
+    'EM_PROCESSAMENTO': 'active',
+    'CANCELADO': 'inactive',
+    'PENDENTE': 'inactive',
+  };
+  const cls = classMap[s] || 'active';
+  return `<span class="status ${cls}">${escapeHTML(s || '—')}</span>`;
+}
+
+/* tenta múltiplas URLs até conseguir um 200 válido */
+async function tryFetchFirstJSON(urls) {
+  let lastErr = null;
+  for (const u of urls) {
+    try {
+      return await fetchJSON(u);
+    } catch (e) {
+      lastErr = e;
+      // continua tentando as próximas
+    }
+  }
+  if (lastErr) throw lastErr;
+  throw new Error('Nenhuma rota de vendas respondeu.');
+}
+/* ========================== VENDAS (últimas 5 via /api/orders/admin) ========================== */
+async function loadVendasRecentes() {
   const sec = [...document.querySelectorAll('.content-card')].find(sec => {
     const h2 = sec.querySelector('.card-header h2');
     return h2 && /Vendas Recentes/i.test(h2.textContent);
@@ -145,8 +199,60 @@ function loadVendasRecentes() {
         <th>Data</th>
       </tr>
     </thead>
-    <tbody><tr><td colspan="5">Integre aqui sua rota de vendas.</td></tr></tbody>`;
+    <tbody>
+      <tr><td colspan="5">Carregando…</td></tr>
+    </tbody>`;
+  const tbody = table.querySelector('tbody');
+
+  try {
+    // Controller: pedidoController.admin_list_orders
+    const url = `${API_BASE}/api/admin/orders/?per_page=5&page=1`;
+    const data = await fetchJSON(url);
+    console.log(data);
+    
+    // O service pode devolver: array direto, ou {items: [...]}, {orders: [...]}, {pedidos: [...]}, {data: [...]}
+    const list = Array.isArray(data)
+      ? data
+      : (data.items || data.orders || data.pedidos || data.data || []);
+
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="5">Nenhuma venda encontrada.</td></tr>`;
+      return;
+    }
+
+    const rows = list.slice(0, 5).map(o => {
+      const id = o.id_pedido ?? o.id ?? '—';
+      // tenta aninhado (cliente), ou user (se o controller incluir)
+      const cliente =
+        (o.cliente && (o.cliente.nome || o.cliente.name)) ||
+        (o.user && (o.user.user_name || o.user.username)) ||
+        o.user_name || '—';
+
+      const total = (o.total != null ? o.total
+                   : (o.valor_total != null ? o.valor_total
+                   : (o.subtotal != null ? o.subtotal : 0)));
+
+      const status = o.status ?? '—';
+      const dataCriacao = o.created_at ?? o.data ?? o.data_pedido ?? '';
+
+      return `
+        <tr>
+          <td>#${escapeHTML(id)}</td>
+          <td>${escapeHTML(cliente)}</td>
+          <td>${formatCurrencyBRL(total)}</td>
+          <td>${renderOrderStatus(status)}</td>
+          <td>${formatDateTimeBR(dataCriacao)}</td>
+        </tr>`;
+    });
+
+    tbody.innerHTML = rows.join('');
+  } catch (e) {
+    console.error('Erro ao carregar vendas:', e);
+    tbody.innerHTML = `<tr><td colspan="5">Erro ao carregar vendas.</td></tr>`;
+  }
 }
+
+
 
 /* ========================== MODAL VETS ========================== */
 function wireVetModal() {

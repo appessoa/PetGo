@@ -9,7 +9,6 @@ def _validate_payload(data: dict, required: list[str]) -> list[str]:
 
 class addressController:
 
-
     def list_addresses(user_id):
         User.query.get_or_404(user_id)  # valida existência
         addrs = AddressService.list_by_user(user_id)

@@ -33,11 +33,6 @@ main.container {
   margin-bottom: 60px; /* Espaço antes do footer, se a main não tiver padding-bottom suficiente */
 }
 
-/* ESTILOS DA COLUNA DO FORMULÁRIO */
-.form-column {
-  /* Pode adicionar estilos de fundo ou sombra se quiser que a coluna em si seja um card */
-}
-
 form#agendamentoForm {
   background: var(--card);
   padding: 32px;

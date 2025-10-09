@@ -31,10 +31,26 @@ async function getCart() {
 async function getProduto(id) {
   return fetchJSON(`${API_BASE}/produtos/${id}`);
 }
-async function setQtd(id_produto, quantidade) {
+
+// SETAR quantidade explicitamente (valor digitado)
+async function setQtdSetar(id_produto, quantidade) {
   const body = JSON.stringify({ id_produto: Number(id_produto), quantidade: Number(quantidade), modo: 'SETAR' });
   return fetchJSON(`${API_BASE}/carrinho/items`, { method:'POST', body });
 }
+
+// INCLUIR +1
+async function incluirUm(id_produto) {
+  const body = JSON.stringify({ id_produto: Number(id_produto), quantidade: 1, modo: 'INCLUIR' });
+  return fetchJSON(`${API_BASE}/carrinho/items`, { method:'POST', body });
+}
+
+// REMOVER -1 (se chegar a 0, o back remove o item)
+async function removerUm(id_produto) {
+  const body = JSON.stringify({ id_produto: Number(id_produto), quantidade: 1, modo: 'REMOVER' });
+  console.log(body)
+  return fetchJSON(`${API_BASE}/carrinho/items`, { method:'POST', body });
+}
+
 async function removeItem(id_cart_item) {
   return fetchJSON(`${API_BASE}/carrinho/items/${id_cart_item}`, { method: 'DELETE' });
 }
@@ -88,7 +104,7 @@ function itemCardHTML(item) {
   const qtd  = item.quantidade ?? 1;
   const subtotal = unit * qtd;
 
-  // ⚠️ guardamos os DOIS ids: id_cart_item (para remover) e id_produto (para setar quantidade)
+  // guardamos os DOIS ids: id_cart_item (remover) e id_produto (alterar qtd)
   return `
   <article class="cart-item-card"
            data-cart-item-id="${esc(item.id_cart_item)}"
@@ -100,7 +116,7 @@ function itemCardHTML(item) {
       <div class="item-actions">
         <div class="quantity-control">
           <button class="btn-qty" data-dec aria-label="Diminuir">-</button>
-          <input type="number" value="${esc(qtd)}" min="1" class="qty-input" aria-label="Quantidade">
+          <input type="number" value="${esc(qtd)}" min="1" class="qty-input" aria-label="Quantidade" style="margin-bottom:0;">
           <button class="btn-qty" data-inc aria-label="Aumentar">+</button>
         </div>
         <button class="btn-remove">Remover</button>
@@ -145,12 +161,12 @@ async function renderCart() {
       const msg = (err.message||'').includes('401') ? 'Faça login para ver seu carrinho.' : 'Não foi possível carregar seu carrinho.';
       container.innerHTML = `<div class="card" style="padding:16px;"><p class="subtitle">${esc(msg)}</p></div>`;
     }
-    showToast(err.message || 'Erro de banco de dados.', 'error');
+    showToast('Erro de banco de dados.', 'error');
   }
 }
 
 /* Interações */
-const busyKeys = new Set(); // evita chamadas duplicadas (por item/ação)
+const busyKeys = new Set(); // evita chamadas duplicadas por item
 let CART_EVENTS_BOUND = false;
 
 function bindCartEvents() {
@@ -166,35 +182,44 @@ function bindCartEvents() {
 
     const cartItemId = card.getAttribute('data-cart-item-id');
     const prodId     = card.getAttribute('data-prod-id');
-    const input      = card.querySelector('.qty-input');
 
-    // + / -
-    if (e.target.matches('[data-inc]') || e.target.matches('[data-dec]')) {
-      const delta   = e.target.matches('[data-inc]') ? 1 : -1;
-      const current = Math.max(1, parseInt(input.value || '1', 10));
-      const next    = Math.max(1, current + delta);
-      if (next === current) return;
-
-      const key = `q:${prodId}`;
+    // Incrementar (+1 via INCLUIR)
+    if (e.target.matches('[data-inc]')) {
+      const key = `inc:${prodId}`;
       if (busyKeys.has(key)) return;
       busyKeys.add(key);
-
       try {
-        await setQtd(prodId, next);
-        showToast('Quantidade atualizada', 'success');
-        await renderCart();                       // ✅ atualiza tabela
+        await incluirUm(prodId);
+        await renderCart();
         window.dispatchEvent(new CustomEvent('cart:updated'));
       } catch (err) {
-        showToast(err.message || 'Erro de banco de dados.', 'error');
+        showToast('Erro de banco de dados.', 'error');
       } finally {
         busyKeys.delete(key);
       }
       return;
     }
 
-    // Remover
+    // Diminuir (-1 via REMOVER) — o back subtrai e, se zerar, apaga o item
+    if (e.target.matches('[data-dec]')) {
+      const key = `dec:${prodId}`;
+      if (busyKeys.has(key)) return;
+      busyKeys.add(key);
+      try {
+        await removerUm(prodId);
+        await renderCart();
+        window.dispatchEvent(new CustomEvent('cart:updated'));
+      } catch (err) {
+        showToast('Erro de banco de dados.', 'error');
+      } finally {
+        busyKeys.delete(key);
+      }
+      return;
+    }
+
+    // Remover item (excluir de vez)
     if (e.target.matches('.btn-remove')) {
-      const key = `r:${cartItemId}`;
+      const key = `rm:${cartItemId}`;
       if (busyKeys.has(key)) return;
       busyKeys.add(key);
 
@@ -204,10 +229,10 @@ function bindCartEvents() {
       try {
         await removeItem(cartItemId);
         showToast('Item removido', 'success');
-        await renderCart();                       // ✅ atualiza tabela
+        await renderCart();
         window.dispatchEvent(new CustomEvent('cart:updated'));
       } catch (err) {
-        showToast(err.message || 'Erro de banco de dados.', 'error');
+        showToast('Erro de banco de dados.', 'error');
       } finally {
         busyKeys.delete(key);
         btn.disabled = false; btn.textContent = old;
@@ -215,7 +240,7 @@ function bindCartEvents() {
     }
   });
 
-  // Digitar quantidade
+  // Digitar quantidade manualmente -> SETAR
   sec.addEventListener('change', async (e) => {
     const input = e.target.closest('.qty-input');
     if (!input) return;
@@ -225,17 +250,17 @@ function bindCartEvents() {
     let next = parseInt(input.value || '1', 10);
     if (!Number.isFinite(next) || next < 1) next = 1;
 
-    const key = `q:${prodId}`;
+    const key = `set:${prodId}`;
     if (busyKeys.has(key)) return;
     busyKeys.add(key);
 
     try {
-      await setQtd(prodId, next);
+      await setQtdSetar(prodId, next);
       showToast('Quantidade atualizada', 'success');
-      await renderCart();                         // ✅ atualiza tabela
+      await renderCart();
       window.dispatchEvent(new CustomEvent('cart:updated'));
     } catch (err) {
-      showToast(err.message || 'Erro de banco de dados.', 'error');
+      showToast('Erro de banco de dados.', 'error');
       await renderCart();
     } finally {
       busyKeys.delete(key);

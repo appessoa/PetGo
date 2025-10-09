@@ -375,8 +375,33 @@ async function loadAndRender() {
     await queryAndRender();
     initFiltersEvents();
     bindAddToCart();
+    bindNavigateToDetail();
   } catch (err) {
     console.error('Falha no bootstrap dos produtos:', err);
     showToast('Erro ao carregar página.', 'error');
   }
+}
+
+
+/* =================== NAVEGAÇÃO PARA DETALHES =================== */
+const PRODUCT_DETAIL_URL = '/detail'; // ajuste se sua rota for diferente
+
+let NAV_HANDLER_BOUND = false;
+function bindNavigateToDetail() {
+  if (NAV_HANDLER_BOUND) return;
+  NAV_HANDLER_BOUND = true;
+
+  document.body.addEventListener('click', (e) => {
+    // se clicou no botão de adicionar, não navega
+    if (e.target.closest('button[data-add]')) return;
+
+    const card = e.target.closest('.product-card');
+    if (!card) return;
+
+    const pid = card.getAttribute('data-product-id');
+    if (!pid) return;
+
+    // vai para a página de detalhes com o id na query
+    window.location.href = `${PRODUCT_DETAIL_URL}?id=${encodeURIComponent(pid)}`;
+  });
 }

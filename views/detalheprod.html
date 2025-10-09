@@ -1,79 +1,122 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalhes do Produto - PetGo</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="/public/CSS/detalheprod.css">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PetGo — Detalhes do Produto</title>
+
+  <!-- Estilos globais e componentes -->
+  <link rel="stylesheet" href="/public/CSS/style.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="/public/CSS/dropdown.css">
+  <link rel="stylesheet" href="/public/CSS/toast.css">
+
+  <!-- Estilo específico da página de detalhes -->
+  <link rel="stylesheet" href="/public/CSS/detalheprod.css">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- header oficial -->
+  <header>
+    <div class="container header-inner" id="Header"></div>
+  </header>
 
-    <div class="product-container">
-        
-        <nav class="breadcrumbs">
-            <a href="#">Pet Shop</a> &gt;
-            <a href="#">Gatos</a> &gt;
-            <a href="#">Areias e Banheiros</a> &gt;
-            <span>Areias</span>
-        </nav>
+<main class="container product-page">
+  <!-- breadcrumbs fora do card (como no print) -->
+  <nav class="breadcrumbs" aria-label="breadcrumb" style="margin: 12px 0;">
+    <a href="/">Pet Shop</a> &gt;
+    <a href="/produtos" data-bc-especie>GATO</a> &gt;
+    <a href="/produtos" data-bc-categoria>SACHE</a> &gt;
+    <span>Detalhes</span>
+  </nav>
 
-        <div class="product-layout">
-            <div class="image-gallery">
-                <div class="main-image">
-                    <img id="mainProductImage" src="https://i.imgur.com/8QAYxwa.png" alt="Granulado Higiênico de Milho e Mandioca">
-                </div>
-                <div class="thumbnails">
-                    <img src="https://i.imgur.com/8QAYxwa.png" alt="Thumbnail 1" class="active">
-                    <img src="https://i.imgur.com/n1ABV2K.png" alt="Thumbnail 2">
-                    <img src="https://i.imgur.com/1B9qRDr.png" alt="Thumbnail 3">
-                    <img src="https://i.imgur.com/T0b49iU.png" alt="Thumbnail 4">
-                </div>
-                <p class="image-disclaimer">* Imagens meramente ilustrativas</p>
-            </div>
-
-            <div class="product-details">
-                <h1 class="product-title">Granulado Higiênico Petz Biodegradável Milho e Mandioca Grãos Finos para Gatos</h1>
-                
-                <div class="product-meta">
-                    <span>Código: 20035570000088</span> |
-                    <div class="star-rating" title="6 avaliações">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"></path></svg>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"></path></svg>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"></path></svg>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"></path></svg>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"></path></svg>
-                        <span>(6 avaliações)</span>
-                    </div> |
-                    <span class="stock-status">Em estoque</span>
-                </div>
-
-                <div class="product-price">R$ 62,99</div>
-                
-                <div class="actions">
-                    <div class="quantity-selector">
-                        <button id="decrease-qty">-</button>
-                        <input type="number" id="quantity-input" value="1" min="1">
-                        <button id="increase-qty">+</button>
-                    </div>
-                    <button class="add-to-cart-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-                        Adicionar à sacola
-                    </button>
-                    <button class="wishlist-btn" aria-label="Adicionar à lista de desejos">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                    </button>
-                </div>
-                
-                <div class="store-availability">
-                    <p>Quer comprar este produto na loja física? <a href="#">Consulte nosso estoque</a></p>
-                </div>
-
-            </div>
+  <!-- ✅ apenas UM card aqui -->
+  <section class="product-container card">
+    <div class="product-layout">
+      <!-- ❌ sem class="card" aqui -->
+      <div class="image-gallery">
+        <div class="main-image">
+          <img id="mainProductImage" src="/public/img/placeholder-product.png" alt="Imagem do produto selecionado">
         </div>
+        <div class="thumbnails"></div>
+        <p class="image-disclaimer subtitle">* Imagens meramente ilustrativas</p>
+      </div>
+
+      <!-- ❌ sem class="card" aqui -->
+      <div class="product-details">
+            <h1 class="product-title">Produto</h1>
+
+            <div class="product-meta">
+                <span class="stock-status">Em estoque</span>
+                <span class="meta-sep">|</span>
+                <span class="product-code">Cód. #—</span>
+            </div>
+
+            <!-- ✅ descrição agora acima do preço -->
+            <p class="product-description"></p>
+
+            <div class="product-price">R$ 0,00</div>
+
+            <div class="actions">
+                <div class="quantity-selector">
+                <button id="decrease-qty" class="btn" aria-label="Diminuir">-</button>
+                <input type="number" id="quantity-input" value="1" min="1" aria-label="Quantidade" style="box-shadow: none; margin-bottom: 0;"/>
+                <button id="increase-qty" class="btn" aria-label="Aumentar">+</button>
+                </div>
+                <button class="add-to-cart-btn btn primary" style="min-width:220px;">Adicionar à sacola</button>
+            </div>
+            </div>
+
     </div>
-<script src="/public\js\detalheprod.js"></script>
+  </section>
+</main>
+
+
+  <!-- footer oficial -->
+  <footer id="contato">
+    <div class="container footer-inner">
+      <div>
+        <div class="logo"><span class="paw">🐾</span> PetGo</div>
+        <p class="subtitle">Cuidando do seu pet com carinho e tecnologia.</p>
+      </div>
+
+      <div class="links">
+        <strong>Links</strong>
+        <a href="#">Sobre</a>
+        <a href="#">FAQ</a>
+        <a href="#">Política de Privacidade</a>
+      </div>
+
+      <div class="novidades-sociais">
+        <div class="novidades">
+          <strong>Novidades</strong>
+          <p class="subtitle">Receba ofertas e novidades.</p>
+          <form class="form-novidades" onsubmit="event.preventDefault(); alert('Inscrição realizada!');">
+            <input type="email" placeholder="Seu e-mail" required>
+            <button class="btn primary" type="submit">Cadastrar</button>
+          </form>
+        </div>
+        
+        <div class="redes-sociais">
+          <strong>Redes Sociais</strong>
+          <div class="social">
+            <a href="#" class="badge" title="Visite nosso instagram">
+              <img src="/public/img/instagram-icon.svg" alt="Instagram">
+            </a>
+            <a href="#" class="badge" title="Visite nosso Facebook">
+              <img src="/public/img/facebook-icon.svg" alt="Facebook">
+            </a>
+            <a href="#" class="badge" title="Visite nosso Tiktok">
+              <img src="/public/img/tiktok-icon.svg" alt="TikTok">
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JS da página (módulo para importar header/updateCartCount) -->
+  <script type="module" src="/public/js/detalheprod.js"></script>
 </body>
 </html>

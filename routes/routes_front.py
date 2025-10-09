@@ -85,3 +85,7 @@ def produtosadmin():
 @admin_required
 def histvendas():
     return render_template('histvendas.html')
+
+@front_bp.route('/detail')
+def detail_product():
+    return render_template('detalheprod.html')

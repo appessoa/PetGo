@@ -6,3 +6,4 @@ from enum import Enum, unique
 class modos(Enum):
     INCLUIR = 'inc'
     SETAR = 'set'    
+    REMOVER = 'REMOVER'

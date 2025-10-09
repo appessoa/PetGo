@@ -143,7 +143,7 @@ class UsersController:
     def my_orders():
         uid, err = _require_login()
         if err: return err
-        orders = Order.query.filter_by(user_id=uid).order_by(Order.id_pedido.desc()).all()
+        orders = Order.query.filter_by(user_id=uid).order_by(Order.id_pedido.desc()).limit(5).all()
 
         def ser(o: Order):
             if hasattr(o, "to_dict"):

@@ -26,6 +26,10 @@ class Config:
     Endereco = os.getenv("Endereco", "Rua Exemplo, 123")
     Telefone = os.getenv("Telefone", "(11) 91234-5678")
     CPF = os.getenv("CPF", "123.456.789-00")
-    
+    nome= os.getenv("nome"),
+    cnpj = os.getenv("cnpj"),
+    endereco_empresa = os.getenv("endereco_empresa"),
+    contato = os.getenv("contato")
+    logo_b64 = os.getenv("logo_b64")
 
 config = Config()

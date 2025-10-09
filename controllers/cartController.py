@@ -15,6 +15,7 @@ class cartController:
             return int(uid)
         except (TypeError, ValueError):
             raise Unauthorized("Sessão inválida")
+        
     @staticmethod
     def get_my_cart():
         uid = cartController._get_uid()
@@ -32,7 +33,7 @@ class cartController:
             id_produto  = int(data.get("id_produto"))
             quantidade  = int(data.get("quantidade") or 1)
             modo = data.get("modo") or modos.INCLUIR.value  # default inclui
-            if modo not in (modos.INCLUIR.value, modos.SETAR.value):
+            if not modos[modo]:
                 modo = modos.INCLUIR.value
         except (TypeError, ValueError):
             raise BadRequest("Payload inválido")

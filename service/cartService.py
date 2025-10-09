@@ -27,39 +27,51 @@ def get_or_create_my_cart(uid : int) -> Cart:
     return cart
 
 
-def add_or_set_item(uid: int, id_produto: int, quantidade: int, *, modo: str = modos.SETAR.value) -> CartItem:
-    if quantidade <= 0:
+
+def add_or_set_item(uid: int, id_produto: int, quantidade: int, *, modo: str = modos.SETAR.value) -> CartItem | None:
+    if quantidade <= 0 and modo != modos.REMOVER.value:
         raise ValueError("Quantidade deve ser maior que 0")
 
     cart = get_or_create_my_cart(uid)
 
-    # busca produto
     prod: produto = db.session.get(produto, id_produto)
     if not prod or not getattr(prod, "is_active", True):
         raise ValueError("Produto indisponível")
 
-    # pegue o preço do campo correto do seu modelo
     preco_unit = float(prod.preco)
 
-    # procura item existente
     item = (
         db.session.execute(
             select(CartItem)
-            .where(CartItem.id_cart == cart.id_cart, CartItem.id_produto == id_produto, CartItem.is_active == True, CartItem.deleted == 0 )
+            .where(CartItem.id_cart == cart.id_cart, CartItem.id_produto == id_produto, CartItem.is_active == True, CartItem.deleted == 0)
             .limit(1)
         ).scalars().first()
     )
 
     if item:
-        nova_qtd = item.quantidade + quantidade if modo == modos.INCLUIR.value else quantidade
-        item.quantidade = nova_qtd
-        item.preco_unitario = preco_unit
+        if modo == modos.INCLUIR.name:
+            item.quantidade = item.quantidade + quantidade
+            item.preco_unitario = preco_unit
+
+        elif modo == modos.REMOVER.name:
+            nova_qtd = item.quantidade - max(1, quantidade)
+            if nova_qtd <= 0:
+                deleted_produto(item.id_cart_item)
+                return None
+            item.quantidade = nova_qtd
+            item.preco_unitario = preco_unit
+
+        elif modo == modos.SETAR.name:  # SETAR
+            item.quantidade = quantidade
+            item.preco_unitario = preco_unit
     else:
+        if modo == modos.REMOVER.name:
+            return None
         item = CartItem(
             id_cart=cart.id_cart,
             id_produto=id_produto,
             quantidade=quantidade,
-            preco_unitario=preco_unit
+            preco_unitario=preco_unit,
         )
         db.session.add(item)
 

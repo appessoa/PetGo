@@ -810,3 +810,65 @@ body {
     width: 40px; height: 40px; background-size: 22px;
   }
 }
+
+
+/* ==== MODAL ==== */
+.modal {
+  position: fixed; inset: 0;
+  background: rgba(2,6,23,.45);
+  display: none; place-items: center;
+  z-index: 1000;
+}
+.modal.show { display: grid; }
+
+.modal-card {
+  width: min(900px, 95vw);
+  background: var(--card);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  transform: translateY(4px);
+  animation: modalslide .18s ease-out both;
+}
+@keyframes modalslide {
+  to { transform: translateY(0); }
+}
+
+.modal-header, .modal-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 14px 18px; border-bottom: 1px solid rgba(2,6,23,.06);
+}
+.modal-footer { border-top: 1px solid rgba(2,6,23,.06); border-bottom: 0; }
+
+.modal-header h3 { margin: 0; font-family: Poppins, sans-serif; }
+.modal-close {
+  border: 0; background: transparent; font-size: 28px; line-height: 1;
+  cursor: pointer; color: var(--muted);
+}
+.modal-body { padding: 18px; }
+
+.order-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; margin-bottom: 12px;
+}
+.order-id-status { display: flex; align-items: center; gap: 10px; }
+.order-id { font-weight: 800; font-family: Poppins, sans-serif; }
+.pill {
+  display: inline-flex; align-items: center; padding: 4px 10px;
+  border-radius: 999px; font-size: 12px; font-weight: 700;
+}
+.pill-muted { background: #eef2f7; color: #334155; }
+.pill-processed { background: #fff7ed; color: #a04b00; }   /* andamento/processed */
+.pill-completed { background: #ecfdf5; color: #047857; }   /* finalizado/completed */
+.pill-shipped   { background: #eff6ff; color: #1d4ed8; }
+.pill-cancelled { background: #fef2f2; color: #b91c1c; }
+
+.order-meta { display: flex; gap: 10px; color: var(--muted); font-size: 13px; }
+.order-total { text-align: right; }
+.order-total small { display: block; color: var(--muted); margin-bottom: 2px; }
+.order-total strong { font-size: 20px; }
+
+.modal-table { width: 100%; }
+.modal-table td, .modal-table th { padding: 10px; }
+.modal-table tbody tr:nth-child(odd) { background: #fafafa; }
+

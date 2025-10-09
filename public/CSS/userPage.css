@@ -50,7 +50,7 @@
     .order-info span{color:var(--muted);font-size:14px}
     .order-status{padding:6px 12px;border-radius:999px;font-size:14px;font-weight:600}
     .status-andamento{background:#fff0e1;color:#d97706}
-    .status-concluido{background:#e0fce6;color:#15803d}
+    .status-finalizado{background:#e0fce6;color:#15803d}
     .account-actions{display:flex;gap:16px;margin-top:24px;flex-wrap:wrap}
     .footer{margin-top:40px;border-top:1px solid rgba(2,6,23,.06);}
     .footer-inner{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;padding:24px}

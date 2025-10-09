@@ -87,7 +87,6 @@ function renderScheduling(items){
     return;
   }
 
-  console.log('Agendamentos:', items);
 
   for(const ag of items){
     const dt = ag.date ? formatBRDate(ag.date) : '-';
@@ -167,6 +166,12 @@ function ageFromDOB(dob){
   if (years > 0) return `${years} ano(s) e ${months} mes(es)`;
   return `${months} mes(es)`;
 }
+function maskCPF(v){
+  const d = String(v || '').replace(/\D/g,'');
+  if (d.length !== 11) return v || '-';
+  // 123.***.***-45
+  return `${d.slice(0,3)}.***.***-${d.slice(9)}`;
+}
 
 function renderProfile(me){
   const card = document.querySelector('.profile-card .profile-info');
@@ -187,7 +192,7 @@ function renderProfile(me){
   const fields = [
     { key:'nome',     label:'Nome',     value: me.nome },
     { key:'email',    label:'Email',    value: me.email },
-    { key:'cpf',      label:'CPF',      value: me.cpf },
+    { key:'cpf',      label:'CPF',      value: maskCPF(me.cpf) },
     { key:'numero',   label:'Telefone', value: me.numero },
     { key:'endereco', label:'Endereço', value: '-', readonly: true },
   ];
@@ -334,8 +339,8 @@ function renderOrders(orders){
   }
   for(const o of orders){
     const dt = o.created_at ? new Date(o.created_at).toLocaleDateString('pt-BR') : '';
-    const itens = (o.items || []).map(i => `${i.produto} (${i.qtd})`).join(', ');
-    const statusClass = o.status === 'concluido' ? 'status-concluido'
+    const itens = (o.items || []).map(i => `${i.produto_nome} (${i.qtd})`).join(', ');
+    const statusClass = o.status === 'FINALIZADO' ? 'status-finalizado'
                       : o.status === 'andamento' ? 'status-andamento'
                       : '';
     const el = document.createElement('div');
