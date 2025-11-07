@@ -178,7 +178,6 @@ function bindMasks() {
 
 /* ============ Finalizar Pedido ============ */
 function getFinalizeBtn() {
-  // o HTML tem um <a> como botão; lidamos com ambos
   return qs('#paymentForm .btn.primary');
 }
 
