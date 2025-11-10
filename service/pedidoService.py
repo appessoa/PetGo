@@ -1,6 +1,8 @@
 # service/orderService.py
 from datetime import datetime, timedelta
+from io import BytesIO
 from typing import Optional
+from flask import current_app, jsonify, send_file
 from sqlalchemy import func, or_
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import selectinload
@@ -14,6 +16,9 @@ from models.produtoModel import produto
 from app.enums.cartEnum import CartStatus
 from app.erros import ValidationError
 from models.userModel import User
+from service.companieService import companieSerive
+from service.userService import get_user_by_id, get_user_public_info
+from utils.createRecibo import gerar_pdf_recibo_venda
 
 STATUS_ALIASES = {
     "processed": {"processed", "processado", "andamento"},
@@ -313,4 +318,87 @@ def get_order_by_id(order_id: int) -> dict | None:
         })
 
     return data
+def _merge_user_into_venda(venda: dict, user_info: dict | None) -> dict:
+    """
+    Mescla informações do usuário (via user_id) no dict da venda,
+    sem sobrescrever o que já veio da venda quando user_info for vazio.
+    """
+    if not venda:
+        venda = {}
+    if not user_info:
+        return venda
 
+    # mantém os campos originais, mas preenche se estiverem vazios/None
+    venda.setdefault("user_id", user_info.get("id"))
+    venda["user_name"]  = venda.get("user_name")  or user_info.get("name")
+    venda["user_email"] = venda.get("user_email") or user_info.get("email")
+
+    # adiciona campos extras que o PDF pode usar
+    venda["user"] = {
+        "id": user_info.get("id"),
+        "name": user_info.get("nome"),
+        "email": user_info.get("email"),
+        "cpf": user_info.get("cpf"),
+        "phone": user_info.get("phone"),
+        "address": user_info.get("address"),
+        "role": user_info.get("role"),
+    }
+    return venda
+def admin_get_order_receipt(order_id: int):
+    """PDF do RECIBO (somente Admin)."""
+
+    try:
+        venda = get_order_by_id(order_id)
+        if not venda:
+            return jsonify({"error": "Pedido não encontrado"}), 404
+
+        comp = companieSerive.get_companie(1)
+        if not comp:
+            return jsonify({"error": "Empresa não configurada"}), 400
+        
+        user = get_user_public_info(venda["user_id"])
+        print(user)
+        if not user:
+            return jsonify({"error": "Usuário do pedido não encontrado"}), 400
+        venda = _merge_user_into_venda(venda, user)
+
+        pdf_bytes = gerar_pdf_recibo_venda(comp, venda)
+        return send_file(
+            BytesIO(pdf_bytes),
+            mimetype="application/pdf",
+            as_attachment=False,
+            download_name=f"recibo_venda_{order_id:04d}.pdf"
+        )
+    except SQLAlchemyError:
+        current_app.logger.exception("Erro de banco ao gerar recibo")
+        return jsonify({"error": "Erro de banco de dados."}), 500
+    except Exception:
+        current_app.logger.exception("Erro inesperado ao gerar recibo")
+        return jsonify({"error": "Erro inesperado."}), 500
+
+def my_order_receipt(uid:Optional[int], order_id: int, is_admin: bool = False):
+    """PDF do RECIBO para o próprio usuário (ou admin)."""
+
+    try:
+        # reutiliza regra de acesso já existente
+        order = get_order_for_user(uid, order_id, is_admin)
+        venda = order.to_dict()  # mesmo formato do get_order_by_id
+        comp = companieSerive.get_companie(1)
+        if not comp:
+            return jsonify({"error": "Empresa não configurada"}), 400
+
+        pdf_bytes = gerar_pdf_recibo_venda(comp, venda)
+        return send_file(
+            BytesIO(pdf_bytes),
+            mimetype="application/pdf",
+            as_attachment=False,
+            download_name=f"meu_recibo_{order_id:04d}.pdf"
+        )
+    except ValidationError as ve:
+        return jsonify({"error": str(ve)}), 403
+    except SQLAlchemyError:
+        current_app.logger.exception("Erro de banco ao gerar recibo user")
+        return jsonify({"error": "Erro de banco de dados."}), 500
+    except Exception:
+        current_app.logger.exception("Erro inesperado ao gerar recibo user")
+        return jsonify({"error": "Erro inesperado."}), 500

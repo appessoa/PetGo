@@ -1,7 +1,9 @@
 from flask import  request, jsonify, send_file, session, current_app
 from sqlalchemy.exc import SQLAlchemyError
 
+from service.companieService import companieSerive
 from service.pedidoService import (
+    admin_get_order_receipt,
     create_order_from_cart,
     get_order_by_id,
     list_orders_admin,
@@ -120,3 +122,11 @@ class pedidoController:
             return jsonify({"error": "Pedido não encontrado"}), 404
         return jsonify(data), 200
     
+    def admin_generate_recibo(order_id: int):
+        venda = get_order_by_id(order_id)
+        if not venda:
+            return jsonify({"error": "Pedido não encontrado"}), 404
+        result = admin_get_order_receipt(order_id)
+        return result
+
+        

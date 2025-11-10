@@ -16,3 +16,5 @@ bp_orders.get("/admin/orders/")(admin_required(PC.admin_list_orders))
 
 bp_orders.get("/admin/orders/<int:order_id>")(admin_required(PC.admin_get_order_detail))
 
+bp_orders.get("/admin/orders/<int:order_id>/receipt")(admin_required(PC.admin_generate_recibo))
+
