@@ -14,6 +14,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
           window.location.href = resp.url; // Flask redireciona se sucesso
         } else {
           const msg = document.getElementById("msg");
+          msg.style.display = "block";
           msg.textContent = "E-mail ou senha inválidos.";
         }
       } catch (err) {

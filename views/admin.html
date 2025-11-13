@@ -1,109 +1,109 @@
-<!doctype html>
-<html lang="pt-br">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PetGo — Painel Administrativo</title>
-  <link rel="stylesheet" href="/public/CSS/style.css">
-  <link rel="stylesheet" href="/public/CSS/admin.css">
-  <link rel="stylesheet" href="/public/CSS/toast.css">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
-  
-</head>
-<body>
+  <!doctype html>
+  <html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PetGo — Painel Administrativo</title>
+    <link rel="stylesheet" href="/public/CSS/style.css">
+    <link rel="stylesheet" href="/public/CSS/admin.css">
+    <link rel="stylesheet" href="/public/CSS/toast.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+    
+  </head>
+  <body>
 
-  <aside class="sidebar" id="sidebar">
-  </aside>
+    <aside class="sidebar" id="sidebar">
+    </aside>
 
-  <main class="main-content">
-    <h1 class="title">Dashboard</h1>
-    <p class="subtitle">Bem-vindo ao painel de administração da PetGo.</p>
+    <main class="main-content">
+      <h1 class="title">Dashboard</h1>
+      <p class="subtitle">Bem-vindo ao painel de administração da PetGo.</p>
 
-    <section class="content-card">
-      <div class="card-header">
-        <h2>Veterinários Recentes</h2>
-        <a href="/vet_page" class="btn">Ver Todos</a>
-      </div>
-      <table class="custom-table">
-        <tbody>
-          <tr>
-            <td>Dr. João Silva</td>
-            <td>Clínico Geral</td>
-            <td><span class="status active">Ativo</span></td>
-          </tr>
-          <tr>
-            <td>Dra. Maria Oliveira</td>
-            <td>Dermatologia</td>
-            <td><span class="status active">Ativo</span></td>
-          </tr>
-           <tr>
-            <td>Dr. Carlos Pereira</td>
-            <td>Ortopedia</td>
-            <td><span class="status inactive">Inativo</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section class="content-card">
-       <div class="card-header">
-        <h2>Adicionar Novo Produto</h2>
-      </div>
-      <form class="product-form">
-        <div class="form-group">
-          <label for="product-name">Nome do Produto</label>
-          <input type="text" id="product-name" placeholder="Ex: Ração Premium para Cães Adultos">
-          <label for="product-name">Descrição do produto</label>
-          <input type="text" id="description">
+      <section class="content-card">
+        <div class="card-header">
+          <h2>Veterinários Recentes</h2>
+          <a href="/vet_page" class="btn">Ver Todos</a>
         </div>
-        <div class="grid-three">
-          <div class="form-group"><label for="product-price">Preço (R$)</label><input type="number" id="product-price" placeholder="Ex: 89.99" step="0.01" min="0"> </div>
-          <div class="form-group"><label for="product-stock">Estoque</label><input type="number" id="product-stock" placeholder="Ex: 50"></div>
-          <div class="form-group">
-            <label for="product-category">Categoria</label>
-            <select id="product-category" data-source="categorias"></select>
-          </div>
-          <div class="form-group">
-            <label for="product-especie">Especie</label>
-            <select id="product-especie" data-source="Especie"></select>
-          </div>
-          <div class="form-group">
-            <label for="photo-product">Foto</label>
+        <table class="custom-table">
+          <tbody>
+            <tr>
+              <td>Dr. João Silva</td>
+              <td>Clínico Geral</td>
+              <td><span class="status active">Ativo</span></td>
+            </tr>
+            <tr>
+              <td>Dra. Maria Oliveira</td>
+              <td>Dermatologia</td>
+              <td><span class="status active">Ativo</span></td>
+            </tr>
+            <tr>
+              <td>Dr. Carlos Pereira</td>
+              <td>Ortopedia</td>
+              <td><span class="status inactive">Inativo</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
 
-            <div class="file-input">
-              <input type="file" id="photo-product" accept="image/*">
-              <label class="file-drop" for="photo-product">
-                <div class="file-drop__icon" aria-hidden="true"></div>
-                <div class="file-drop__text">
-                  <strong>Arraste e solte</strong> ou <span class="file-drop__btn">selecione</span> uma imagem
-                  <small class="file-drop__hint">PNG, JPG, até 10 MB</small>
-                </div>
-              </label>
+      <section class="content-card">
+        <div class="card-header">
+          <h2>Adicionar Novo Produto</h2>
+        </div>
+        <form class="product-form">
+          <div class="form-group">
+            <label for="product-name">Nome do Produto</label>
+            <input type="text" id="product-name" placeholder="Ex: Ração Premium para Cães Adultos">
+            <label for="product-name">Descrição do produto</label>
+            <input type="text" id="description">
+          </div>
+          <div class="grid-three">
+            <div class="form-group"><label for="product-price">Preço (R$)</label><input type="number" id="product-price" placeholder="Ex: 89.99" step="0.01" min="0"> </div>
+            <div class="form-group"><label for="product-stock">Estoque</label><input type="number" id="product-stock" placeholder="Ex: 50"></div>
+            <div class="form-group">
+              <label for="product-category">Categoria</label>
+              <select id="product-category" data-source="categorias"></select>
+            </div>
+            <div class="form-group">
+              <label for="product-especie">Especie</label>
+              <select id="product-especie" data-source="Especie"></select>
+            </div>
+            <div class="form-group">
+              <label for="photo-product">Foto</label>
 
-              <div class="file-meta" id="photo-product-meta">Nenhum arquivo selecionado</div>
-              <!-- Pré-visualização opcional (preenchida por JS, se quiser) -->
-              <div class="file-preview" id="photo-product-preview" style="display: none"></div>
+              <div class="file-input">
+                <input type="file" id="photo-product" accept="image/*">
+                <label class="file-drop" for="photo-product">
+                  <div class="file-drop__icon" aria-hidden="true"></div>
+                  <div class="file-drop__text">
+                    <strong>Arraste e solte</strong> ou <span class="file-drop__btn">selecione</span> uma imagem
+                    <small class="file-drop__hint">PNG, JPG, até 10 MB</small>
+                  </div>
+                </label>
+
+                <div class="file-meta" id="photo-product-meta">Nenhum arquivo selecionado</div>
+                <!-- Pré-visualização opcional (preenchida por JS, se quiser) -->
+                <div class="file-preview" id="photo-product-preview" style="display: none"></div>
+              </div>
             </div>
           </div>
+          <div class="btn-row">
+              <button type="submit" class="btn primary">Adicionar Produto</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="content-card">
+        <div class="card-header">
+          <h2>Vendas Recentes</h2>
+          <a href="/histvendas" class="btn">Ver Histórico Completo</a>
         </div>
-        <div class="btn-row">
-            <button type="submit" class="btn primary">Adicionar Produto</button>
-        </div>
-      </form>
-    </section>
-
-    <section class="content-card">
-      <div class="card-header">
-        <h2>Vendas Recentes</h2>
-        <a href="/histvendas" class="btn">Ver Histórico Completo</a>
-      </div>
-      <table class="custom-table"></table>
-    </section>
+        <table class="custom-table"></table>
+      </section>
 
 
-  </main>
-  
-  <script type="module" src="/public/js/admin.js"></script>
-</body>
-</html>
+    </main>
+    
+    <script type="module" src="/public/js/admin.js"></script>
+  </body>
+  </html>

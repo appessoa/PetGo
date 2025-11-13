@@ -103,6 +103,7 @@ async function loadVeterinariosRecentes() {
     // ajuste a rota /veterinarios se ela for diferente
     const vets = await fetchJSON(`${API_BASE}/veterinarios`);
     const list = Array.isArray(vets) ? vets : (vets.veterinarios || []);
+    console.log('Veterinários carregados:', list);
     if (!list.length) {
       tbody.innerHTML = `<tr><td colspan="3">Nenhum veterinário encontrado.</td></tr>`;
       return;

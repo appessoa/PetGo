@@ -1,6 +1,60 @@
 // /public/js/cadastro.js
 import { showToast } from "./utils/toast.js";
 
+function maskCPF(value) {
+  // remove tudo que não é número
+  value = value.replace(/\D/g, "");
+
+  // limita a 11 dígitos
+  value = value.substring(0, 11);
+
+  // monta a máscara 000.000.000-00
+  if (value.length > 9) {
+    value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, "$1.$2.$3-$4");
+  } else if (value.length > 6) {
+    value = value.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
+  } else if (value.length > 3) {
+    value = value.replace(/(\d{3})(\d{1,3})/, "$1.$2");
+  }
+
+  return value;
+}
+
+function maskPhone(value) {
+  // remove tudo que não é número
+  value = value.replace(/\D/g, "");
+
+  // limita a 11 dígitos (DDD + 9 números)
+  value = value.substring(0, 11);
+
+  // monta a máscara (00) 00000-0000
+  if (value.length > 6) {
+    value = value.replace(/(\d{2})(\d{5})(\d{1,4})/, "($1) $2-$3");
+  } else if (value.length > 2) {
+    value = value.replace(/(\d{2})(\d{1,5})/, "($1) $2");
+  } else if (value.length > 0) {
+    value = value.replace(/(\d{1,2})/, "($1");
+  }
+
+  return value;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const cpfInput = document.getElementById("cpf");
+  const phoneInput = document.getElementById("phone");
+
+  if (cpfInput) {
+    cpfInput.addEventListener("input", (e) => {
+      e.target.value = maskCPF(e.target.value);
+    });
+  }
+
+  if (phoneInput) {
+    phoneInput.addEventListener("input", (e) => {
+      e.target.value = maskPhone(e.target.value);
+    });
+  }
+});
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("signupForm");
   if (!form) return;

@@ -357,7 +357,6 @@ def admin_get_order_receipt(order_id: int):
             return jsonify({"error": "Empresa não configurada"}), 400
         
         user = get_user_public_info(venda["user_id"])
-        print(user)
         if not user:
             return jsonify({"error": "Usuário do pedido não encontrado"}), 400
         venda = _merge_user_into_venda(venda, user)

@@ -372,7 +372,7 @@ function bindTableActions(tbody) {
       openOrderDetail(oid);
     }
     if (e.target.closest('.action-print')) {
-      window.open(`/admin/pedidos/${oid}/recibo`, '_blank');
+      window.open(`/api/admin/orders/${oid}/recibo`, '_blank');
     }
   });
 }
