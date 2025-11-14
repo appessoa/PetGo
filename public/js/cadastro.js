@@ -19,6 +19,41 @@ function maskCPF(value) {
 
   return value;
 }
+function formatApiError(data, fallback = "Erro ao processar requisição.") {
+  if (!data || typeof data !== "object") return fallback;
+
+  const base = data.error || data.message || fallback;
+  const cause = data.cause || data.details || data.problems;
+
+  // Se não tiver objeto de causa, só mostra a mensagem base
+  if (!cause || typeof cause !== "object") {
+    return base;
+  }
+
+  const entries = Object.entries(cause);
+
+  // Monta mensagens bonitinhas por campo
+  const msgs = entries.map(([field, message]) => {
+    const labelMap = {
+      email: "E-mail",
+      cpf: "CPF",
+      phone: "Telefone",
+      username: "Nome de usuário",
+      name: "Nome",
+    };
+
+    const label = labelMap[field] || field;
+    return `${message}`;
+  });
+
+  // Se só tiver um erro, mostra só ele sem "Falha de validação."
+  if (msgs.length === 1) {
+    return msgs[0].replace(/^•\s*/, "");
+  }
+
+  // Se tiver vários, mostra a mensagem geral + lista
+  return `${base}\n\n${msgs.join("\n")}`;
+}
 
 function maskPhone(value) {
   // remove tudo que não é número
@@ -124,10 +159,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const userData = await rUser.json();
 
       if (!rUser.ok) {
-        // o back usa api_error(400, "mensagem", details)
-        const msg = (userData && (userData.error || userData.message)) || "Erro ao criar usuário.";
-        const extra = userData && (userData.details || userData.problems);
-        showToast(msg + (extra ? "\n" + JSON.stringify(extra, null, 2) : ""), "error");
+        const msg = formatApiError(userData, "Erro ao criar usuário.");
+        showToast(msg, "error");
         return;
       }
 

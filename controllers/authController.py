@@ -1,7 +1,7 @@
-
 from flask import jsonify, redirect, render_template, request, session, url_for
 from flask_bcrypt import Bcrypt
 from models.userModel import User
+from service.userService import get_user_by_email, get_user_by_username
 bcrypt = Bcrypt()
 
 class authController():
@@ -12,7 +12,10 @@ class authController():
         password = request.form.get("password")
 
         try:
-            user = User.query.filter_by(username=username).first()
+            user = get_user_by_username(username)
+            if not user:
+                user = get_user_by_email(username)
+            
             if not user or not bcrypt.check_password_hash(user.password, password):
                 print("Erro ao fazer login:", "Credenciais inválidas")
                 return jsonify({"error": "Credenciais inválidas"}), 401

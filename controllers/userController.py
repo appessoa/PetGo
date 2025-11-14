@@ -201,16 +201,14 @@ class UsersController:
         if problems:
             return api_error(400, "Falha de validação.", problems)
         
-        # 4) unicidade (username, email, cpf)
         already = (User.query
                 .filter(or_(User.username == username,
-                            User.email == email,))
+                            User.email == email,
+                            User.cpf == cpf))
                 .first())
         if already:
-            dup = []
-            if already.username == username: dup.append("username")
-            if already.email == email: dup.append("email")
-            return api_error(409, f"Dados já cadastrados.{dup}", {"conflicts": dup})
+
+            return api_error(409, f"Usuario já cadastrado!")
         
         try:
             user = User(username=username, email=email.lower(),
