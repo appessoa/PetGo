@@ -69,3 +69,15 @@
     .escalas div{display:flex;flex-direction:column;align-items:center;gap:4px}
     .escalas span{display:flex;gap:2px}
     .escalas img{width:18px;height:18px;image-rendering:pixelated}
+
+.titulo-com-botao {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+
+.titulo-com-botao .section-title {
+  margin-bottom: 0;
+}
