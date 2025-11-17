@@ -16,7 +16,10 @@ class authController():
             if not user:
                 user = get_user_by_email(username)
             
-            if not user or not bcrypt.check_password_hash(user.password, password):
+            if not user:
+                return jsonify({"error": "Usuario inexistente"}), 401
+
+            if not bcrypt.check_password_hash(user.password, password):
                 print("Erro ao fazer login:", "Credenciais inválidas")
                 return jsonify({"error": "Credenciais inválidas"}), 401
 

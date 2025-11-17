@@ -6,7 +6,8 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from flask import current_app
 import base64, binascii, re
 from app.erros import ValidationError
-from sqlalchemy import or_
+from app.enums.especies import Especies
+from sqlalchemy import func, or_
 
 DATA_URL_RE = re.compile(r'^data:(?P<mime>[\w/+.-]+);base64,(?P<b64>.+)$')
 MAX_IMG_BYTES = 10 * 1024 * 1024  # 10 MB
@@ -57,7 +58,8 @@ def list_produtos(
         query = query.filter(produto.categoria == categoria)
 
     if especie:
-        query = query.filter(produto.especie == especie)
+        query = query.filter(or_(produto.especie == especie, produto.especie == Especies.TODOS.name ))
+        print(query)
 
     if q:
         q_like = f"%{q.strip()}%"

@@ -300,7 +300,14 @@ function renderPets(pets){
   if(!grid) return;
   grid.innerHTML = '';
   if(!pets || !pets.length){
-    grid.innerHTML = '<div class="info-item">Você ainda não adotou pets.</div>';
+    grid.innerHTML = `
+      <div class="info-item-action">
+        <div class="info-text">Você ainda não cadastrou nenhum pet</div>
+        <a href="/PetGoHealth" class="add-pet-btn secondary" aria-label="+ Adicionar novo Pet">+ Adicionar novo Pet</a>
+      </div>
+    `;
+
+
     return;
   }
   for(const p of pets){
@@ -406,6 +413,9 @@ function wireActions(me){
       }
     });
   }
+
+  // === botão Excluir Conta (com SweetAlert2) ===
+  attachDeleteAccountHandler();
 }
 
 /* =========================
@@ -721,7 +731,7 @@ function capitalize(s){ return (s||'').charAt(0).toUpperCase() + (s||'').slice(1
 function escapeAttr(s){ return String(s).replaceAll('"','&quot;'); }
 function escapeHtml(s){
   if(!s) return '';
-  return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>');
+  return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
 }
 function pencilSVG(){
   return `
@@ -730,3 +740,75 @@ function pencilSVG(){
     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L8 18l-4 1 1-4L16.5 3.5z" stroke="currentColor" stroke-width="2" fill="none"/>
   </svg>`;
 }
+
+/* =========================
+ * DELETE ACCOUNT (SweetAlert2)
+ * - Attaches to the button that contains text "Excluir Conta" or to a button with
+ *   id "btnDeleteAccount" if present.
+ * - Dynamically loads SweetAlert2 from CDN if not already present.
+ * - Calls DELETE /api/me and redirects to '/' on success.
+ * ========================= */
+function loadSweetAlert(){
+  if(window.Swal) return Promise.resolve(window.Swal);
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+    s.onload = () => resolve(window.Swal);
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function attachDeleteAccountHandler(){
+  // tenta encontrar botão por id primeiro
+  let btn = document.getElementById('btnDeleteAccount');
+  if(!btn){
+    // procura por botão com texto Excluir Conta
+    btn = Array.from(document.querySelectorAll('button')).find(b => (b.textContent || '').trim() === 'Excluir Conta');
+  }
+  if(!btn) return; // nada a fazer
+
+  btn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    try{
+      const Swal = await loadSweetAlert();
+      const result = await Swal.fire({
+        title: 'Excluir conta',
+        text: 'Tem certeza que deseja excluir sua conta? Essa ação é irreversível e removerá todos os seus dados.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true
+      });
+
+      if(!result.isConfirmed) return;
+
+      // mostra loading
+      Swal.showLoading();
+      try{
+        const res = await fetch('/api/me', { method: 'DELETE', credentials: 'include' });
+        if(!res.ok){
+          let msg = 'Falha ao excluir a conta.';
+          try{ const j = await res.json(); msg = j.error || j.message || msg; }catch{}
+          throw new Error(msg);
+        }
+
+        Swal.close();
+        await Swal.fire('Excluído', 'Sua conta foi excluída com sucesso.', 'success');
+        // redireciona para página pública ou logout
+        try{ location.href = '/logout'; }catch{}
+      }catch(err){
+        Swal.close();
+        console.error(err);
+        await Swal.fire('Erro', err.message || 'Não foi possível excluir sua conta.', 'error');
+      }
+
+    }catch(err){
+      console.error('SweetAlert não carregou', err);
+      showToast('Não foi possível exibir confirmação. Tente novamente.', 'error');
+    }
+  });
+}
+
+export { };

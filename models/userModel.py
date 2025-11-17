@@ -29,7 +29,7 @@ class User(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    deleted = db.Column(db.Boolean, default=False)  # soft delete
+    deleted = db.Column(db.Integer, default=False)  # soft delete
     
 
     # Relacionamento 1:N com Pet

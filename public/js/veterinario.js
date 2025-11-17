@@ -1,7 +1,18 @@
 // /public/js/admin.js
 import { initSidebar } from './sidebar.js';
 import { showToast } from './utils/toast.js'; // se não existir, o fallback abaixo cuida
-
+function maskPhone(value) {
+  value = value.replace(/\D/g, "");
+  value = value.substring(0, 11);
+  if (value.length > 6) {
+    value = value.replace(/(\d{2})(\d{5})(\d{1,4})/, "($1) $2-$3");
+  } else if (value.length > 2) {
+    value = value.replace(/(\d{2})(\d{1,5})/, "($1) $2");
+  } else if (value.length > 0) {
+    value = value.replace(/(\d{1,2})/, "($1");
+  }
+  return value;
+}
 document.addEventListener('DOMContentLoaded', () => {
 
   // --- LÓGICA PARA O MODAL DE CADASTRO ---
@@ -57,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 });
+
 
 // ===================== CONFIG =====================
 const API_BASE = ""; // mesma origem
@@ -145,7 +157,7 @@ async function loadVeterinarios() {
       toast("Lista de veterinários carregada (vazia).", "info");
       return;
     }
-
+    console.log(list)
     container.innerHTML = list.map(renderVetItem).join("");
     wireAccordion(container);
     wireActions(container);
@@ -166,7 +178,7 @@ function formatBRDate(iso){
 }
 
 function renderVetItem(v) {
-  const id = v.id ?? v.vet_id ?? v.id_veterinario;
+  const id = v.id ?? v.vet_id ?? v.id_veterinarian;
   const nome = v.nome || v.name || "—";
   const username = v.username || v.user || "";
   const email = v.email || v.mail || "";
@@ -210,7 +222,7 @@ function renderVetItem(v) {
     </button>
     <div class="vet-accordion-content">
       <div class="vet-details-actions">
-        <button class="btn xs outline edit-vet-btn">Editar</button>
+        <button class="btn xs outline edit-vet-btn" id="btneditvet">Editar</button>
         <button class="btn xs danger delete-vet-btn">Excluir</button>
       </div>
       <div class="vet-details-grid">
@@ -285,11 +297,36 @@ function wireModal() {
   const modal     = document.getElementById("vet-modal");
   const form      = document.getElementById("vet-form");
   const closeBtns = modal?.querySelectorAll(".close-btn");
+  const editbnt = document.getElementById("btneditvet");
 
   if (!modal || !form) return;
 
   const getHeaderEl = () => modal.querySelector(".modal-header h2");
   const getStatusEl = () => form.querySelector("#vet-status");
+  const pwdInput    = () => form.querySelector("#vet-Senha");
+  const pwdLabel    = () => modal.querySelector('label[for="vet-Senha"]');
+
+  // Funções para esconder/mostrar o campo senha + label.
+  function hidePasswordField() {
+    const inp = pwdInput();
+    const lbl = pwdLabel();
+    // esconder visualmente
+    if (lbl) lbl.style.display = "none";
+    if (inp) inp.style.display = "none";
+    // garantir que não será enviado: remover name (guardamos em _origName)
+    if (inp) {
+      inp._origName = inp.getAttribute("name");
+      if (inp.hasAttribute("name")) inp.removeAttribute("name");
+      inp.value = "";
+    }
+  }
+  function showPasswordField() {
+    const inp = pwdInput();
+    const lbl = pwdLabel();
+    if (lbl) lbl.style.display = "";
+    if (inp) inp.style.display = "";
+    if (inp && inp._origName) inp.setAttribute("name", inp._origName);
+  }
 
   const open = () => {
     modal.classList.remove("hidden");
@@ -306,6 +343,9 @@ function wireModal() {
 
     const statusEl = getStatusEl();
     if (statusEl) statusEl.value = "1"; // default: Ativo
+
+    // Ao fechar, garante que o campo senha volte a aparecer (pronto para criar novo)
+    showPasswordField();
   };
 
   openBtn?.addEventListener("click", () => {
@@ -313,6 +353,8 @@ function wireModal() {
     delete form.dataset.id;
     const headerEl = getHeaderEl();
     if (headerEl) headerEl.textContent = "Cadastrar Novo Veterinário";
+    // mostrar senha no modo criação
+    showPasswordField();
     open();
   });
 
@@ -331,9 +373,9 @@ function wireModal() {
 
     try {
       const payload = collectVetPayload(form);
-      const mode = form.dataset.mode || "create";
+      const mode = form.dataset.mode;
       const id = form.dataset.id;
-
+      console.log(mode)
       let resp;
       if (mode === "edit" && id) {
         resp = await fetchJSON(`${API_BASE}/veterinarios/${encodeURIComponent(id)}`, {
@@ -360,12 +402,14 @@ function wireModal() {
 }
 
 // Lê dados do form e monta payload p/ API (status boolean)
+// observe: o campo senha só será incluído se existir no DOM com atributo name e estiver preenchido
 function collectVetPayload(form) {
   const name          = form.querySelector("#vet-name")?.value.trim() || "";
   const username      = form.querySelector("#vet-username")?.value.trim() || "";
   const email         = form.querySelector("#vet-email")?.value.trim() || "";
   const phone         = form.querySelector("#vet-numero")?.value.trim() || "";
-  const password      = form.querySelector("#vet-Senha")?.value || "";
+  const passwordEl    = form.querySelector("#vet-Senha");
+  const password      = (passwordEl && passwordEl.getAttribute("name")) ? (passwordEl.value || "") : "";
   const especialidade = form.querySelector("#vet-specialty")?.value.trim() || "";
   const CRMV          = form.querySelector("#vet-crmv")?.value.trim() || "";
   const statusVal     = form.querySelector("#vet-status")?.value ?? "1";
@@ -380,8 +424,7 @@ function collectVetPayload(form) {
     CRMV,
     status: statusBool, // envia como booleano
   };
-  if (password) payload.password = password; // só envia se preenchida
-
+  if (password) payload.password = password; // só envia se preenchida E se o input tiver name (modo criação)
   return payload;
 }
 
@@ -394,7 +437,7 @@ function fillForm(form, v = {}) {
   form.querySelector("#vet-specialty").value  = v.especialidade || v.specialty || "";
   form.querySelector("#vet-crmv").value       = v.CRMV || v.registro || "";
 
-  // Nunca preenche senha por segurança
+  // Nunca preenche senha por segurança — apenas limpa
   const senhaEl = form.querySelector("#vet-Senha");
   if (senhaEl) senhaEl.value = "";
 
@@ -406,7 +449,8 @@ function fillForm(form, v = {}) {
   }
 }
 
-// Abre modal em modo edição; busca dados completos do backend
+// Abre modal em modo edição; preenche com dados do DOM imediatamente e
+// em segundo plano tenta buscar dados completos do backend e atualiza o form.
 async function openEditFor(item) {
   const id = item.dataset.id;
   if (!id) return;
@@ -416,27 +460,50 @@ async function openEditFor(item) {
   if (!modal || !form) return;
 
   form.dataset.mode = "edit";
-  form.dataset.id = id;
+  form.dataset.id = id
   const header = modal.querySelector(".modal-header h2");
   if (header) header.textContent = "Editar Veterinário";
 
+  // Esconder label + input de senha assim que entrar em modo edição
+  // (usa as mesmas funções definidas em wireModal — mas aqui garantimos que ocorrará
+  // mesmo que wireModal não tenha rodado antes por algum motivo)
+  (function hidePwdLocal() {
+    const lbl = modal.querySelector('label[for="vet-Senha"]');
+    const inp = form.querySelector('#vet-Senha');
+    if (lbl) lbl.style.display = "none";
+    if (inp) {
+      inp.style.display = "none";
+      inp._origName = inp.getAttribute("name");
+      if (inp.hasAttribute("name")) inp.removeAttribute("name");
+      inp.value = "";
+      inp.removeAttribute("required"); // <<< isso resolve o erro
+    }
+  })();
+
+  // 1) Preenche imediatamente com os dados disponíveis no DOM
+  const domData = {
+    nome: item.querySelector(".vet-name")?.textContent?.trim() || "",
+    username: item.dataset.username || item.querySelector(".vet-username")?.textContent || "",
+    email: item.dataset.email || "",
+    numero: item.dataset.numero || "",
+    especialidade: item.querySelector(".vet-specialty")?.textContent?.trim() || item.dataset.especialidade || "",
+    CRMV: item.dataset.crmv || "",
+    status: item.querySelector(".vet-status-wrapper .status")?.classList.contains("active"),
+  };
+  fillForm(form, domData);
+
+  // Abre o modal para o usuário ver os dados imediatamente
+  modal.classList.remove("hidden");
+
+  // 2) Em background, tenta buscar dados completos do backend e atualiza o form
   try {
     const v = await fetchJSON(`${API_BASE}/veterinarios/${encodeURIComponent(id)}`);
-    fillForm(form, v || {});
-    toast("Dados do veterinário carregados para edição.", "success");
+    // Caso o backend retorne algo como { data: {...} } ou { veterinarian: {...} }
+    const full = v?.data || v?.veterinario || v?.veterinarios || v;
+    fillForm(form, full || {});
   } catch (err) {
-    console.warn("Falha ao buscar /veterinarios/:id, usando dados do DOM", err);
-    toast("Não foi possível buscar do servidor. Carregando dados locais para edição.", "warning");
-    fillForm(form, {
-      nome: item.querySelector(".vet-name")?.textContent || "",
-      username: item.dataset.username || "",
-      email: item.dataset.email || "",
-      numero: item.dataset.numero || "",
-      especialidade: item.querySelector(".vet-specialty")?.textContent || "",
-      status: item.querySelector(".vet-status-wrapper .status")?.classList.contains("active"),
-      CRMV: item.dataset.crmv || "",
-    });
+    console.warn("Falha ao buscar /veterinarios/:id — mantendo dados locais.", err);
+    toast("Não foi possível buscar dados do servidor. Usando informações locais.", "warning");
+    // (já preenchemos com o DOM antes; nada mais a fazer)
   }
-
-  modal.classList.remove("hidden");
 }

@@ -1,3 +1,4 @@
+from datetime import date
 from config.db import db
 from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt()
@@ -20,8 +21,10 @@ def created_veterinario(data):
 from sqlalchemy.orm import selectinload
 from models.veterinarioModel import veterinarianModel
 
+
+from datetime import date
+
 def get_all_veterinarios():
-    # Carrega todos, inclusive sem agendamentos, e evita N+1
     vets = (
         veterinarianModel.query
         .filter_by(deleted=False)
@@ -29,24 +32,27 @@ def get_all_veterinarios():
         .all()
     )
 
+    hoje = date.today()
     resultado = []
-    for vet in vets:
-        d = vet.to_dict()  # seu to_dict já monta os campos básicos
 
-        # Garante coerência: se não houver agendamentos, omite a chave
-        # (troque por d.setdefault("schedulings", []) se quiser sempre a chave)
+    for vet in vets:
+        d = vet.to_dict()
         scheds = getattr(vet, "schedulings", [])
-        if not scheds:
+
+        # Filtra apenas agendamentos do dia atual ou futuros
+        future_scheds = [s for s in scheds if s.date >= hoje]
+
+        if not future_scheds:
             d.pop("schedulings", None)
             d["has_schedulings"] = False
         else:
-            # Reforça que são dicts atualizados; se seu to_dict já faz isso, pode pular
-            d["schedulings"] = [s.to_dict() for s in scheds]
+            d["schedulings"] = [s.to_dict() for s in future_scheds]
             d["has_schedulings"] = True
 
         resultado.append(d)
 
     return resultado
+
 
 def get_veterinario_by_id(vet_id):
     from models.veterinarioModel import veterinarianModel
@@ -78,7 +84,7 @@ def delete_veterinario(vet_id):
     vet = veterinarianModel.query.get(vet_id)
     if not vet or vet.deleted:
         return False
-    vet.deleted = vet.id_veterinarian  # marca como deletado
+    vet.deleted = vet_id  # marca como deletado
     db.session.commit()
     return True
 

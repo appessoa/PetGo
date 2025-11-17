@@ -875,3 +875,69 @@ body {
 .modal-table td, .modal-table th { padding: 10px; }
 .modal-table tbody tr:nth-child(odd) { background: #fafafa; }
 
+/* ===== Correções específicas para email/senha (e inputs em geral) ===== */
+.modal-content input,
+.modal-content input[type="email"],
+.modal-content input[type="password"],
+.modal-content input[type="tel"],
+.modal-content input[type="number"],
+.main-content input,
+.main-content input[type="email"],
+.main-content input[type="password"],
+.main-content input[type="tel"],
+.main-content input[type="number"] {
+  box-sizing: border-box; /* evita overflow do conteúdo */
+  width: 100%;
+  min-height: 44px;        /* altura confortável */
+  line-height: 1.2;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background-color: #fff;  /* garante fundo branco por trás do texto */
+  color: var(--text);
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  box-shadow: none;        /* remove sombras indesejadas dentro do input */
+}
+
+/* placeholder mais discreto */
+.modal-content input::placeholder,
+.main-content input::placeholder {
+  color: #9aa5b1;
+  opacity: 1;
+}
+
+/* melhora aparência do input number em alguns browsers (remove as setas no Chrome se quiser) */
+.modal-content input[type="number"],
+.main-content input[type="number"] {
+  -moz-appearance: textfield;
+}
+.modal-content input[type="number"]::-webkit-outer-spin-button,
+.modal-content input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* foco consistente — mantém contraste com fundo branco */
+.modal-content input:focus,
+.main-content input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 145, 77, 0.12);
+}
+
+/* garante que label e input fiquem empilhados corretamente */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* se o layout estiver usando input dentro de grid, garante largura correta */
+.grid-two .form-group input,
+.grid-three .form-group input {
+  width: 100%;
+}

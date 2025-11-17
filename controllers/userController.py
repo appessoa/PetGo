@@ -8,7 +8,7 @@ from models.pedidoModel import Order
 from service.Helpers import api_error
 from sqlalchemy import or_
 from flask_bcrypt import Bcrypt
-
+from service.userService import delete_user
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 bcrypt = Bcrypt()
@@ -229,3 +229,9 @@ class UsersController:
                 "email": user.email,
                 "name": user.nome,
             }), 201
+    
+    @staticmethod
+    def deletUser():
+        uid = session.get("user_id")
+        res = delete_user(uid)
+        return res

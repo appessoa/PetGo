@@ -61,7 +61,7 @@
     .info-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid rgba(2,6,23,.06);border-radius:12px}
     .info-meta{display:flex;align-items:center;gap:8px;flex:1}
     .info-label{font-weight:700}
-    .info-value{color:var(--muted)}
+    .info-value{color:var(--muted);font-family: 'Poppins';}
     .icon-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;border:1px solid rgba(2,6,23,.08);background:var(--card);cursor:pointer;box-shadow:var(--shadow);transition:transform .16s ease}
     .icon-btn:hover{transform:translateY(-1px)}
     .icon-btn:disabled{opacity:.6;cursor:not-allowed}
@@ -320,3 +320,71 @@
 @keyframes modal-in{
   to{ opacity:1; transform: translateY(0) scale(1); }
 }
+
+
+/* ---- bloco específico para linhas com ação (botão à direita) ---- */
+.info-item-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* empurra o botão para a direita */
+  gap: 12px;
+  width: 100%;
+  padding: 16px; /* ajuste se quiser menos/more */
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+/* garante que o texto quebre sem empurrar o botão pra fora */
+.info-item-action .info-text {
+  flex: 1 1 auto;
+  min-width: 0; /* importante para evitar overflow */
+  color: black;
+  font-size: 15px;
+}
+
+/* estiliza o link como botão (usa suas variáveis do tema) */
+.info-item-action .add-pet-btn {
+  margin-left: 12px;      /* pequeno espaçamento */
+  white-space: nowrap;    /* mantém o texto do botão em uma linha */
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  transition: background .16s ease, box-shadow .16s ease, transform .12s ease;
+  color: var(--text);
+}
+
+/* se quiser que fique no estilo "secondary" use estas cores */
+.info-item-action .add-pet-btn.secondary {
+  background: var(--primary);
+  border: 1px solid rgba(2, 6, 23, .06);
+  color: var(--card);
+}
+
+/* hover */
+.info-item-action .add-pet-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* responsivo: em telas estreitas empilha e alinha botão à direita */
+@media (max-width: 560px) {
+  .info-item-action {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .info-item-action .add-pet-btn {
+    align-self: flex-end; /* garante que o botão fique à direita mesmo empilhado */
+  }
+}
+
+

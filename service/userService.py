@@ -1,4 +1,6 @@
 from typing import Optional
+
+from flask import jsonify
 from models.userModel import User
 from config.db import db
 from flask_bcrypt import Bcrypt
@@ -11,7 +13,7 @@ def get_user_by_id(user_id):
     return User.query.get(user_id)
 
 def get_all_users():
-    return User.query.all()
+    return User.query.all(deleted=0)
 
 def create_user(username, email, password):
 
@@ -25,13 +27,13 @@ def check_password(user, password):
     return bcrypt.check_password_hash(user.password, password)
 
 def get_user_by_email(email):
-    return User.query.filter_by(email=email).first()
+    return User.query.filter_by(email=email,deleted=0).first()
 
 def get_user_by_username(username):
-    return User.query.filter_by(username=username).first()
+    return User.query.filter_by(username=username, deleted=0).first()
 
 def authenticate_user(username, password):
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter_by(username=username,deleted=0).first()
     if user and user.password == password:
         return user
     return None
@@ -49,9 +51,8 @@ def get_active_users():
 
 def delete_user(user_id):
     user = User.query.get_or_404(user_id)
-    user.deleted = user.id_user  # marca como deletado
+    user.deleted = user_id  # marca como deletado
     try:
-    
         db.session.commit()
     except SQLAlchemyError as e:
         db.session.rollback()
@@ -59,7 +60,7 @@ def delete_user(user_id):
     except Exception as e:
         db.session.rollback()
         return api_error(500, "Erro inesperado ao deletar usuário", exc=e)
-    return True
+    return jsonify({'message': "Usuario excluido com sucesso!"})
 
 def _fmt_address_from_dict(address: dict | None) -> str | None:
     """

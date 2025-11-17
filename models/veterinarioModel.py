@@ -16,7 +16,7 @@ class veterinarianModel(db.Model):
     status = db.Column(db.Boolean, nullable=True, default=True)  # ativo/inativo
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    deleted = db.Column(db.Boolean, default=False)
+    deleted = db.Column(db.Integer, default=False)
 
     consultations = db.relationship(
         "Consultation", back_populates="vet", passive_deletes=True

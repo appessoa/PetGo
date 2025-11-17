@@ -4,7 +4,7 @@ export function initSidebar() {
   if (!sidebar) return;
 
   // HTML do menu (sem "active" fixo)
-  sidebar.innerHTML = `
+sidebar.innerHTML = `
     <div class="sidebar-header">
       <div class="logo"><span class="paw">🐾</span> PetGo ADM</div>
     </div>
@@ -34,9 +34,21 @@ export function initSidebar() {
             <span>Histórico de Vendas</span>
           </a>
         </li>
+        <li class="mt-3 border-top pt-3">
+          <a href="/logout" class="nav-link text-danger" aria-label="Sair">
+            <!-- ícone de sair consistente com os outros (SVG inline) -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            <span class="label">Sair</span>
+          </a>
+        </li>
       </ul>
     </nav>
   `;
+
 
   // Normaliza path atual (remove barra final)
   const current = (location.pathname || '/').replace(/\/+$/,'') || '/';

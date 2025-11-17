@@ -1,4 +1,3 @@
-// /public/js/detalheprod.js
 import { initHeader, updateCartCount } from './header.js';
 import { showToast } from '/public/js/utils/toast.js';
 
@@ -24,6 +23,16 @@ async function fetchJSON(url, opts={}) {
   return data;
 }
 
+/* API */
+async function getProduto(id) {
+  return fetchJSON(`${API_BASE}/produtos/${id}`);
+}
+
+async function addToCart(id_produto, quantidade) {
+  const body = JSON.stringify({ id_produto: Number(id_produto), quantidade: Number(quantidade), modo: 'INCLUIR' });
+  return fetchJSON(`${API_BASE}/carrinho/items`, { method:'POST', body });
+}
+
 function getProductIdFromURL() {
   const u = new URL(window.location.href);
   let id = u.searchParams.get('id');
@@ -32,12 +41,6 @@ function getProductIdFromURL() {
     if (m) id = m[1];
   }
   return id ? Number(id) : null;
-}
-
-/* API */
-async function addToCart(id_produto, quantidade) {
-  const body = JSON.stringify({ id_produto: Number(id_produto), quantidade: Number(quantidade), modo: 'INCLUIR' });
-  return fetchJSON(`${API_BASE}/carrinho/items`, { method:'POST', body });
 }
 
 /* UI fillers */
@@ -72,10 +75,8 @@ function fillImages(imagem) {
 }
 
 function fillMeta(prod) {
-  // título
   qs('.product-title') && (qs('.product-title').textContent = prod.nome || 'Produto');
 
-  // estoque e botão
   const stock = qs('.stock-status');
   if (stock) {
     const disponivel = (prod.estoque ?? 0) > 0 && (prod.is_active ?? true);
@@ -85,7 +86,6 @@ function fillMeta(prod) {
     if (btn) btn.disabled = !disponivel;
   }
 
-  // ✅ ID ao lado do estoque
   const codeEl = qs('.product-code');
   if (codeEl) {
     const pid = prod.id ?? prod.id_produto ?? null;
@@ -98,7 +98,6 @@ function fillMeta(prod) {
     }
   }
 
-  // ✅ descrição acima do preço (esconde se não tiver)
   const descEl = qs('.product-description');
   if (descEl) {
     const txt = (prod.descricao || '').toString().trim();
@@ -110,10 +109,8 @@ function fillMeta(prod) {
     }
   }
 
-  // preço
   qs('.product-price') && (qs('.product-price').textContent = fmtBRL(prod.preco));
 }
-
 
 function bindQtyAndCart(prodId) {
   const dec = qs('#decrease-qty');
@@ -121,15 +118,23 @@ function bindQtyAndCart(prodId) {
   const input = qs('#quantity-input');
   const addBtn = qs('.add-to-cart-btn');
 
-  const norm = () => {
+  const norm = async () => {
     let v = parseInt(input.value || '1', 10);
     if (!Number.isFinite(v) || v < 1) v = 1;
+
+    const prod = await getProduto(prodId);
+    const estoque = prod.estoque ?? 1;
+    if (v > estoque) {
+      showToast('Quantidade limitada pelo estoque', 'warning');
+      v = estoque;
+    }
+
     input.value = String(v);
     return v;
   };
 
-  dec && dec.addEventListener('click', () => { const v = norm(); if (v > 1) input.value = String(v-1); });
-  inc && inc.addEventListener('click', () => { const v = norm(); input.value = String(v+1); });
+  dec && dec.addEventListener('click', async () => { const v = await norm(); if (v > 1) input.value = String(v-1); });
+  inc && inc.addEventListener('click', async () => { const v = await norm(); input.value = String(v+1); });
   input && input.addEventListener('change', norm);
 
   if (addBtn) {
@@ -139,11 +144,11 @@ function bindQtyAndCart(prodId) {
       const old = addBtn.textContent;
       addBtn.disabled = true; addBtn.textContent = 'Adicionando...';
       try {
-        const qtd = norm();
+        const qtd = await norm();
         await addToCart(prodId, qtd);
         addBtn.textContent = 'Adicionado!';
         showToast('Adicionado ao carrinho', 'success');
-        await updateCartCount();                // ✅ atualiza badge do header
+        await updateCartCount();                
         window.dispatchEvent(new CustomEvent('cart:updated'));
       } catch (err) {
         if ((err.message || '').includes('401')) {
@@ -166,7 +171,7 @@ async function bootstrap() {
     return;
   }
   try {
-    const prod = await fetchJSON(`${API_BASE}/produtos/${id}`);
+    const prod = await getProduto(id);
     fillBreadcrumbs(prod);
     fillImages(prod.imagem);
     fillMeta(prod);

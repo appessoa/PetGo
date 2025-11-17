@@ -338,3 +338,74 @@ input:focus{
   padding: 0 12px;
   line-height: 44px;           /* ajuda a centralizar label do botão */
 }
+
+
+/* ===== Overwrite final: garante alinhamento perfeito entre Date e Select ===== */
+.agendamento-layout .grid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start; /* mantém rótulos acima dos controles */
+}
+
+/* garante estrutura consistente do label + control */
+.agendamento-layout .grid-two .form-group {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* aplica um "controle unificado" para inputs/selects no grid específico */
+.agendamento-layout .grid-two input[type="text"],
+.agendamento-layout .grid-two input[type="date"],
+.agendamento-layout .grid-two input[type="time"],
+.agendamento-layout .grid-two select {
+  /* valores idênticos para todos */
+  height: 48px !important;
+  min-height: 48px !important;
+  padding: 10px 16px !important;
+  font-size: 15px !important;
+  line-height: 20px !important; /* centraliza texto verticalmente */
+  border-radius: 12px !important;
+  border: 1px solid rgba(2,6,23,.06) !important;
+  background: #fff !important;
+  box-sizing: border-box !important;
+  box-shadow: var(--shadow) !important;
+  display: inline-flex !important;   /* permite alinhar o conteúdo interno */
+  align-items: center !important;    /* vertical centering for selects */
+  appearance: none !important;       /* padroniza selects */
+}
+
+/* espaço extra à direita do date pra não cortar o ícone nativo */
+.agendamento-layout .grid-two input[type="date"] {
+  padding-right: 44px !important;
+}
+
+/* deixa o indicador do picker sempre visível e posicionado */
+.agendamento-layout .grid-two input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
+  padding: 6px;
+  margin-left: 6px;
+}
+
+/* seta custom da select (mantém a flechinha à direita) */
+.agendamento-layout .grid-two select {
+  background-image:
+    url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%230f172a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 44px !important;
+}
+
+/* mantém responsividade sem quebrar alturas */
+@media (max-width: 768px) {
+  .agendamento-layout .grid-two { grid-template-columns: 1fr; }
+  .agendamento-layout .grid-two input,
+  .agendamento-layout .grid-two select {
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+}

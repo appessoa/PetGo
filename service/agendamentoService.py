@@ -72,6 +72,7 @@ class SchedulingService:
     @staticmethod
     def get_for_user(user_id: int, ag_id: int):
         ag = Scheduling.query.filter_by(id_agendamento=ag_id, user_id=user_id).first()
+        
         if not ag:
             raise LookupError("Agendamento não encontrado.")
         return ag

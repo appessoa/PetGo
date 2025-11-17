@@ -32,7 +32,7 @@ class AdoptionApplication(db.Model):
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-    deleted = db.Column(db.Boolean, default=False, nullable=False)  # soft delete
+    deleted = db.Column(db.Integer, default=False, nullable=False)  # soft delete
 
     __table_args__ = (
         db.Index("ix_adopt_user_status", "id_user", "status"),

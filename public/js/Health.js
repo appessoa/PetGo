@@ -111,7 +111,7 @@ function renderPetsList(){
   const list = must$('#petsList'); if(!list) return;
   list.innerHTML = '';
   state.pets.forEach(p => {
-    const petPhoto = p.photo || defaultAvatar(p.species);
+    const petPhoto = p.photo || 'https://placehold.co/200x200?text=pet';
     const el = document.createElement('div');
     const pid = normalizeId(p.id);
     el.className = 'pet-item' + (pid === state.selectedPetId ? ' active' : '');
@@ -153,7 +153,7 @@ function renderSelected(){
     return;
   }
 
-  const petPhoto = pet.photo || defaultAvatar(pet.species);
+  const petPhoto = pet.photo || 'https://placehold.co/200x200?text=pet';
 
   empty.style.display = 'none';
   detail.style.display = 'block';
@@ -329,7 +329,18 @@ function wireEvents(){
     const sexo    = (must$('#petSexo')?.value || '').trim();
     const breed   = (must$('#petBreed')?.value || '').trim();
     const dob     = must$('#petDOB')?.value || null;
-    const weight  = (must$('#petWeight')?.value || '').trim();
+    const rawWeight = (must$('#petWeight')?.value || '').trim();
+    // normaliza vírgula para ponto e converte pra número
+    let weight = null;
+    if (rawWeight !== '') {
+      const normalized = rawWeight.replace(',', '.'); // "5,20" -> "5.20"
+      const num = parseFloat(normalized);
+      if (!Number.isFinite(num)) {
+        alert('Peso inválido. Use formato 5.20 ou 5,20');
+        return;
+      }
+      weight = num;
+    }
     const file    = must$('#petPhoto')?.files?.[0];
 
     let photo = null;

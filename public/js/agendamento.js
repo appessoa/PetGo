@@ -170,7 +170,9 @@ function setupForm(){
         body: JSON.stringify(payload)
       });
       showToast('Serviço agendado com sucesso!', 'success');
-      // form.reset(); // se quiser limpar
+      setTimeout(() => {
+      window.location.replace("/index");
+    }, 1200);
     }catch(err){
       showToast(err.message || 'Erro ao agendar o serviço.', 'error');
     }

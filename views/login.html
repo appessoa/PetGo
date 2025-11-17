@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - PetGo</title>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
-  
-  <link rel="stylesheet" href="/public/CSS/login.css">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/login.css') }}">
 </head>
 <body>
 
@@ -18,28 +18,47 @@
       <span class="paw">🐾</span> PetGo
     </div>
     <h2>Entrar na sua conta</h2>
-    
-    <form id="loginForm">
+
+    {# Exibe mensagens flash (se houver) #}
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div id="flashes" class="flashes">
+          {% for msg in messages %}
+            <div class="flash">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form id="loginForm" action="{{ url_for('auth.login') }}" method="post">
       <div class="form-group">
         <label for="username">E-mail ou username</label>
-        <input type="text" id="username" required placeholder="seuemail@exemplo.com">
+        <input type="text" name="username" id="username" required placeholder="seuemail@exemplo.com" value="{{ request.form.username or '' }}">
       </div>
 
       <div class="form-group">
         <label for="password">Senha</label>
-        <input type="password" id="password" required placeholder="••••••••">
+        <input type="password" name="password" id="password" required placeholder="••••••••">
       </div>
+
+      {# Mantém o next se foi passado na query string #}
+      {% if request.args.get('next') %}
+        <input type="hidden" name="next" id="next" value="{{ request.args.get('next') }}">
+      {% endif %}
 
       <button type="submit">Entrar</button>
     </form>
 
-     <div id="msg" class="msg" style="display: none;"></div> 
+    <div id="msg" class="msg" style="display: none;"></div>
 
     <p class="signup-link">
       Não tem uma conta? <a href="/cadastro">Cadastre-se</a>
+      {# Se preferir usar o endpoint do blueprint, substitua '/cadastro' por:
+         {{ url_for('auth.register') }}
+         — mas só faça isso se a rota 'auth.register' existir; caso contrário dará BuildError. #}
     </p>
   </div>
-  
-  <script src="/public/js/login.js"></script>
+
+  <script src="{{ url_for('static', filename='js/login.js') }}"></script>
 </body>
 </html>
