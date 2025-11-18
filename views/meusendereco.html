@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selecionar Endereço - PetGo</title>
+    
+    <link rel="stylesheet" href="/public/CSS/style.css">
+    <link rel="stylesheet" href="/public/CSS/meusendereco.css">
+    
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <div class="container header-inner" id="Header">
+            </div>
+    </header>
+
+    <main class="container selection-container">
+        
+        <h2 class="section-title">Onde você quer receber seu pedido?</h2>
+        <p class="subtitle">Selecione um endereço de entrega ou cadastre um novo.</p>
+
+        <form action="/pagamento" method="GET"> <div class="address-grid">
+
+                <label class="address-card">
+                    <div style="display:flex; justify-content:space-between; width:100%">
+                        <input type="radio" name="endereco_selecionado" value="1" checked>
+                        <span class="address-tag">Casa</span>
+                    </div>
+                    
+                    <h4>Gabriel Silva</h4>
+                    <p>Av. Boa Viagem, 1234</p>
+                    <p>Apto 101, Bloco B</p>
+                    <p>Boa Viagem, Recife - PE</p>
+                    <p>CEP: 51020-000</p>
+
+                    <a href="#" style="margin-top:10px; color:var(--primary); font-size:14px; font-weight:600;">Editar</a>
+                </label>
+
+                <label class="address-card">
+                    <div style="display:flex; justify-content:space-between; width:100%">
+                        <input type="radio" name="endereco_selecionado" value="2">
+                        <span class="address-tag">Trabalho</span>
+                    </div>
+                    
+                    <h4>PetGo Escritório</h4>
+                    <p>Rua do Apolo, 200</p>
+                    <p>Sala 304</p>
+                    <p>Recife Antigo, Recife - PE</p>
+                    <p>CEP: 50030-000</p>
+
+                    <a href="#" style="margin-top:10px; color:var(--primary); font-size:14px; font-weight:600;">Editar</a>
+                </label>
+
+                <a href="/endereco.html" class="add-new-card">
+                    <div class="icon-plus">+</div>
+                    <span style="font-weight: 600;">Adicionar novo endereço</span>
+                </a>
+
+            </div>
+
+            <div class="continue-section">
+                <button type="submit" class="btn primary btn-lg">Ir para Pagamento</button>
+            </div>
+
+        </form>
+
+    </main>
+
+    <footer>
+        <div class="container" style="text-align: center; padding: 20px; color: var(--muted);">
+            <p>&copy; 2025 PetGo. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        const cards = document.querySelectorAll('.address-card input');
+        cards.forEach(input => {
+            input.addEventListener('change', () => {
+            });
+        });
+    </script>
+</body>
+</html>
