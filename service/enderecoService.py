@@ -49,6 +49,7 @@ class AddressService:
             bairro=data.get("bairro"),
             cidade=data.get("cidade"),
             estado=data.get("estado"),
+            pontoRef = data.get("pontoRef"),
             pais=data.get("pais") or "BR",
             full_address= AddressService._compose_full_address(data),
             is_primary=bool(data.get("is_primary", True)),

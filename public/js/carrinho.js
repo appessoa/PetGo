@@ -94,7 +94,7 @@ function renderSummary({ subtotal }) {
       <strong>${fmtBRL(total)}</strong>
     </div>
     <div class="payment-options"></div>
-    <a href="/checkout" class="btn primary" id="btnCheckout" style="width:100%; text-align:center;">Continuar</a>
+    <a href="/adress" class="btn primary" id="btnCheckout" style="width:100%; text-align:center;">Continuar</a>
   `;
 
   // --- lógica para verificar estoque antes de ir ao checkout ---
@@ -139,7 +139,7 @@ function renderSummary({ subtotal }) {
       }
 
       // tudo ok -> vai pro checkout
-      window.location.href = '/checkout';
+      window.location.href = '/adress';
     } catch (err) {
       showToast('Erro ao verificar estoque. Tente novamente.', 'error');
       console.error('Erro verifica estoque ->', err);

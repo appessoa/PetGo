@@ -12,6 +12,7 @@ class Address(db.Model):
     logradouro = db.Column(db.String(200), nullable=True)   # rua/avenida
     numero = db.Column(db.String(16), nullable=True)
     complemento = db.Column(db.String(120), nullable=True)
+    pontoRef = db.Column(db.String(200), nullable= True)
     bairro = db.Column(db.String(120), nullable=True)
     cidade = db.Column(db.String(120), nullable=True)
     estado = db.Column(db.String(2), nullable=True)         # UF

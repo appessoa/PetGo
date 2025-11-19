@@ -96,6 +96,7 @@ class pedidoController:
         except Exception:
             current_app.logger.exception("Erro inesperado ao atualizar status do pedido")
             return jsonify({"error": "Erro inesperado."}), 500
+        
     def admin_list_orders():
         status = request.args.get("status", "", type=str)
         date_from = request.args.get("date_from", "", type=str)

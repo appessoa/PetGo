@@ -89,3 +89,18 @@ def histvendas():
 @front_bp.route('/detail')
 def detail_product():
     return render_template('detalheprod.html')
+
+@login_required
+@front_bp.route('/adress/cadastro')
+def endereco_cadastro():
+    return render_template('endereco.html')
+
+@login_required
+@front_bp.route('/adress/')
+def endereco():
+    return render_template('meusendereco.html')
+
+@login_required
+@front_bp.route('/adress/cadastro/<int:addr_id>', methods=['GET'])
+def adress_cadastro(addr_id=None):
+        return render_template('endereco.html', addr_id=addr_id)
