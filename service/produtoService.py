@@ -59,7 +59,6 @@ def list_produtos(
 
     if especie:
         query = query.filter(or_(produto.especie == especie, produto.especie == Especies.TODOS.name ))
-        print(query)
 
     if q:
         q_like = f"%{q.strip()}%"

@@ -13,6 +13,7 @@ class Address(db.Model):
     numero = db.Column(db.String(16), nullable=True)
     complemento = db.Column(db.String(120), nullable=True)
     pontoRef = db.Column(db.String(200), nullable= True)
+    nomeEntrega = db.Column(db.String(200), nullable= True)
     bairro = db.Column(db.String(120), nullable=True)
     cidade = db.Column(db.String(120), nullable=True)
     estado = db.Column(db.String(2), nullable=True)         # UF
@@ -25,7 +26,7 @@ class Address(db.Model):
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
+    deleted = db.Column(db.Integer, default= False)
     # Índices
     __table_args__ = (
         db.Index("ix_addresses_user_id", "user_id"),
@@ -43,6 +44,8 @@ class Address(db.Model):
             "numero": self.numero,
             "complemento": self.complemento,
             "bairro": self.bairro,
+            "pontoRef": self.pontoRef,
+            "nomeEntrega": self.nomeEntrega,
             "cidade": self.cidade,
             "estado": self.estado,
             "pais": self.pais,

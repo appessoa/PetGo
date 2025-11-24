@@ -228,7 +228,6 @@ input{
   padding: 7px;
   border: 1px solid#ccc;
   border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   transition: box-shadow 0.2;
   outline: none;
 }
@@ -409,3 +408,46 @@ input:focus{
     min-height: 44px !important;
   }
 }
+
+/* layout do cabeçalho de adoção */
+.adocao-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;               /* espaço entre subtitle e botão */
+  margin-bottom: 12px;
+}
+
+/* evita que o parágrafo quebre o botão pra baixo em telas pequenas */
+.adocao-header .subtitle {
+  margin: 0;
+  flex: 1 1 auto;          /* ocupa o espaço restante */
+  min-width: 0;            /* permite truncar com overflow se necessário */
+  color: #444;
+}
+
+/* garante que o botão não fique esticado */
+.adocao-header .btn, .adocao-header .btn-link {
+  flex: 0 0 auto;
+  margin-left: 12px;
+}
+
+/* opcional: truncar o texto em telas pequenas para evitar wrap */
+.adocao-header .subtitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* responsivo: em telas muito pequenas joga para coluna (se preferir) */
+@media (max-width: 480px) {
+  .adocao-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .adocao-header .subtitle { white-space: normal; overflow: visible; }
+  .adocao-header .btn, .adocao-header .btn-link { margin-left: 0; margin-top: 8px; align-self:flex-end; }
+}
+
+/* estilo opcional para tornar <a class="btn-link"> visualmente igual ao botão */
+.btn-link { text-decoration: none; display: inline-block; }

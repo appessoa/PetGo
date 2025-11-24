@@ -1,186 +1,138 @@
-(async function() {
-  // ---------- CONFIG ----------
-  const API_ADDRS = '/api/users/addresses'; // lista e create
-  const EDIT_ADDRESS_URL_BASE = '/adress/cadastro'; // ajuste se necessário
-  // Opcional: injete token CSRF via template: <meta name="csrf-token" content="{{ csrf_token() }}">
-  const CSRF_TOKEN = window.CSRF_TOKEN || document.querySelector('meta[name="csrf-token"]')?.content || null;
-  const API_TOKEN = window.API_TOKEN || null; // se usar JWT
-  // ----------------------------
+// Importações necessárias
+import { initHeader } from './header.js';
+import { showToast } from './utils/toast.js';
 
-  const addressGrid = document.querySelector('.address-grid');
-  if (!addressGrid) return;
+document.addEventListener('DOMContentLoaded', async () => {
+    initHeader(); // Inicializa o cabeçalho dinâmico
+    await loadAddresses();
+});
 
-  function escapeHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
+// Variável global para armazenar o ID do usuário
+let currentUserId = null;
 
-  function buildCard(addr) {
+async function loadAddresses() {
+    const addressGrid = document.querySelector('.address-grid');
+    
+    // Botão de adicionar (HTML fixo)
+    const addNewBtnHTML = `
+        <a href="/adress/cadastro" class="add-new-card">
+            <div class="icon-plus">+</div>
+            <span style="font-weight: 600;">Adicionar novo endereço</span>
+        </a>
+    `;
+
+    try {
+        // 1. Pega o usuário logado
+        const userResponse = await fetch('/api/me');
+        if (!userResponse.ok) {
+            // Se a sessão expirou, redireciona
+            window.location.href = '/login';
+            return;
+        }
+        const userData = await userResponse.json();
+        currentUserId = userData.id; 
+
+        // 2. Busca endereços
+        const addressResponse = await fetch(`/api/users/${currentUserId}/addresses`);
+        if (!addressResponse.ok) throw new Error('Erro ao buscar endereços');
+
+        const addresses = await addressResponse.json();
+
+        addressGrid.innerHTML = '';
+
+        if (!addresses || addresses.length === 0) {
+            addressGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Nenhum endereço cadastrado.</p>';
+        } else {
+            addresses.forEach((addr, index) => {
+                addressGrid.appendChild(createAddressCard(addr, index));
+            });
+        }
+
+        addressGrid.insertAdjacentHTML('beforeend', addNewBtnHTML);
+        setupCardSelectionEvents();
+
+    } catch (error) {
+        console.error('Erro:', error);
+        addressGrid.innerHTML = '<p>Erro ao carregar endereços.</p>' + addNewBtnHTML;
+        showToast("Erro ao carregar seus endereços.", "error");
+    }
+}
+
+function createAddressCard(addr, index) {
     const label = document.createElement('label');
     label.className = 'address-card';
-    label.dataset.addressId = addr.id;
+    
+    const isChecked = addr.is_primary ? 'checked' : (index === 0 ? 'checked' : '');
+    const cepFormatado = addr.cep.replace(/^(\d{5})(\d{3})/, "$1-$2");
 
-    // badge PRINCIPAL
-    const badge = addr.is_primary ? `<span class="badge-primary" title="Endereço principal">PRINCIPAL</span>` : '';
-
-    label.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; width:100%">
-        <div style="display:flex; align-items:center; gap:8px">
-          <input type="radio" name="endereco_selecionado" value="${addr.id}" ${addr.is_primary ? 'checked' : ''}>
-          <span class="address-tag">${escapeHtml(addr.tag || '')}</span>
+    // Botões de Ação
+    const actionButtons = `
+        <div class="card-actions" style="display: flex; gap: 10px; margin-top: 10px; border-top: 1px solid #eee; padding-top: 8px;">
+            <button type="button" onclick="editAddress('${addr.id}', event)" style="background: none; border: none; color: #2563eb; cursor: pointer; font-size: 0.85rem; font-weight: 600;">Editar</button>
+            <button type="button" onclick="deleteAddress('${addr.id}', event)" style="background: none; border: none; color: #dc2626; cursor: pointer; font-size: 0.85rem; font-weight: 600;">Excluir</button>
         </div>
-        ${badge}
-      </div>
-      <h4>${escapeHtml(addr.nome || '')}</h4>
-      <p>${escapeHtml(addr.logradouro || '')}${addr.numero ? ', ' + escapeHtml(addr.numero) : ''}</p>
-      ${addr.complemento ? `<p>${escapeHtml(addr.complemento)}</p>` : ''}
-      <p>${escapeHtml(addr.bairro || '')}${addr.cidade ? ', ' + escapeHtml(addr.cidade) : ''} ${addr.estado ? '- ' + escapeHtml(addr.estado) : ''}</p>
-      <p>CEP: ${escapeHtml(addr.cep || '')}</p>
-      <a href="/adress/cadastro?id=${addr.id}" style="margin-top:10px; color:var(--primary); font-size:14px; font-weight:600;">Editar</a>
     `;
+
+    // HTML DO CARD
+    label.innerHTML = `
+        <input type="radio" name="address_id" value="${addr.id}" ${isChecked}>
+        <div class="card-details">
+            <div class="card-header">
+                <span class="address-title">${addr.logradouro}, ${addr.numero}</span>
+                ${addr.is_primary ? '<span class="badge-primary" style="background:var(--primary); color:white; padding:2px 6px; border-radius:4px; font-size:0.75rem; margin-left:8px;">Principal</span>' : ''}
+            </div>
+            
+            ${addr.nomeEntrega ? `<p style="color: #333; font-weight: 600; margin-bottom: 4px;">Receber: ${addr.nomeEntrega}</p>` : ''}
+
+            <p>${addr.bairro} - ${addr.cidade}/${addr.estado}</p>
+            <p>CEP: ${cepFormatado}</p>
+            ${addr.complemento ? `<p style="color:var(--muted); font-size:0.9rem">Comp: ${addr.complemento}</p>` : ''}
+            
+            ${actionButtons}
+        </div>
+        <div class="check-icon"></div> 
+    `;
+
+    if (isChecked) label.classList.add('selected');
     return label;
-  }
+}
 
-  function showLoading() {
-    addressGrid.innerHTML = '<div class="loading">Carregando endereços...</div>';
-  }
-  function showError(msg) {
-    addressGrid.innerHTML = `<div class="error" style="color:red">${escapeHtml(msg)}</div>`;
-  }
+// Funções Globais para serem acessadas pelo onclick (necessário pois é type="module")
+window.editAddress = (id, event) => {
+    event.preventDefault(); 
+    window.location.href = `/adress/cadastro?id=${id}`; 
+};
 
-  async function fetchAddresses() {
-    showLoading();
+window.deleteAddress = async (id, event) => {
+    event.preventDefault();
+    event.stopPropagation(); 
+
+    // Mantive o confirm nativo pois é uma ação destrutiva rápida
+    if(!confirm("Tem certeza que deseja excluir este endereço?")) return;
+
     try {
-      const headers = { 'Accept': 'application/json' };
-      if (API_TOKEN) headers['Authorization'] = 'Bearer ' + API_TOKEN;
-      const res = await fetch(API_ADDRS, { method: 'GET', headers, credentials: 'same-origin' });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Status ${res.status}: ${text}`);
-      }
-      return await res.json();
-    } catch (err) {
-      console.error(err);
-      showError('Não foi possível carregar seus endereços. Tente novamente mais tarde.');
-      return null;
-    }
-  }
+        const response = await fetch(`/api/users/${currentUserId}/addresses/${id}`, {
+            method: 'DELETE'
+        });
 
-  function renderAddresses(addresses) {
-    addressGrid.innerHTML = '';
-    if (!addresses || addresses.length === 0) {
-      addressGrid.innerHTML = `
-        <div class="no-addresses" style="grid-column:1/-1; text-align:center; padding:20px;">
-          Você ainda não tem endereços salvos.
-          <div style="margin-top:10px;"><a href="/adress/cadastro'" class="add-new-card">Adicionar novo endereço</a></div>
-        </div>`;
-      return;
-    }
-
-    addresses.forEach(addr => addressGrid.appendChild(buildCard(addr)));
-
-    const addCard = document.createElement('a');
-    addCard.href = '/adress/cadastro';
-    addCard.className = 'add-new-card';
-    addCard.innerHTML = `<div class="icon-plus">+</div><span style="font-weight: 600;">Adicionar novo endereço</span>`;
-    addressGrid.appendChild(addCard);
-
-    const radios = addressGrid.querySelectorAll('input[type="radio"][name="endereco_selecionado"]');
-    radios.forEach(radio => radio.addEventListener('change', onAddressChange));
-  }
-
-  // chama rota POST /api/users/addresses/:addrId/primary
-  async function setPrimaryAddress(addrId) {
-    const url = `${API_ADDRS}/${addrId}/primary`;
-    try {
-      const headers = { 'Accept': 'application/json' };
-      if (CSRF_TOKEN) headers['X-CSRFToken'] = CSRF_TOKEN; // ou X-CSRF-Token conforme sua config
-      if (API_TOKEN) headers['Authorization'] = 'Bearer ' + API_TOKEN;
-      const res = await fetch(url, { method: 'POST', headers, credentials: 'same-origin' });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Erro ao definir primary: ${res.status} ${text}`);
-      }
-      return await res.json();
-    } catch (err) {
-      console.error(err);
-      alert('Não foi possível definir o endereço como principal no servidor. Tente novamente.');
-      return null;
-    }
-  }
-
-  async function onAddressChange(e) {
-    const selectedId = e.target.value;
-
-    // otimista: atualiza UI local
-    document.querySelectorAll('.address-card').forEach(c => {
-      c.classList.remove('primary-address', 'selected');
-      c.querySelector('input[type="radio"]').checked = false;
-      // remove badge se existir
-      const b = c.querySelector('.badge-primary');
-      if (b) b.remove();
-    });
-    const card = e.target.closest('.address-card');
-    if (card) {
-      card.classList.add('selected');
-      const radio = card.querySelector('input[type="radio"]');
-      if (radio) radio.checked = true;
-      // adiciona badge temporária
-      const badgeEl = document.createElement('span');
-      badgeEl.className = 'badge-primary';
-      badgeEl.textContent = 'PRINCIPAL';
-      badgeEl.title = 'Endereço principal';
-      badgeEl.style.marginLeft = '8px';
-      card.querySelector('div').appendChild(badgeEl);
-    }
-
-    // confirma no backend
-    const updated = await setPrimaryAddress(selectedId);
-    if (updated && updated.id) {
-      // aplica estilo definitivo apenas no card atualizado
-      document.querySelectorAll('.address-card').forEach(c => {
-        if (String(c.dataset.addressId) === String(updated.id)) {
-          c.classList.add('primary-address');
-          const radio = c.querySelector('input[type="radio"]'); if (radio) radio.checked = true;
-          // ensure badge present
-          if (!c.querySelector('.badge-primary')) {
-            const b = document.createElement('span');
-            b.className = 'badge-primary';
-            b.textContent = 'PRINCIPAL';
-            b.title = 'Endereço principal';
-            c.querySelector('div').appendChild(b);
-          }
+        if (response.ok) {
+            showToast('Endereço excluído com sucesso!', 'success');
+            loadAddresses(); // Recarrega a lista para atualizar a tela
         } else {
-          c.classList.remove('primary-address');
-          const r = c.querySelector('input[type="radio"]'); if (r) r.checked = false;
-          const b = c.querySelector('.badge-primary'); if (b) b.remove();
+            showToast('Erro ao excluir endereço.', 'error');
         }
-      });
-    } else {
-      // se falhar, opcional: recarrega lista para voltar ao estado real
-      const fresh = await fetchAddresses();
-      if (fresh) renderAddresses(fresh);
+    } catch (error) {
+        console.error('Erro ao excluir:', error);
+        showToast('Erro de conexão ao excluir.', 'error');
     }
-  }
+};
 
-  // validação no submit do form
-  const form = document.querySelector('form[action="/checkout"]');
-  if (form) {
-    form.addEventListener('submit', (ev) => {
-      const selected = form.querySelector('input[name="endereco_selecionado"]:checked');
-      if (!selected) {
-        ev.preventDefault();
-        alert('Selecione um endereço de entrega antes de continuar.');
-      }
+function setupCardSelectionEvents() {
+    const inputs = document.querySelectorAll('.address-card input[type="radio"]');
+    inputs.forEach(input => {
+        input.addEventListener('change', (e) => {
+            document.querySelectorAll('.address-card').forEach(c => c.classList.remove('selected'));
+            e.target.closest('.address-card').classList.add('selected');
+        });
     });
-  }
-
-  // execução
-  const addresses = await fetchAddresses();
-  if (addresses) renderAddresses(addresses);
-})();
+}

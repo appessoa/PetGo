@@ -1,208 +1,182 @@
-// /public/js/enderecoCadastro.js
-// deve ser importado como <script type="module" src="/public/js/enderecoCadastro.js"></script>
+// Importações necessárias
+import { initHeader } from './header.js';
+import { showToast } from './utils/toast.js';
 
-const API_BASE = '/api/users/addresses'; // GET list, POST create, GET/:id, PATCH/:id
-const CSRF_TOKEN = window.CSRF_TOKEN || document.querySelector('meta[name="csrf-token"]')?.content || null;
-const API_TOKEN = window.API_TOKEN || null;
+document.addEventListener('DOMContentLoaded', async () => {
+    // Inicializa o Header (se necessário)
+    initHeader();
+    
+    const form = document.querySelector('form');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const pageTitle = document.querySelector('.section-title');
 
-function qs(sel) { return document.querySelector(sel); }
-function qsa(sel) { return Array.from(document.querySelectorAll(sel)); }
+    // Ativa busca automática de CEP
+    setupCepAutoFill(); 
 
-function showToast(msg, type = 'info') {
-  // implementação simples; adapte ao seu sistema de toast
-  alert(msg);
-}
+    // 1. Verificar se é edição (ID na URL)
+    const urlParams = new URLSearchParams(window.location.search);
+    const addressId = urlParams.get('id');
 
-function buildHeaders() {
-  const headers = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
-  if (CSRF_TOKEN) headers['X-CSRFToken'] = CSRF_TOKEN;
-  if (API_TOKEN) headers['Authorization'] = 'Bearer ' + API_TOKEN;
-  return headers;
-}
+    let currentUserId = null;
 
-// tenta extrair id da URL:
-// formatos aceitos: /adress/cadastro/123   ou   /adress/cadastro?id=123
-function getAddressIdFromUrl() {
-  const url = new URL(window.location.href);
-  // 1) procura param id
-  if (url.searchParams.has('id')) {
-    const v = url.searchParams.get('id');
-    if (v && /^\d+$/.test(v)) return v;
-  }
-  // 2) procura último segmento numérico
-  const parts = url.pathname.replace(/\/+$/, '').split('/');
-  const last = parts[parts.length - 1];
-  if (/^\d+$/.test(last)) return last;
-  return null;
-}
-
-// mapeamento entre campos do formulário e payload esperado pelo backend
-function formToPayload(form) {
-  return {
-    nome: form.destinatario?.value?.trim() || '',     // destinatário
-    cep: form.cep?.value?.trim() || '',
-    estado: form.estado?.value || '',
-    logradouro: form.endereco?.value?.trim() || '',
-    numero: form.numero?.value?.trim() || '',
-    complemento: form.complemento?.value?.trim() || '',
-    bairro: form.bairro?.value?.trim() || '',
-    cidade: form.cidade?.value?.trim() || '',
-    pontoRef: form.referencia?.value?.trim() || '',
-    // opcional: tag (Casa/Trabalho) se quiser permitir no form
-  };
-}
-
-function payloadToForm(data, form) {
-  if (!data || !form) return;
-  form.destinatario.value = data.nome ?? form.destinatario.value;
-  form.cep.value = data.cep ?? form.cep.value;
-  if (data.estado) {
-    // tenta selecionar a option se existir
-    const opt = form.estado.querySelector(`option[value="${data.estado}"]`);
-    if (opt) opt.selected = true;
-  }
-  form.endereco.value = data.logradouro ?? form.endereco.value;
-  form.numero.value = data.numero ?? form.numero.value;
-  form.complemento.value = data.complemento ?? form.complemento.value;
-  form.bairro.value = data.bairro ?? form.bairro.value;
-  form.cidade.value = data.cidade ?? form.cidade.value;
-  form.referencia.value = data.referencia ?? form.referencia.value;
-}
-
-async function fetchAddress(id) {
-  try {
-    const res = await fetch(`${API_BASE}/${id}`, {
-      method: 'GET',
-      headers: buildHeaders(),
-      credentials: 'same-origin'
-    });
-    if (!res.ok) {
-      const txt = await res.text().catch(()=>null);
-      throw new Error(`Status ${res.status} ${txt || ''}`);
-    }
-    return await res.json();
-  } catch (err) {
-    console.error('fetchAddress error', err);
-    throw err;
-  }
-}
-
-async function createAddress(payload) {
-  try {
-    const res = await fetch(API_BASE, {
-      method: 'POST',
-      headers: buildHeaders(),
-      credentials: 'same-origin',
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) {
-      const txt = await res.text().catch(()=>null);
-      throw new Error(`Status ${res.status} ${txt || ''}`);
-    }
-    return await res.json();
-  } catch (err) {
-    console.error('createAddress error', err);
-    throw err;
-  }
-}
-
-async function updateAddress(id, payload) {
-  try {
-    const res = await fetch(`${API_BASE}/${id}`, {
-      method: 'PATCH',
-      headers: buildHeaders(),
-      credentials: 'same-origin',
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) {
-      const txt = await res.text().catch(()=>null);
-      throw new Error(`Status ${res.status} ${txt || ''}`);
-    }
-    return await res.json();
-  } catch (err) {
-    console.error('updateAddress error', err);
-    throw err;
-  }
-}
-
-function validatePayload(payload) {
-  const required = ['cidade', 'estado', 'numero', 'logradouro', 'bairro'];
-  const missing = required.filter(k => !payload[k] || String(payload[k]).trim() === '');
-  return missing;
-}
-
-function decideRedirectAfterSave() {
-  // tenta voltar para a página anterior (selection) se existir, senão tenta rota padrão
-  const ref = document.referrer || '';
-  if (ref.includes('/selecionar') || ref.includes('/meusendereco') || ref.includes('/selection')) {
-    return () => window.history.back();
-  }
-  // rota padrão para onde o usuário escolhe endereço (ajuste se necessário)
-  const fallback = '/selecionar-endereco';
-  return () => window.location.href = fallback;
-}
-
-async function main() {
-  const form = qs('.checkout-form-section');
-  if (!form) return;
-
-  const addressId = getAddressIdFromUrl();
-  const redirect = decideRedirectAfterSave();
-
-  // se for edição: busca dados e popula
-  if (addressId) {
+    // Obter ID do usuário logado
     try {
-      const data = await fetchAddress(addressId);
-      payloadToForm(data, form);
-      // opcional: alterar texto do botão
-      const btn = form.querySelector('button[type="submit"]');
-      if (btn) btn.textContent = 'Salvar alterações';
-      // colocar um campo escondido para sinalizar edição (não estraga nada)
-      let hid = form.querySelector('input[name="editing_id"]');
-      if (!hid) {
-        hid = document.createElement('input');
-        hid.type = 'hidden';
-        hid.name = 'editing_id';
-        form.appendChild(hid);
-      }
-      hid.value = addressId;
-    } catch (err) {
-      showToast('Não foi possível carregar o endereço para edição. Você pode tentar novamente.');
-    }
-  }
-
-  form.addEventListener('submit', async (ev) => {
-    ev.preventDefault();
-    const payload = formToPayload(form);
-    const missing = validatePayload(payload);
-    if (missing.length) {
-      showToast('Campos obrigatórios faltando: ' + missing.join(', '));
-      return;
+        const userRes = await fetch('/api/me');
+        if(userRes.ok) {
+            const userData = await userRes.json();
+            currentUserId = userData.id;
+        } else {
+            // Se não estiver logado, avisa e talvez redirecione
+            showToast("Sessão expirada. Faça login novamente.", "error");
+        }
+    } catch (e) {
+        console.error("Erro de autenticação", e);
     }
 
-    try {
-      let saved;
-      if (addressId) {
-        saved = await updateAddress(addressId, payload);
-        showToast('Endereço atualizado com sucesso!', 'success');
-      } else {
-        saved = await createAddress(payload);
-        showToast('Endereço criado com sucesso!', 'success');
-      }
-
-      // redireciona: tenta voltar ao seletor de endereço ou para checkout
-      // se o formulário original veio com action="/checkout", talvez você queira ir para /checkout
-      // nesse caso, redirecionamos para o referrer quando pertinente; ajuste se quiser comportamento diferente.
-      setTimeout(() => {
-        // se a página de seleção existe no referrer, voltamos; senão vamos para fallback
-        redirect();
-      }, 300);
-
-    } catch (err) {
-      console.error(err);
-      showToast('Erro ao salvar endereço. Verifique os dados e tente novamente.');
+    // 2. Se for Edição, buscar dados e preencher
+    if (addressId && currentUserId) {
+        pageTitle.textContent = "Editar Endereço";
+        submitBtn.textContent = "Salvar Alterações";
+        
+        try {
+            const res = await fetch(`/api/users/${currentUserId}/addresses/${addressId}`);
+            if (res.ok) {
+                const data = await res.json();
+                fillForm(data);
+            } else {
+                showToast("Endereço não encontrado.", "error");
+            }
+        } catch (error) {
+            console.error("Erro ao buscar endereço", error);
+            showToast("Erro ao carregar dados do endereço.", "error");
+        }
     }
-  });
+
+    // 3. Envio do formulário (Cadastrar ou Atualizar)
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // COLETA DOS DADOS
+        const payload = {
+            nomeEntrega: document.getElementById('destinatario').value,
+            cep: document.getElementById('cep').value.replace(/\D/g, ''),
+            estado: document.getElementById('estado').value,
+            logradouro: document.getElementById('endereco').value,
+            numero: document.getElementById('numero').value,
+            complemento: document.getElementById('complemento').value,
+            bairro: document.getElementById('bairro').value,
+            cidade: document.getElementById('cidade').value,
+            pontoRef: document.getElementById('referencia').value
+        };
+
+        // Trava o botão e muda o texto
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Processando...";
+        
+        let responseOk = false; // Flag para controlar o finally
+
+        try {
+            let url, method;
+            let successMessage;
+
+            if (addressId) {
+                // ATUALIZAR
+                url = `/api/users/${currentUserId}/addresses/${addressId}`;
+                method = 'PATCH';
+                successMessage = "Endereço atualizado com sucesso!";
+            } else {
+                // CRIAR
+                url = `/api/users/${currentUserId}/addresses`;
+                method = 'POST';
+                successMessage = "Endereço cadastrado com sucesso!";
+            }
+
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            responseOk = response.ok;
+
+            if (response.ok) {
+                // SUCESSO: Mostra Toast e espera para redirecionar
+                showToast(successMessage, "success"); // Assumindo que seu toast aceita o tipo "success"
+                
+                submitBtn.textContent = "Redirecionando...";
+
+                setTimeout(() => {
+                    // Volta para a tela anterior (lista de endereços)
+                    window.history.back();
+                }, 1500); // Espera 1.5 segundos
+
+            } else {
+                // ERRO DA API
+                const err = await response.json();
+                showToast(err.message || 'Erro ao processar solicitação.', "error");
+            }
+
+        } catch (error) {
+            console.error(error);
+            showToast('Erro de conexão com o servidor.', "error");
+        } finally {
+            // Só reabilita o botão se DEU ERRO. 
+            // Se deu sucesso, mantemos desabilitado até a página mudar.
+            if (!responseOk) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = addressId ? "Salvar Alterações" : "Salvar";
+            }
+        }
+    });
+});
+
+// FUNÇÃO PARA PREENCHER FORMULÁRIO NA EDIÇÃO
+function fillForm(data) {
+    if(data.cep) document.getElementById('cep').value = data.cep;
+    if(data.estado) document.getElementById('estado').value = data.estado;
+    if(data.logradouro) document.getElementById('endereco').value = data.logradouro;
+    if(data.numero) document.getElementById('numero').value = data.numero;
+    if(data.complemento) document.getElementById('complemento').value = data.complemento;
+    if(data.bairro) document.getElementById('bairro').value = data.bairro;
+    if(data.cidade) document.getElementById('cidade').value = data.cidade;
+
+    if(data.nomeEntrega) document.getElementById('destinatario').value = data.nomeEntrega;
+    if(data.pontoRef) document.getElementById('referencia').value = data.pontoRef;
 }
 
-document.addEventListener('DOMContentLoaded', main);
+// FUNÇÃO VIACEP
+function setupCepAutoFill() {
+    const cepInput = document.getElementById('cep');
+    if(!cepInput) return;
+
+    cepInput.addEventListener('input', async (e) => {
+        const rawValue = e.target.value.replace(/\D/g, '');
+        
+        if (rawValue.length === 8) {
+            const endInput = document.getElementById('endereco');
+            const placeholderOriginal = endInput.placeholder;
+            endInput.placeholder = "Buscando...";
+            
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${rawValue}/json/`);
+                const data = await response.json();
+
+                if (!data.erro) {
+                    document.getElementById('endereco').value = data.logradouro;
+                    document.getElementById('bairro').value = data.bairro;
+                    document.getElementById('cidade').value = data.localidade;
+                    document.getElementById('estado').value = data.uf;
+                    document.getElementById('numero').focus();
+                    
+                    showToast("CEP encontrado!", "success"); // Feedback visual opcional
+                } else {
+                    showToast("CEP não encontrado.", "error");
+                }
+            } catch (error) {
+                console.error("Erro ao buscar CEP", error);
+            } finally {
+                 endInput.placeholder = placeholderOriginal;
+            }
+        }
+    });
+}

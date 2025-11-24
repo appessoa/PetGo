@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="/public/CSS/dropdown.css">
     <link rel="stylesheet" href="/public/CSS/endereco.css">
     <link rel="stylesheet" href="/public/CSS/">
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
     <script type='module' src="/public/js/enderecoCadastro.js"></script>
 </head>
 <body>
@@ -40,14 +40,8 @@
 
                 <div class="form-group">
                     <label for="estado">Estado</label>
-                    <select id="estado" name="estado" required>
-                        <option value="" disabled selected>Selecione o estado</option>
-                        <option value="PE">Pernambuco</option>
-                        <option value="SP">São Paulo</option>
-                        <option value="RJ">Rio de Janeiro</option>
-                        <option value="MG">Minas Gerais</option>
-                        <option value="BA">Bahia</option>
-                    </select>
+                    <input type="text" id="estado" name="estado" placeholder="PE" required>
+
                 </div>
 
                 <div class="form-group full-width">
@@ -84,7 +78,7 @@
 
             <div class="form-actions">
                 <a href="/carrinho" class="btn secondary" style="border:none; box-shadow:none; background:transparent; color:var(--muted)">Voltar</a>
-                <button type="submit" class="btn primary" style="padding: 14px 32px; font-size: 16px;">Continuar para Pagamento</button>
+                <button type="submit" class="btn primary" style="padding: 14px 32px; font-size: 16px;">Salvar</button>
             </div>
 
         </form>

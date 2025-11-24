@@ -1,6 +1,7 @@
 import { initHeader } from './header.js';
 import { showToast } from '/public/js/utils/toast.js';
 document.addEventListener("DOMContentLoaded",()=>{ initHeader(); loadAndRender(); });
+
 const API_BASE='/api';
 const qs=(s,r=document)=>r.querySelector(s);
 const esc=(s='')=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;");
@@ -55,9 +56,29 @@ function hideManagedSectionsExcept(visibleTitles){
   });
 }
 
+/* ---------- ALTERAÇÃO PRINCIPAL: cardHTML agora respeita estoque ---------- */
 function cardHTML(p){
   const img = p.imagem || '/public/img/placeholder-product.png';
-  return `<article class="product-card" data-product-id="${esc(p.id ?? p.id_produto)}"><div class="product-info"><h4 title="${esc(p.nome||'')}">${esc(p.nome||'Produto')}</h4><div class="price">${fmtBRL(p.preco)}</div><button class="btn primary" data-add>Adicionar ao Carrinho</button></div><img src="${esc(img)}" alt="${esc(p.nome||'Imagem do produto')}" class="product-img"></article>`;
+  // tenta normalizar o nome do campo de estoque (pode ser 'estoque', 'stock', etc.)
+  const estoqueRaw = (p.estoque ?? p.stock ?? p.qtde ?? 0);
+  const estoque = Number(estoqueRaw ?? 0);
+  const isOut = Number.isNaN(estoque) ? false : (estoque <= 0);
+  // badge / botão desabilitado se indisponível
+  const badge = isOut ? `<span class="badge unavailable" style="color: red">Produto indisponível</span>` : ``;
+  const addBtn = isOut
+    ? `<button class="btn primary" data-add disabled aria-disabled="true" title="Produto indisponível">Indisponível</button>`
+    : `<button class="btn primary" data-add>Adicionar ao Carrinho</button>`;
+
+  // inclui data-stock no card para checagem rápida no handler
+  return `<article class="product-card" data-product-id="${esc(p.id ?? p.id_produto)}" data-stock="${esc(String(estoque))}">
+    <div class="product-info">
+      <h4 title="${esc(p.nome||'')}">${esc(p.nome||'Produto')}</h4>
+      <div class="price">${fmtBRL(p.preco)}</div>
+      ${badge}
+      ${addBtn}
+    </div>
+    <img src="${esc(img)}" alt="${esc(p.nome||'Imagem do produto')}" class="product-img">
+  </article>`;
 }
 
 function renderGroups(groups){
@@ -146,12 +167,60 @@ function initFiltersEvents(){
   $pp&&$pp.addEventListener('change',()=>{ const v=Number($pp.value)||24; STATE.perPage=v; STATE.page=1; queryAndRender(); });
 }
 
+/* bindAddToCart: agora checa stock no card (data-stock) e evita POST se estoque <= 0 */
 let ADD_CART_HANDLER_BOUND=false;
-function bindAddToCart(){ if(ADD_CART_HANDLER_BOUND) return; ADD_CART_HANDLER_BOUND=true; document.body.addEventListener('click',async (e)=>{ const btn=e.target.closest('button[data-add]'); if(!btn) return; const card=btn.closest('.product-card'); const pid=card?.getAttribute('data-product-id'); if(!pid) return; if(btn.dataset.loading==='1') return; btn.dataset.loading='1'; const old=btn.textContent; btn.disabled=true; btn.textContent='Adicionando...'; try{ await fetchJSON(`${API_BASE}/carrinho/items`,{ method:'POST', body: JSON.stringify({ id_produto: Number(pid), quantidade:1, modo:'INCLUIR' }), }); btn.textContent='Adicionado!'; showToast('Adicionado ao carrinho','success'); window.dispatchEvent(new CustomEvent('cart:updated')); }catch(err){ btn.textContent='Erro! Tente de novo'; if((err.message||'').includes('401')) showToast('Faça login para adicionar ao carrinho','error'); else showToast('Erro de banco de dados.','error'); }finally{ setTimeout(()=>{ btn.textContent=old; btn.disabled=false; btn.dataset.loading='0'; },900); } }); }
+function bindAddToCart(){ 
+  if(ADD_CART_HANDLER_BOUND) return; 
+  ADD_CART_HANDLER_BOUND=true; 
+  document.body.addEventListener('click',async (e)=>{
+    const btn=e.target.closest('button[data-add]'); 
+    if(!btn) return; 
+    const card=btn.closest('.product-card'); 
+    const pid=card?.getAttribute('data-product-id'); 
+    if(!pid) return; 
+
+    // checagem extra de estoque: usa data-stock do card (string)
+    const stockRaw = card?.getAttribute('data-stock');
+    const stockNum = stockRaw == null ? null : Number(stockRaw);
+    if(stockNum !== null && !Number.isNaN(stockNum) && stockNum <= 0){
+      showToast('Produto indisponível no momento.', 'error');
+      return; // impede adicionar
+    }
+
+    if(btn.dataset.loading==='1') return; 
+    btn.dataset.loading='1'; 
+    const old=btn.textContent; 
+    btn.disabled=true; 
+    btn.textContent='Adicionando...'; 
+    try{ 
+      await fetchJSON(`${API_BASE}/carrinho/items`,{ method:'POST', body: JSON.stringify({ id_produto: Number(pid), quantidade:1, modo:'INCLUIR' }), }); 
+      btn.textContent='Adicionado!'; 
+      showToast('Adicionado ao carrinho','success'); 
+      window.dispatchEvent(new CustomEvent('cart:updated')); 
+    }catch(err){ 
+      btn.textContent='Erro! Tente de novo'; 
+      if((err.message||'').includes('401')) showToast('Faça login para adicionar ao carrinho','error'); 
+      else showToast('Erro de banco de dados.','error'); 
+    }finally{ 
+      setTimeout(()=>{ btn.textContent=old; btn.disabled=false; btn.dataset.loading='0'; },900); 
+    } 
+  }); 
+}
 
 const PRODUCT_DETAIL_URL='/detail';
 let NAV_HANDLER_BOUND=false;
-function bindNavigateToDetail(){ if(NAV_HANDLER_BOUND) return; NAV_HANDLER_BOUND=true; document.body.addEventListener('click',(e)=>{ if(e.target.closest('button[data-add]')) return; const card=e.target.closest('.product-card'); if(!card) return; const pid=card.getAttribute('data-product-id'); if(!pid) return; window.location.href = `${PRODUCT_DETAIL_URL}?id=${encodeURIComponent(pid)}`; }); }
+function bindNavigateToDetail(){ 
+  if(NAV_HANDLER_BOUND) return; 
+  NAV_HANDLER_BOUND=true; 
+  document.body.addEventListener('click',(e)=>{ 
+    if(e.target.closest('button[data-add]')) return; 
+    const card=e.target.closest('.product-card'); 
+    if(!card) return; 
+    const pid=card.getAttribute('data-product-id'); 
+    if(!pid) return; 
+    window.location.href = `${PRODUCT_DETAIL_URL}?id=${encodeURIComponent(pid)}`; 
+  }); 
+}
 
 function parseURLToState(){ const params=new URLSearchParams(window.location.search); STATE.page = Number(params.get('page')) || 1; STATE.perPage = Number(params.get('per_page')) || STATE.perPage; STATE.q = params.get('q') || ''; STATE.categoria = params.get('categoria') || ''; STATE.especie = params.get('especie') || ''; STATE.precoMin = params.has('preco_min') ? Number(params.get('preco_min')) : null; STATE.precoMax = params.has('preco_max') ? Number(params.get('preco_max')) : null; STATE.sort = params.get('sort') || ''; }
 
@@ -161,4 +230,18 @@ function replaceURLFromState(){ const base='/produtos'; const q = buildQueryPara
 
 window.addEventListener('popstate',()=>{ parseURLToState(); applyStateToUI(); queryAndRender(); });
 
-async function loadAndRender(){ try{ ensureFiltersUI(); await loadStaticOptions(); parseURLToState(); applyStateToUI(); await queryAndRender(); initFiltersEvents(); bindAddToCart(); bindNavigateToDetail(); }catch(err){ console.error('Falha no bootstrap dos produtos:',err); showToast('Erro ao carregar página.','error'); } }
+async function loadAndRender(){ 
+  try{ 
+    ensureFiltersUI(); 
+    await loadStaticOptions(); 
+    parseURLToState(); 
+    applyStateToUI(); 
+    await queryAndRender(); 
+    initFiltersEvents(); 
+    bindAddToCart(); 
+    bindNavigateToDetail(); 
+  }catch(err){ 
+    console.error('Falha no bootstrap dos produtos:',err); 
+    showToast('Erro ao carregar página.','error'); 
+  } 
+}

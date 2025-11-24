@@ -31,15 +31,16 @@ class AddressService:
             return " - ".join(parts)
     @staticmethod
     def list_by_user(user_id: int) -> List[Address]:
-        return Address.query.filter_by(user_id=user_id).order_by(Address.is_primary.desc(), Address.created_at.desc()).all()
+        return Address.query.filter_by(user_id=user_id, deleted = False).order_by(Address.is_primary.desc(), Address.created_at.desc()).all()
 
     @staticmethod
     def get(user_id: int, addr_id: int) -> Address:
-        return Address.query.filter_by(id_address=addr_id, user_id=user_id).first_or_404()
+        return Address.query.filter_by(id_address=addr_id, user_id=user_id, deleted = False).first_or_404()
 
     @staticmethod
     def create(user_id: int, data: dict) -> Address:
         user = User.query.get_or_404(user_id)
+        print(data)
         addr = Address(
             user_id=user.id_user,
             cep=data.get("cep"),
@@ -50,6 +51,7 @@ class AddressService:
             cidade=data.get("cidade"),
             estado=data.get("estado"),
             pontoRef = data.get("pontoRef"),
+            nomeEntrega = data.get("nomeEntrega"),
             pais=data.get("pais") or "BR",
             full_address= AddressService._compose_full_address(data),
             is_primary=bool(data.get("is_primary", True)),
@@ -70,7 +72,7 @@ class AddressService:
 
         # atualiza apenas os campos enviados (exceto full_address)
         for field in ["cep", "logradouro", "numero", "complemento",
-                    "bairro", "cidade", "estado", "pais"]:
+                    "bairro", "cidade", "estado", "pais", "pontoRef", "nomeEntrega"]:
             if field in data:
                 setattr(addr, field, data[field])
 
@@ -128,5 +130,6 @@ class AddressService:
             other = Address.query.filter(Address.user_id == user_id, Address.id_address != addr.id_address).order_by(Address.created_at.desc()).first()
             if other:
                 other.is_primary = True
-        db.session.delete(addr)
+        addr.deleted = addr_id
+        addr.is_primary = False
         db.session.commit()
