@@ -37,6 +37,7 @@ def create_app():
     from routes.carrinho import cart_bp
     from routes.produtos import produtos_bp
     from routes.pedido import bp_orders
+    from routes.prontuario import pront_api
     
     app.register_blueprint(user_api)
     app.register_blueprint(auth_bp)
@@ -49,6 +50,7 @@ def create_app():
     app.register_blueprint(cart_bp)
     app.register_blueprint(produtos_bp)
     app.register_blueprint(bp_orders)
+    app.register_blueprint(pront_api)
 
     with app.app_context():
         import models
