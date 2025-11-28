@@ -104,3 +104,8 @@ def endereco():
 @front_bp.route('/adress/cadastro/<int:addr_id>', methods=['GET'])
 def adress_cadastro(addr_id=None):
         return render_template('endereco.html', addr_id=addr_id)
+
+@front_bp.route('/vetDashboard')
+@login_required
+def vetDashboard():
+    return render_template('vetmed.html')

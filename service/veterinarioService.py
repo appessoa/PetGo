@@ -1,6 +1,13 @@
 from datetime import date
+
+from flask import jsonify, request
 from config.db import db
 from flask_bcrypt import Bcrypt
+
+from models.agendamentoModel import Scheduling
+from models.petsModel import Pet
+from routes.utils.auth import current_user_id
+from service.Helpers import api_error
 bcrypt = Bcrypt()
 
 def created_veterinario(data):
@@ -93,3 +100,75 @@ def get_veterinarios_disponiveis():
     from models.veterinarioModel import veterinarianModel
     vets = veterinarianModel.query.filter_by(status=True, deleted=False).all()
     return [vet.to_dict() for vet in vets]
+
+def get_agendamentos_por_veterinario(vet_id):
+    from models.veterinarioModel import veterinarianModel
+    vet = veterinarianModel.query.get(vet_id)
+    if not vet or vet.deleted:
+        return []
+    schedulings = getattr(vet, "schedulings", [])
+    return [s.to_dict() for s in schedulings]
+
+
+def get_pacientes_por_veterinario_me():
+        """
+        Retorna pacientes distintos atendidos pelo veterinário logado.
+        Query params:
+          - page (int, default 1)
+          - per_page (int, default 10)
+          - q (string, opcional, busca por nome do pet ou tutor)
+        """
+        try:
+            uid = current_user_id()
+            try:
+                page = max(1, int(request.args.get("page", 1)))
+            except Exception:
+                page = 1
+            try:
+                per_page = max(1, min(100, int(request.args.get("per_page", 10))))
+            except Exception:
+                per_page = 10
+
+            qstr = (request.args.get("q") or "").strip()
+
+            # subquery: pets vinculados a agendamentos cujo vet_id == uid
+            # buscamos pets distintos via join com Scheduling e Pet
+            query = db.session.query(Pet).join(Scheduling, Scheduling.pet_id == Pet.id_pet).filter(Scheduling.vet_id == uid)
+
+            if qstr:
+                # busca simples por nome do pet ou tutor (ajuste nomes dos campos conforme seu modelo)
+                query = query.filter(
+                    (Pet.nome.ilike(f"%{qstr}%")) | (Pet.tutor.ilike(f"%{qstr}%"))  # ajusta tutor -> campo real (ex: dono, owner)
+                )
+
+            # distinct pets (SQLAlchemy may duplicate; use group_by or distinct)
+            query = query.group_by(Pet.id_pet).order_by(Pet.nome.asc())
+
+            # paginação manual usando offset/limit (portable)
+            total = query.count()
+            pages = (total + per_page - 1) // per_page
+            items = query.offset((page - 1) * per_page).limit(per_page).all()
+
+            # serializa
+            patients = []
+            for p in items:
+                patients.append({
+                    "id_pet": getattr(p, "id_pet", None),
+                    "nome": getattr(p, "nome", None),
+                    "especie": getattr(p, "especie", None) or getattr(p, "species", None),
+                    "raca": getattr(p, "raca", None) or getattr(p, "breed", None),
+                    "tutor": getattr(p, "tutor", None) or getattr(p, "dono", None) or getattr(p, "owner_name", None),
+                    "ultima_consulta": None  # opcional: preencher com subquery se desejar
+                })
+
+            return jsonify({
+                "patients": patients,
+                "page": page,
+                "per_page": per_page,
+                "total": total,
+                "pages": pages
+            })
+        except PermissionError as e:
+            return api_error(403, str(e), exc=e)
+        except Exception as e:
+            return api_error(500, "Erro ao listar pacientes.", exc=e)

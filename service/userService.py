@@ -92,6 +92,30 @@ def _fmt_address_from_dict(address: dict | None) -> str | None:
 
     return ", ".join(parts) if parts else None
 
+def try_vet_by_username(username: str) -> Optional[User]:
+    """
+    Tenta carregar um veterinário pelo username e retorna como User (se existir).
+    Retorna None se não encontrar ou se estiver marcado como deletado (soft delete).
+    """
+    from models.veterinarioModel import veterinarianModel
+
+    vet = veterinarianModel.query.filter_by(username=username, deleted=False).first()
+    if not vet:
+        return None
+
+    # Converte veterinarianModel para User
+    user_equiv = User(
+        id_user=vet.id_veterinarian,
+        username=vet.username,
+        nome=vet.name,
+        email=vet.email,
+        password=vet.password,
+        is_active=vet.status,
+        is_admin=False,  # veterinários não são admins por padrão
+        deleted=False
+    )
+    return user_equiv
+
 def get_user_public_info(user_id: int) -> Optional[dict]:
     """
     Carrega o usuário pelo ID e retorna um dicionário 'seguro' para uso no PDF/JSON.

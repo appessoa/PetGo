@@ -1,7 +1,7 @@
 from flask import jsonify, redirect, render_template, request, session, url_for
 from flask_bcrypt import Bcrypt
 from models.userModel import User
-from service.userService import get_user_by_email, get_user_by_username
+from service.userService import get_user_by_email, get_user_by_username , try_vet_by_username
 bcrypt = Bcrypt()
 
 class authController():
@@ -15,7 +15,10 @@ class authController():
             user = get_user_by_username(username)
             if not user:
                 user = get_user_by_email(username)
-            
+            if not user:
+                user= try_vet_by_username(username)
+                if user:
+                    session["is_vet"] = True
             if not user:
                 return jsonify({"error": "Usuario inexistente"}), 401
 
@@ -29,6 +32,8 @@ class authController():
             session["username"] = user.username
             session["is_admin"] = user.is_admin
 
+            if session.get("is_vet"):
+                return redirect(url_for("front.vetDashboard"))
             if user.is_admin:
                 return redirect(url_for("front.adminPage"))
             return redirect(url_for("front.index"))
@@ -44,7 +49,8 @@ class authController():
             return jsonify({
                 "logged_in": True,
                 "username": session["username"],
-                "is_admin": session.get("is_admin", False)
+                "is_admin": session.get("is_admin", False),
+                "is_vet": session.get("is_vet", False)
             })
         return jsonify({"logged_in": False})
     
