@@ -28,6 +28,8 @@ class Pet(db.Model):
     owner = db.relationship("User", back_populates="pets", lazy="joined")
     vaccines = db.relationship("Vaccine", back_populates="pet", cascade="all, delete-orphan", lazy="selectin")
     consultations = db.relationship("Consultation", back_populates="pet", cascade="all, delete-orphan", lazy="selectin")
+    # novo: prontuários do pet
+    prontuarios = db.relationship("ProntuarioModel", back_populates="pet", cascade="all, delete-orphan", lazy="selectin")
 
     # Índices
     __table_args__ = (

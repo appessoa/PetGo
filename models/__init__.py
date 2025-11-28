@@ -10,7 +10,8 @@ from .veterinarioModel import veterinarianModel
 from .enderecoModel import Address
 from .agendamentoModel import Scheduling
 from .adocaoformularioModel import AdoptionApplication
+from .prontuarioModel import ProntuarioModel
 
 __all__ = [
-    "User", "Pet", "Vaccine", "Consultation", "produto", "Cart","CartItem","Order","OrderItem","veterinarianModel","Address","Scheduling","AdoptionApplication"
+    "User", "Pet", "Vaccine", "Consultation", "produto", "Cart","CartItem","Order","OrderItem","veterinarianModel","Address","Scheduling","AdoptionApplication, ProntuarioModel"
 ]

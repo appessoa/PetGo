@@ -28,6 +28,14 @@ class veterinarianModel(db.Model):
         lazy="selectin",
         cascade="all, delete-orphan"
     )
+    # novo: prontuários do veterinário
+    prontuarios = db.relationship(
+        "ProntuarioModel",
+        back_populates="vet",
+        passive_deletes=True,
+        lazy="selectin",
+        cascade="all, delete-orphan"
+    )
     # Índices úteis
     __table_args__ = (
         db.Index("ix_veterinarians_username", "username"),

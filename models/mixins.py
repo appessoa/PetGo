@@ -18,4 +18,4 @@ class TimestampMixin:
         onupdate=lambda: datetime.now(TZ_RECIFE),  # atualiza em cada UPDATE
         nullable=False
     )
-
+    deleted = db.Column(db.Integer, default=False)  # soft delete flag
