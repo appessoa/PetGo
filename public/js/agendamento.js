@@ -171,7 +171,7 @@ function setupForm(){
       });
       showToast('Serviço agendado com sucesso!', 'success');
       setTimeout(() => {
-      window.location.replace("/index");
+      window.location.replace("/");
     }, 1200);
     }catch(err){
       showToast(err.message || 'Erro ao agendar o serviço.', 'error');
