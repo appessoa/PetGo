@@ -283,6 +283,8 @@ function wireActions(root) {
         const resp = await fetchJSON(`${API_BASE}/veterinarios/${encodeURIComponent(id)}`, { method: "DELETE" });
         item.remove();
         toast(resp?.message || "Veterinário excluído com sucesso.", "success");
+        window.location.reload();
+
       } catch (err) {
         console.error("DELETE /veterinarios/:id", err);
         toast("Erro ao excluir: " + (err?.payload?.message || err?.message || "desconhecido"), "error");
@@ -366,7 +368,7 @@ function wireModal() {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-
+    console.log(form)
     const btn = form.querySelector('[type="submit"]');
     const old = btn?.textContent;
     if (btn) { btn.disabled = true; btn.textContent = "Salvando…"; }
@@ -375,7 +377,6 @@ function wireModal() {
       const payload = collectVetPayload(form);
       const mode = form.dataset.mode;
       const id = form.dataset.id;
-      console.log(mode)
       let resp;
       if (mode === "edit" && id) {
         resp = await fetchJSON(`${API_BASE}/veterinarios/${encodeURIComponent(id)}`, {
@@ -408,13 +409,12 @@ function collectVetPayload(form) {
   const username      = form.querySelector("#vet-username")?.value.trim() || "";
   const email         = form.querySelector("#vet-email")?.value.trim() || "";
   const phone         = form.querySelector("#vet-numero")?.value.trim() || "";
-  const passwordEl    = form.querySelector("#vet-Senha");
-  const password      = (passwordEl && passwordEl.getAttribute("name")) ? (passwordEl.value || "") : "";
+  const password      = form.querySelector("#vet-Senha")?.value || "";
   const especialidade = form.querySelector("#vet-specialty")?.value.trim() || "";
   const CRMV          = form.querySelector("#vet-crmv")?.value.trim() || "";
   const statusVal     = form.querySelector("#vet-status")?.value ?? "1";
   const statusBool    = selectValueToBool(statusVal);
-
+  console.log(password)
   const payload = {
     name,
     username,
@@ -424,7 +424,7 @@ function collectVetPayload(form) {
     CRMV,
     status: statusBool, // envia como booleano
   };
-  if (password) payload.password = password; // só envia se preenchida E se o input tiver name (modo criação)
+  if (password) payload.password = password; // só envia se preenchida
   return payload;
 }
 

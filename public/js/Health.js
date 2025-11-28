@@ -25,13 +25,31 @@ function uid(){ return 'p_' + Math.random().toString(36).slice(2,9); } // ids lo
 
 // ====== API helpers ======
 const API = {
+  async me(){
+    // chama /me e retorna { ok, status, body, text }
+    try {
+      const r = await fetch('/me', { credentials: 'include' });
+      let body = null;
+      let text = null;
+      try {
+        body = await r.clone().json();
+      } catch(e) {
+        try { text = await r.clone().text(); } catch(e2){ text = null; }
+      }
+      return { ok: r.ok, status: r.status, body, text };
+    } catch (err) {
+      console.error('[API.me] fetch failed', err);
+      return { ok: false, status: 0, body: null, text: null, error: err };
+    }
+  },
   async listPets(){
     const r = await fetch('/api/pets', { credentials: 'include' });
     if(!r.ok) throw new Error('Falha ao listar pets');
     return r.json();
   },
-  async sched() { await fetch('/api/agendamentos', {credentials: includes});
-    if(!r.ok) throw new Error('Falha ao listar pets');
+  async sched() {
+    const r = await fetch('/api/agendamentos', { credentials: 'include' });
+    if(!r.ok) throw new Error('Falha ao listar agendamentos');
     return r.json();
   },
   async createPet(payload){
@@ -93,6 +111,29 @@ const API = {
 
 // ====== Boot ======
 async function boot(){
+  console.debug('[boot] verificando /me antes de carregar template');
+  const me = await API.me();
+  console.debug('[boot] /me =>', me);
+  // extrai uma mensagem legível do corpo/text
+  let serverMsg = null;
+  if(me && me.body){
+    if(typeof me.body === 'object'){
+      serverMsg = me.body.error || me.body.message || JSON.stringify(me.body);
+    } else {
+      serverMsg = String(me.body);
+    }
+  } else if(me && me.text){
+    serverMsg = me.text;
+  }
+
+  if(!me || !me.ok){
+    // exibe a mensagem do servidor em tela (substituindo todo o template)
+    const messageToShow = serverMsg || `Você não está autenticado (status ${me ? me.status : 'unknown'})`;
+    showFullScreenNotice(messageToShow, { loginHref: '/login' });
+    return; // interrompe boot — não carrega template
+  }
+
+  // se OK, segue inicializando normalmente
   try{
     state.pets = await API.listPets();
   }catch(e){
@@ -167,7 +208,7 @@ function renderSelected(){
     `${pet.dob ? ageFromDOB(pet.dob) : 'idade desconhecida'}` +
     `${pet.weight ? ` • ${pet.weight} kg` : ''}`;
 
-  const vList = must$('#vaccineList'); if(vList){ 
+  const vList = must$('#vaccineList'); if(vList){
     vList.innerHTML = '';
     (pet.vaccines || []).slice().reverse().forEach(v=>{
       const div = document.createElement('div');
@@ -262,7 +303,7 @@ function ageFromDOB(dob){
   return `${months} mes(es)`;
 }
 
-function escapeHtml(s){ if(!s) return ''; return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+function escapeHtml(s){ if(s === null || s === undefined) return ''; return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 async function readFileAsDataURL(file){
   return new Promise((res, rej)=>{
     const fr = new FileReader();
@@ -298,6 +339,83 @@ window.removeConsult = async function(cId){
   }catch(e){ alert('Falha ao remover consulta'); }
 };
 
+// ====== Full-screen notice (substitui todo o template) ======
+function showFullScreenNotice(message, opts = {}){
+  // opts: { loginHref, showBack }
+  const loginHref = opts.loginHref || '/login';
+  const showBack = opts.showBack !== false; // por padrão mostra botão Voltar/Ir para Home
+
+  // limpa body e adiciona mensagem simples
+  document.body.innerHTML = ''; // remove todo o template existente
+  document.title = 'Atenção';
+
+  const wrapper = document.createElement('div');
+  wrapper.style.minHeight = '100vh';
+  wrapper.style.display = 'flex';
+  wrapper.style.flexDirection = 'column';
+  wrapper.style.justifyContent = 'center';
+  wrapper.style.alignItems = 'center';
+  wrapper.style.gap = '16px';
+  wrapper.style.padding = '24px';
+  wrapper.style.background = '#fafafa';
+  wrapper.style.color = '#222';
+  wrapper.innerHTML = `
+    <div style="max-width:720px; text-align:center; padding:24px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); background:#fff;">
+      <h1 style="margin:0 0 8px 0; font-size:22px;">Aviso</h1>
+      <p style="margin:0 0 16px 0; font-size:16px; color:#333;">${escapeHtml(String(message))}</p>
+      <div style="display:flex; gap:8px; justify-content:center; margin-top:12px;">
+        <a id="gotoLoginBtn" class="btn" href="${loginHref}" style="padding:8px 14px; text-decoration:none;">Ir para login</a>
+        ${ showBack ? `<button id="backBtn" class="btn" style="padding:8px 14px;">Voltar</button>` : '' }
+      </div>
+    </div>
+  `;
+  document.body.appendChild(wrapper);
+
+  const backBtn = document.querySelector('#backBtn');
+  if(backBtn){
+    backBtn.addEventListener('click', ()=> {
+      // tenta voltar no histórico, senão vai para root
+      if(window.history.length > 1) window.history.back();
+      else window.location.href = '/';
+    });
+  }
+}
+
+// ====== UI message helper (inline banners / not used for full-screen) ======
+function showServerMessage(message, type = 'warning', options = {}) {
+  // versão menor: mantém banner no topo (usada em runtime)
+  if (window.Swal && typeof window.Swal.fire === 'function') {
+    window.Swal.fire({
+      title: type === 'error' ? 'Erro' : (type === 'success' ? 'Sucesso' : 'Aviso'),
+      text: message,
+      icon: (type === 'error' ? 'error' : (type === 'success' ? 'success' : 'warning'))
+    });
+    return;
+  }
+  let container = document.querySelector('#globalMessage');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'globalMessage';
+    container.style.position = 'fixed';
+    container.style.top = '12px';
+    container.style.left = '50%';
+    container.style.transform = 'translateX(-50%)';
+    container.style.zIndex = 9999;
+    container.style.minWidth = '280px';
+    container.style.maxWidth = '90%';
+    document.body.appendChild(container);
+  }
+  const el = document.createElement('div');
+  el.style.background = '#FFF4E5';
+  el.style.border = '1px solid #FFECB5';
+  el.style.padding = '10px 14px';
+  el.style.marginTop = '8px';
+  el.style.borderRadius = '6px';
+  el.innerText = message;
+  container.appendChild(el);
+  setTimeout(()=>el.remove(), 8000);
+}
+
 // ====== Forms & events ======
 function wireEvents(){
   const btnNewPet = must$('#btnNewPet');
@@ -311,17 +429,49 @@ function wireEvents(){
   const editPetBtn = must$('#editPet');
   const deletePetBtn = must$('#deletePet');
 
-  // Se algum elemento essencial não existe, não quebra
-  if(btnNewPet) btnNewPet.addEventListener('click', ()=>{
-    const card = must$('#newPetCard'); if(card) { card.style.display = 'block'; const nm = must$('#petName'); if(nm) nm.focus(); }
-  });
+  // handler para botão adicionar
+  async function handleAddClick(ev){
+    ev?.preventDefault?.();
+    console.debug('[handleAddClick] chamando /me para verificar sessão');
+    try{
+      const res = await API.me(); // { ok, status, body, text }
+      console.debug('[API.me] res:', res);
+      let serverMsg = null;
+      if(res && res.body){
+        if(typeof res.body === 'object'){
+          serverMsg = res.body.error || res.body.message || JSON.stringify(res.body);
+        } else {
+          serverMsg = String(res.body);
+        }
+      } else if(res && res.text){
+        serverMsg = res.text;
+      }
+
+      if(!res || !res.ok){
+        const msg = serverMsg || `Você não está autenticado (status ${res ? res.status : 'unknown'})`;
+        showServerMessage(msg, 'warning', { showLogin: true, loginHref: '/login' });
+        return;
+      }
+
+      const card = must$('#newPetCard'); if(card) { card.style.display = 'block'; const nm = must$('#petName'); if(nm) nm.focus(); }
+    }catch(err){
+      console.error('[handleAddClick] Erro ao chamar /me', err);
+      showServerMessage('Erro ao verificar sessão. Tente novamente.', 'error');
+    }
+  }
+
+  if(btnNewPet){
+    try { btnNewPet.onclick = null; } catch(e){}
+    btnNewPet.addEventListener('click', handleAddClick);
+  }
+
   if(cancelPet) cancelPet.addEventListener('click', ()=>{
     const card = must$('#newPetCard'); if(card) card.style.display = 'none';
     clearNewPetForm();
   });
 
   if(savePet) savePet.addEventListener('click', async ()=>{
-    const card = must$('#newPetCard'); // opcional
+    const card = must$('#newPetCard'); // opcional (corrigido parênteses que causavam SyntaxError)
     const editId = savePet.dataset.editId || null;
     const name = (must$('#petName')?.value || '').trim();
     if(!name){ alert('Nome é obrigatório'); return; }
