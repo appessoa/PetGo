@@ -1,6 +1,6 @@
 from config.db import db
-
-class Vaccine(db.Model):
+from models.mixins import TimestampMixin
+class Vaccine(db.Model,TimestampMixin):
     """ Modelo para tabela de vacinas
     
     id: int - PK

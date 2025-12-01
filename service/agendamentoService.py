@@ -31,7 +31,7 @@ class SchedulingService:
         return pet
 
     @staticmethod
-    def create(user_id: int, pet_id: int,vet_id: int ,service: str, date, time, notes: str | None):
+    def create(user_id: int, pet_id: int,vet_id: int | None ,service: str, date, time, notes: str | None):
         SchedulingService._assert_service(service)
         SchedulingService._assert_pet_ownership(user_id, pet_id)
 
@@ -63,10 +63,17 @@ class SchedulingService:
 
     @staticmethod
     def list_for_user(user_id: int, status: str | None = None):
-        q = Scheduling.query.filter_by(user_id=user_id).join(vet, vet.id_veterinarian == Scheduling.vet_id).order_by(Scheduling.date.desc(), Scheduling.time.desc())
+        # usa outerjoin para incluir agendamentos onde vet_id IS NULL
+        q = (Scheduling.query
+            .filter_by(user_id=user_id)
+            .outerjoin(vet, vet.id_veterinarian == Scheduling.vet_id)
+            .order_by(Scheduling.date.desc(), Scheduling.time.desc())
+        )
+
         if status:
             SchedulingService._assert_status(status)
             q = q.filter_by(status=status)
+
         return q.all()
 
     @staticmethod

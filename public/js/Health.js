@@ -321,22 +321,38 @@ function selectPet(id){
 
 // Expor no escopo global os removers usados em onclick
 window.removeVaccine = async function(vId){
-  const pet = state.pets.find(p=>normalizeId(p.id)===state.selectedPetId);
+  const pet = state.pets.find(p => normalizeId(p.id) === state.selectedPetId);
   if(!pet) return;
   try{
     await API.removeVaccine(pet.id, vId);
-    pet.vaccines = (pet.vaccines || []).filter(v=>v.id !== vId);
-    renderSelected(); renderPetsList();
-  }catch(e){ alert('Falha ao remover vacina'); }
+
+    // normaliza antes de comparar para evitar mismatch number/string
+    pet.vaccines = (pet.vaccines || []).filter(v => normalizeId(v.id) !== normalizeId(vId));
+
+    // re-renderiza lista e detalhe
+    renderSelected();
+    renderPetsList();
+  }catch(e){
+    console.error('removeVaccine error', e);
+    alert('Falha ao remover vacina');
+  }
 };
 window.removeConsult = async function(cId){
   const pet = state.pets.find(p=>normalizeId(p.id)===state.selectedPetId);
   if(!pet) return;
   try{
     await API.removeConsult(pet.id, cId);
-    pet.consultations = (pet.consultations || []).filter(c=>c.id !== cId);
-    renderSelected(); renderPetsList();
-  }catch(e){ alert('Falha ao remover consulta'); }
+
+    // normaliza ids para remover corretamente
+    pet.consultations = (pet.consultations || []).filter(c => normalizeId(c.id) !== normalizeId(cId));
+
+    // re-renderiza
+    renderSelected();
+    renderPetsList();
+  }catch(e){
+    console.error('removeConsult error', e);
+    alert('Falha ao remover consulta');
+  }
 };
 
 // ====== Full-screen notice (substitui todo o template) ======

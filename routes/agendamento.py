@@ -37,7 +37,6 @@ def create_agendamento():
 
         missing = []
         if not pet_id: missing.append("pet_id")
-        if not vet_id: missing.append("vet_id")
         if not service: missing.append("servico")
         if not date_str: missing.append("data")
         if not time_str: missing.append("hora")
@@ -50,7 +49,7 @@ def create_agendamento():
         ag = SchedulingService.create(
             user_id=uid,
             pet_id=int(pet_id),
-            vet_id=int(vet_id),
+            vet_id=vet_id,
             service=service,
             date=ag_date,
             time=ag_time,

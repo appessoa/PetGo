@@ -189,10 +189,11 @@ function renderProfile(me){
   const grid = document.getElementById('infoGrid');
   if(!grid) return;
 
+  // CPF marcado como readonly para não permitir edição pelo UI
   const fields = [
     { key:'nome',     label:'Nome',     value: me.nome },
     { key:'email',    label:'Email',    value: me.email },
-    { key:'cpf',      label:'CPF',      value: maskCPF(me.cpf) },
+    { key:'cpf',      label:'CPF',      value: maskCPF(me.cpf), readonly: true },
     { key:'numero',   label:'Telefone', value: me.numero },
     { key:'endereco', label:'Endereço', value: '-', readonly: true },
   ];
@@ -203,19 +204,22 @@ function renderProfile(me){
 
 function infoRowTpl(key, label, value, readonly=false){
   const isAddress = key === 'endereco';
+  // quando readonly, não mostramos botão de editar
+  const actionsHtml = isAddress
+    ? `<button class="btn" data-role="addr-edit">Editar</button>`
+    : (readonly
+        ? '' // nenhum botão para campos readonly (ex: CPF)
+        : `<button class="icon-btn" data-role="edit" aria-label="Editar ${label}" title="Editar">
+             ${pencilSVG()}
+           </button>`);
+
   return `
     <div class="info-row" data-field="${key}">
       <div class="info-meta">
         <span class="info-label">${label}:</span>
         <span class="info-value" data-role="value">${escapeHtml(value || '-')}</span>
       </div>
-      ${
-        isAddress
-          ? `<button class="btn" data-role="addr-edit">Editar</button>`
-          : `<button class="icon-btn" data-role="edit" aria-label="Editar ${label}" title="Editar">
-               ${pencilSVG()}
-             </button>`
-      }
+      ${actionsHtml}
     </div>
   `;
 }
@@ -231,6 +235,12 @@ function onGridClick(e){
 
     const field = row.dataset.field;
     const label = row.querySelector('.info-label')?.textContent.replace(':','') || field;
+
+    // Proteção extra: impedir edição do CPF pelo front-end (mesmo que um botão seja injetado)
+    if (field === 'cpf') {
+      showToast('CPF não pode ser editado.', 'error');
+      return;
+    }
 
     // Endereço: sempre abre o modal
     if (btn.dataset.role === 'addr-edit' || (btn.dataset.role === 'edit' && field === 'endereco')) {

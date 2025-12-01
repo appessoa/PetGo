@@ -124,11 +124,17 @@ class Pet(db.Model):
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             "deleted": self.deleted,
         }
+
         if with_children:
-            data["vaccines"] = [v.to_dict() for v in getattr(self,"vaccines",[])]
-            data["consultations"] = [c.to_dict() for c in getattr(self,"consultations",[])]
+            # inclui apenas children com deleted == 0
+            vaccines = getattr(self, "vaccines", []) or []
+            data["vaccines"] = [v.to_dict() for v in vaccines if getattr(v, "deleted", 0) == 0]
+
+            consultations = getattr(self, "consultations", []) or []
+            data["consultations"] = [c.to_dict() for c in consultations if getattr(c, "deleted", 0) == 0]
+
             data["uploads"] = []
-        return data
+            return data
 
     def __repr__(self):
         return f"<Pet id={self.id_pet} nome={self.nome!r}>"

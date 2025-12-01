@@ -16,6 +16,8 @@ class Consultation(db.Model,TimestampMixin):
     id_consulta     = db.Column(db.Integer, primary_key=True)
     pet_id = db.Column(db.Integer, db.ForeignKey("pets.id_pet"), nullable=False, index=True)
     vet_id= db.Column(db.Integer, db.ForeignKey("veterinarians.id_veterinarian"), nullable=True, index=True)
+    reason = db.Column(db.Text, nullable=False)
+    notes  = db.Column(db.Text, nullable=True)
     date   = db.Column(db.String(20), nullable=False)  # ISO string
     status = db.Column(db.String(1), nullable=True, default='P')  # P= Pendente, C=Concluída, F=Finalizada
     hour   = db.Column(db.String(10), nullable=True)

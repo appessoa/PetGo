@@ -158,12 +158,18 @@ function setupForm(){
       // se quiser tornar obrigatório, descomente a linha em setupVetVisibility
     }
 
+    // validações
     if(!payload.pet_id){
       showToast('Selecione um pet.', 'error');
       return;
     }
     if(!payload.servico){
       showToast('Selecione um serviço.', 'error');
+      return;
+    }
+    // exigimos hora para todos os serviços (por segurança); isso garante que o backend receba hora válida.
+    if(!payload.hora){
+      showToast('Selecione um horário.', 'error');
       return;
     }
 
@@ -177,8 +183,8 @@ function setupForm(){
       });
       showToast('Serviço agendado com sucesso!', 'success');
       setTimeout(() => {
-      window.location.replace("/");
-    }, 1200);
+        window.location.replace("/");
+      }, 1200);
     }catch(err){
       showToast(err.message || 'Erro ao agendar o serviço.', 'error');
     }
@@ -268,13 +274,14 @@ async function fetchHorariosDisponiveis(vetId, date, slotMinutes = 30, startHour
       if (a.date) return String(a.date) === String(date);
       if (a.created_at) return String(a.created_at).startsWith(date);
       if (a.datetime) return String(a.datetime).startsWith(date);
+      if (a.data) return String(a.data).startsWith(date);
       return false;
     });
 
     // monta set de ocupados em 'HH:MM'
     const ocupados = new Set();
     for (const a of agsDoDia) {
-      const t = normalizeTimeToHHMM(a.time || a.hora || a.datetime || a.created_at);
+      const t = normalizeTimeToHHMM(a.time || a.hora || a.datetime || a.created_at || a.horario);
       if (t) ocupados.add(t);
     }
 
@@ -346,8 +353,13 @@ function populateHoraSelect(horarios) {
     sel.appendChild(opt);
   }
 
+  // Definimos placeholder como não selecionado e habilitamos o select.
   placeholder.textContent = 'Selecione...';
-  placeholder.selected = true;
+  placeholder.selected = false;
+
+  // Seleciona o primeiro horário disponível automaticamente (evita enviar vazio).
+  sel.value = horarios[0];
+
   sel.disabled = false;
 }
 
@@ -362,17 +374,52 @@ function setupHorarioListeners() {
 
   const vetSelect = document.getElementById('veterinario');
   const dateInput = document.getElementById('data');
-  if (!vetSelect || !dateInput) return;
+  const servicoSelect = document.getElementById('servico'); // necessário para decidir comportamento
+  if (!vetSelect || !dateInput || !servicoSelect) return;
 
   let lastRequest = 0;
 
+  // helper para mostrar mensagem customizada no select de hora
+  function _setHoraMessage(msg) {
+    const sel = document.getElementById('hora');
+    if (!sel) return;
+    const placeholder = _getOrCreatePlaceholderOption(sel);
+    // remove todas as options exceto o placeholder
+    sel.querySelectorAll('option').forEach(o => {
+      if (o !== placeholder) o.remove();
+    });
+    placeholder.textContent = msg;
+    placeholder.selected = true;
+    sel.disabled = true;
+  }
+
   async function update() {
+    const servico = servicoSelect.value || '';
     const vetId = vetSelect.value;
     const date = dateInput.value;
-    if (!vetId) {
-      populateHoraSelect([]);
+
+    // se não selecionou data, pedimos data (para ambos os casos)
+    if (!date) {
+      _setHoraMessage('Selecione uma data');
       return;
     }
+
+    // se o serviço NÃO for 'veterinario', horários são todos livres (gera slots)
+    if (servico !== 'veterinario') {
+      selPlaceholderLoading(); // feedback visual
+      // gerar todos os slots (livres)
+      const slots = generateSlots(30, 8, 18);
+      populateHoraSelect(slots);
+      return;
+    }
+
+    // aqui: serviço é 'veterinario' -> comportamento antigo (buscar disponibilidade do vet)
+    if (!vetId) {
+      // se serviço é veterinario mas o usuário não escolheu vet (ex: "Sem preferência")
+      _setHoraMessage('Selecione um veterinário');
+      return;
+    }
+
     const reqId = ++lastRequest;
     selPlaceholderLoading();
 
@@ -383,6 +430,7 @@ function setupHorarioListeners() {
 
   vetSelect.addEventListener('change', update);
   dateInput.addEventListener('change', update);
+  servicoSelect.addEventListener('change', update);
 
   // atualiza imediatamente se já houver valores
   update();
@@ -415,4 +463,3 @@ function setupHorarioListeners() {
   updateVetVisibility();
   servicoSelect.addEventListener('change', updateVetVisibility);
 })();
-

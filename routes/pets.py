@@ -41,10 +41,9 @@ def add_vaccine(pid):
 @login_required
 def del_vaccine(pid, vid):
     try:
-        v = Vaccine.query.filter_by(pet_id=pid).filter(
-            (getattr(Vaccine, "id_vacina", None) == vid) if hasattr(Vaccine, "id_vacina") else (Vaccine.id == vid)
-        ).first_or_404()
-        db.session.delete(v); db.session.commit()
+        v = Vaccine.query.get_or_404(vid)
+        v.deleted = vid  
+        db.session.commit()
         return '', 204
     except Exception as e:
         db.session.rollback()
@@ -75,10 +74,9 @@ def add_consult(pid):
 @login_required
 def del_consult(pid, cid):
     try:
-        c = Consultation.query.filter_by(pet_id=pid).filter(
-            (getattr(Consultation, "id_consulta", None) == cid) if hasattr(Consultation, "id_consulta") else (Consultation.id == cid)
-        ).first_or_404()
-        db.session.delete(c); db.session.commit()
+        c = Consultation.query.get_or_404(cid)
+        c.deleted = cid  
+        db.session.commit()
         return '', 204
     except Exception as e:
         db.session.rollback()
