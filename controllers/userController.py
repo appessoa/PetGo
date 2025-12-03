@@ -121,21 +121,31 @@ class UsersController:
         pets = Pet.query.filter_by(dono=uid, adotado=True, deleted=0).order_by(Pet.id_pet.desc()).all()
 
         def ser(p: Pet):
+            # se houver to_dict e ele retornar algo válido, usamos
             if hasattr(p, "to_dict"):
-                # sem filhos aqui pra ficar leve na página da conta
-                d = p.to_dict(with_children=False)
-                # se quiser mandar idade calculada no server também:
-                # d["idade_str"] = getattr(p, "idade_str", None)
-                return d
-            return {
-                "id": p.id_pet,
-                "name": getattr(p, "name", None) or p.nome,
-                "breed": getattr(p, "breed", None) or p.raca,
-                "dob": getattr(p, "dob", None).isoformat() if getattr(p, "dob", None) else None,
-                "weight": getattr(p, "weight", None) or p.peso,
-                "species": getattr(p, "species", None) or getattr(p, "especies", None),
-                "photo": getattr(p, "photo", None),
-            }
+                try:
+                    d = p.to_dict(with_children=False)
+                except Exception as e:
+                    print('ERROR em to_dict para pet', p, e)
+                    d = None
+                if isinstance(d, dict):
+                    return d
+
+            # fallback robusto: monta manualmente com os campos possíveis
+            try:
+                return {
+                    "id": getattr(p, "id_pet", None) or getattr(p, "id", None),
+                    "name": getattr(p, "name", None) or getattr(p, "nome", None) or '',
+                    "breed": getattr(p, "breed", None) or getattr(p, "raca", None) or '',
+                    "dob": getattr(p, "dob", None).isoformat() if getattr(p, "dob", None) else None,
+                    "weight": getattr(p, "weight", None) or getattr(p, "peso", None),
+                    "species": getattr(p, "species", None) or getattr(p, "especies", None) or '',
+                    "photo": getattr(p, "photo", None)
+                }
+            except Exception as e:
+                print('ERROR serializando fallback para pet', p, e)
+                # nunca retornar None — sempre um dicionário (pelo menos vazio)
+                return {}
 
         return jsonify([ser(p) for p in pets]), 200
 

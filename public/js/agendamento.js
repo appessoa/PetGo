@@ -11,17 +11,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function boot(){
   try{
-    // tenta obter usuário e pets; se não logado, /api/me deve 401
-    const [me, pets] = await Promise.all([
+    const [meResp, petsResp] = await Promise.all([
       fetchJSON('/api/me').catch(() => ({})),
-      fetchJSON('/api/me/pets').catch(() => [])
+      fetchJSON('/api/me/pets').catch(() => null) // <-- temporariamente não forçar [] para ver o que vem
     ]);
 
-    hydrateTutor(me);
+    console.log('raw /api/me ->', meResp);
+    console.log('raw /api/me/pets ->', petsResp, 'typeof', typeof petsResp);
+
+    const pets = Array.isArray(petsResp) ? petsResp : (petsResp && petsResp.pets) ? petsResp.pets : (petsResp || []);
+    console.log('normalized pets ->', pets);
+
+    hydrateTutor(meResp);
     hydratePets(pets);
-  }catch(err){
+  } catch(err) {
     console.warn('Usuário não logado ou erro ao carregar dados:', err?.message);
-    // location.href = '/login?next=/agendamento';
   } finally {
     // tenta carregar os veterinários, sem quebrar a página se der erro
     try{
@@ -68,14 +72,14 @@ function hydrateTutor(me){
 function hydratePets(pets){
   const sel = document.getElementById('pet');
   if(!sel) return;
-
+  console.log(pets)
   // limpa opções (mantém o placeholder)
   sel.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
 
   if(Array.isArray(pets) && pets.length){
     for(const p of pets){
       const opt = document.createElement('option');
-      opt.value = String(p.id || p.pet_id || p._id || p.uuid || p.nome || p.name); // ajuste conforme seu backend
+      opt.value = String( p.pet_id || p._id || p.uuid || p.nome || p.name); // ajuste conforme seu backend
       const nome = p.nome || p.name || 'Sem nome';
       const especie = p.species || p.especie || '';
       const raca = p.breed || p.raca || '';
