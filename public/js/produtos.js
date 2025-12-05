@@ -200,7 +200,7 @@ function bindAddToCart(){
     }catch(err){ 
       btn.textContent='Erro! Tente de novo'; 
       if((err.message||'').includes('401')) showToast('Faça login para adicionar ao carrinho','error'); 
-      else showToast('Erro de banco de dados.','error'); 
+      else showToast('Faça login para adicionar ao carrinho!','error'); 
     }finally{ 
       setTimeout(()=>{ btn.textContent=old; btn.disabled=false; btn.dataset.loading='0'; },900); 
     } 
