@@ -154,7 +154,7 @@ function bindQtyAndCart(prodId) {
         if ((err.message || '').includes('401')) {
           showToast('Faça login para adicionar ao carrinho', 'error');
         } else {
-          showToast('Erro de banco de dados.', 'error');
+          showToast('Faça login para adicionar ao carrinho!', 'error');
         }
       } finally {
         setTimeout(() => { addBtn.textContent = old; addBtn.disabled = false; addBtn.dataset.loading = '0'; }, 900);
